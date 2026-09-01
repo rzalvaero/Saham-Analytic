@@ -97,65 +97,57 @@ const Discover = () => {
           <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
             <Activity size={18} className="text-accent-primary" /> Most Active Stocks
           </h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                <th style={{ textAlign: 'left', paddingBottom: '8px' }}>Emiten</th>
-                <th style={{ textAlign: 'right', paddingBottom: '8px' }}>Harga</th>
-                <th style={{ textAlign: 'right', paddingBottom: '8px' }}>Volume</th>
-              </tr>
-            </thead>
-            <tbody>
-              {!loading && mostActive.length === 0 ? (
-                <tr><td colSpan="3" style={{ textAlign: 'center', padding: '1rem' }} className="text-muted">Data tidak tersedia</td></tr>
-              ) : mostActive.map(stock => (
-                <tr key={stock.symbol} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
-                  <td style={{ padding: '12px 0', fontWeight: '500' }}>{stock.symbol}</td>
-                  <td style={{ padding: '12px 0', textAlign: 'right' }}>
-                    <div>Rp {stock.currentPrice.toLocaleString('id-ID')}</div>
-                    <div style={{ fontSize: '0.75rem', color: stock.priceChange > 0 ? 'var(--positive)' : stock.priceChange < 0 ? 'var(--negative)' : 'var(--text-muted)' }}>
-                      {stock.priceChange > 0 ? '+' : ''}{stock.priceChange}
-                    </div>
-                  </td>
-                  <td style={{ padding: '12px 0', textAlign: 'right' }}>{formatVolume(stock.volume)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', fontSize: '0.875rem', paddingBottom: '8px' }}>
+            <div>Emiten</div>
+            <div style={{ textAlign: 'right' }}>Harga</div>
+            <div style={{ textAlign: 'right' }}>Volume</div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {!loading && mostActive.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '1rem' }} className="text-muted">Data tidak tersedia</div>
+            ) : mostActive.map(stock => (
+              <div key={stock.symbol} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.02)', padding: '12px 0' }}>
+                <div style={{ fontWeight: '500' }}>{stock.symbol}</div>
+                <div style={{ textAlign: 'right' }}>
+                  <div>Rp {stock.currentPrice.toLocaleString('id-ID')}</div>
+                  <div style={{ fontSize: '0.75rem', color: stock.priceChange > 0 ? 'var(--positive)' : stock.priceChange < 0 ? 'var(--negative)' : 'var(--text-muted)' }}>
+                    {stock.priceChange > 0 ? '+' : ''}{stock.priceChange}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>{formatVolume(stock.volume)}</div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="glass-card">
           <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
             <AlertTriangle size={18} color="#f59e0b" /> Unusual Volume
           </h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                <th style={{ textAlign: 'left', paddingBottom: '8px' }}>Emiten</th>
-                <th style={{ textAlign: 'right', paddingBottom: '8px' }}>Vol Saat Ini</th>
-                <th style={{ textAlign: 'right', paddingBottom: '8px' }}>Lonjakan</th>
-              </tr>
-            </thead>
-            <tbody>
-              {!loading && unusualVolume.length === 0 ? (
-                <tr><td colSpan="3" style={{ textAlign: 'center', padding: '1rem' }} className="text-muted">Data tidak tersedia</td></tr>
-              ) : unusualVolume.map(stock => {
-                const surge = ((stock.volume / stock.avgVolume) * 100).toFixed(0);
-                return (
-                  <tr key={stock.symbol} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
-                    <td style={{ padding: '12px 0', fontWeight: '500' }}>{stock.symbol}</td>
-                    <td style={{ padding: '12px 0', textAlign: 'right' }}>
-                      <div>{formatVolume(stock.volume)}</div>
-                      <div className="text-muted" style={{ fontSize: '0.75rem' }}>Avg: {formatVolume(stock.avgVolume)}</div>
-                    </td>
-                    <td style={{ padding: '12px 0', textAlign: 'right', color: surge > 100 ? '#f59e0b' : 'var(--text-muted)', fontWeight: surge > 100 ? '600' : '400' }}>
-                      {surge}%
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', fontSize: '0.875rem', paddingBottom: '8px' }}>
+            <div>Emiten</div>
+            <div style={{ textAlign: 'right' }}>Vol Saat Ini</div>
+            <div style={{ textAlign: 'right' }}>Lonjakan</div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {!loading && unusualVolume.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '1rem' }} className="text-muted">Data tidak tersedia</div>
+            ) : unusualVolume.map(stock => {
+              const surge = ((stock.volume / stock.avgVolume) * 100).toFixed(0);
+              return (
+                <div key={stock.symbol} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.02)', padding: '12px 0' }}>
+                  <div style={{ fontWeight: '500' }}>{stock.symbol}</div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div>{formatVolume(stock.volume)}</div>
+                    <div className="text-muted" style={{ fontSize: '0.75rem' }}>Avg: {formatVolume(stock.avgVolume)}</div>
+                  </div>
+                  <div style={{ textAlign: 'right', color: surge > 100 ? '#f59e0b' : 'var(--text-muted)', fontWeight: surge > 100 ? '600' : '400' }}>
+                    {surge}%
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </div>
 
         <div className="glass-card" style={{ maxHeight: '400px', overflowY: 'auto' }}>
