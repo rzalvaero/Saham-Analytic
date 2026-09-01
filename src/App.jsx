@@ -272,7 +272,9 @@ function App() {
                 {/* News Section Full Width Below Grid */}
                 <div style={{ marginTop: '1.5rem' }}>
                   {selectedStockData && (
-                    <FundamentalNews symbol={selectedStockData.symbol} />
+                    <div className="item-news">
+                      <FundamentalNews symbol={selectedStockData.symbol} onAddSymbol={handleAddSymbol} />
+                    </div>
                   )}
                 </div>
               </>
