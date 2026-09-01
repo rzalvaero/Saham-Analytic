@@ -11,6 +11,7 @@
     }
   ],
   "routes": [
+    { "handle": "filesystem" },
     {
       "src": "/api/finance/(.*)",
       "dest": "https://query1.finance.yahoo.com/$1"
