@@ -52,6 +52,11 @@ const StockChart = ({ data, symbol, smaData }) => {
       smaSeries.setData(smaData);
     }
 
+    if (data && data.length > 0) {
+      // Auto scale X-axis to fit all data from A to Z
+      chartRef.current.timeScale().fitContent();
+    }
+
     const resizeObserver = new ResizeObserver(entries => {
       if (entries.length === 0 || entries[0].target !== chartContainerRef.current) { return; }
       const newRect = entries[0].contentRect;
