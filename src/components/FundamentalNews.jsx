@@ -11,19 +11,34 @@ const FundamentalNews = ({ symbol }) => {
     const fetchNews = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/finance/v1/finance/search?q=${symbol}.JK&newsCount=5`);
+        const symbolWithoutJK = symbol.replace('.JK', '').toUpperCase();
+        
+        // Strict filter to remove irrelevant clustered news (e.g., general IHSG news when searching BBRI)
+        const filterStrict = (newsList) => {
+          if (!newsList) return [];
+          return newsList.filter(article => {
+            const title = (article.title || '').toUpperCase();
+            const hasTicker = article.relatedTickers && 
+              (article.relatedTickers.includes(symbol) || article.relatedTickers.includes(`${symbolWithoutJK}.JK`));
+            return hasTicker || title.includes(symbolWithoutJK);
+          });
+        };
+
+        // Fetch more initially (newsCount=15) because filtering will drop irrelevant ones
+        const response = await fetch(`/api/finance/v1/finance/search?q=${symbol}.JK&newsCount=15`);
         if (response.ok) {
           const data = await response.json();
-          if (data.news && data.news.length > 0) {
-            setNews(data.news);
-          } else {
-            // Fallback to global search if .JK doesn't return news
-            const fallbackRes = await fetch(`/api/finance/v1/finance/search?q=${symbol}&newsCount=5`);
+          let strictNews = filterStrict(data.news);
+          
+          if (strictNews.length === 0) {
+            // Fallback to global search if .JK doesn't return relevant news
+            const fallbackRes = await fetch(`/api/finance/v1/finance/search?q=${symbol}&newsCount=15`);
             if (fallbackRes.ok) {
               const fallbackData = await fallbackRes.json();
-              setNews(fallbackData.news || []);
+              strictNews = filterStrict(fallbackData.news);
             }
           }
+          setNews(strictNews);
         }
       } catch (err) {
         console.error('Failed to fetch news', err);
