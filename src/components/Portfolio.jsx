@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Briefcase, TrendingUp, TrendingDown, Lock, User, LogIn } from 'lucide-react';
+import { Briefcase, Lock, User, LogIn, UserPlus } from 'lucide-react';
 
-const Portfolio = ({ user, onLogin }) => {
+const Portfolio = ({ user, onLogin, authMode, setAuthMode }) => {
   const [portfolio, setPortfolio] = useState([]);
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState('');
@@ -15,8 +15,10 @@ const Portfolio = ({ user, onLogin }) => {
       return;
     }
     
+    const endpoint = authMode === 'register' ? '/api/register' : '/api/login';
+    
     try {
-      const response = await fetch('/api/login', {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -27,7 +29,7 @@ const Portfolio = ({ user, onLogin }) => {
         onLogin(userData);
       } else {
         const errData = await response.json();
-        setLoginError(errData.error || 'Gagal login');
+        setLoginError(errData.error || `Gagal ${authMode === 'register' ? 'mendaftar' : 'login'}`);
       }
     } catch (err) {
       setLoginError('Gagal terhubung ke server');
@@ -62,8 +64,12 @@ const Portfolio = ({ user, onLogin }) => {
             <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
               <Lock size={32} className="text-accent-primary" />
             </div>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Akses Portofolio</h2>
-            <p className="text-muted">Silakan login untuk mengakses fitur watchlist dan portofolio trading Anda.</p>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>
+              {authMode === 'register' ? 'Daftar Akun Baru' : 'Akses Portofolio'}
+            </h2>
+            <p className="text-muted">
+              {authMode === 'register' ? 'Buat akun untuk memulai investasi virtual Anda (Saldo awal Rp 10.000.000)' : 'Silakan login untuk mengakses fitur watchlist dan portofolio trading Anda.'}
+            </p>
           </div>
 
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -102,8 +108,25 @@ const Portfolio = ({ user, onLogin }) => {
             </div>
 
             <button type="submit" style={{ marginTop: '1rem', padding: '12px', background: 'var(--accent-primary)', border: 'none', borderRadius: '8px', color: 'white', fontWeight: 'bold', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer', transition: 'background 0.2s' }}>
-              <LogIn size={20} /> Login Sekarang
+              {authMode === 'register' ? (
+                <><UserPlus size={20} /> Daftar Sekarang</>
+              ) : (
+                <><LogIn size={20} /> Login Sekarang</>
+              )}
             </button>
+            
+            <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
+              <span className="text-muted" style={{ fontSize: '0.875rem' }}>
+                {authMode === 'register' ? 'Sudah punya akun? ' : 'Belum punya akun? '}
+              </span>
+              <button 
+                type="button"
+                onClick={() => setAuthMode(authMode === 'register' ? 'login' : 'register')}
+                style={{ background: 'transparent', border: 'none', color: 'var(--accent-primary)', fontWeight: 'bold', cursor: 'pointer', padding: 0 }}
+              >
+                {authMode === 'register' ? 'Masuk di sini' : 'Daftar di sini'}
+              </button>
+            </div>
           </form>
         </div>
       </div>

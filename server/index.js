@@ -41,6 +41,27 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+// POST register
+app.post('/api/register', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'Username dan password wajib diisi' });
+  
+  try {
+    const [existing] = await pool.query('SELECT id FROM users WHERE username = ?', [username]);
+    if (existing.length > 0) {
+      return res.status(400).json({ error: 'Username sudah terdaftar' });
+    }
+    
+    const hashedPassword = await bcrypt.hash(password, 10);
+    // Initial balance for new users: Rp 10.000.000 (virtual money)
+    const [result] = await pool.query('INSERT INTO users (username, password, balance) VALUES (?, ?, 10000000)', [username, hashedPassword]);
+    
+    res.json({ id: result.insertId, username, balance: 10000000 });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET user info (legacy, can still be used if needed)
 app.get('/api/user/:username', async (req, res) => {
   try {
