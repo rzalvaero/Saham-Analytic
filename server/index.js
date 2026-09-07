@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 app.use(cors());
@@ -22,9 +23,16 @@ const pool = mysql.createPool({
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
   try {
-    const [rows] = await pool.query('SELECT id, username, balance FROM users WHERE username = ? AND password = ?', [username, password]);
+    const [rows] = await pool.query('SELECT id, username, balance, password FROM users WHERE username = ?', [username]);
     if (rows.length > 0) {
-      res.json(rows[0]);
+      const user = rows[0];
+      const match = await bcrypt.compare(password, user.password);
+      if (match) {
+        delete user.password;
+        res.json(user);
+      } else {
+        res.status(401).json({ error: 'Username atau password salah' });
+      }
     } else {
       res.status(401).json({ error: 'Username atau password salah' });
     }
