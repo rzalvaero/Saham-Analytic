@@ -9,6 +9,7 @@ import Portfolio from './components/Portfolio';
 import SettingsPage from './components/Settings';
 import FundamentalNews from './components/FundamentalNews';
 import Discover from './components/Discover';
+import Forex from './components/Forex';
 import { fetchRealtimeData } from './services/marketData';
 
 function App() {
@@ -144,6 +145,10 @@ function App() {
           <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('discover'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'discover' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'discover' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
             <Compass size={20} />
             Discover
+          </a>
+          <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('forex'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'forex' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'forex' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
+            <RefreshCw size={20} />
+            Forex & Gold
           </a>
           <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('portfolio'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'portfolio' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'portfolio' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
             <Briefcase size={20} />
@@ -284,8 +289,14 @@ function App() {
 
         {/* Discover Content */}
         {activeTab === 'discover' && (
-          <div className="content-wrapper">
-             <Discover />
+          <div className="content-wrapper animate-fade-in">
+            <Discover />
+          </div>
+        )}
+
+        {activeTab === 'forex' && (
+          <div className="content-wrapper animate-fade-in">
+            <Forex />
           </div>
         )}
 

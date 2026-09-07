@@ -19,7 +19,7 @@ const SearchStock = ({ onAddSymbol }) => {
         type="text" 
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Cari kode saham (ex: ANTM)..." 
+        placeholder="Cari saham/forex (ex: ANTM, EURUSD=X)..." 
         style={{ 
           width: '100%', 
           background: 'rgba(255,255,255,0.05)', 

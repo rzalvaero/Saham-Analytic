@@ -98,11 +98,19 @@ export const mockStocks = [
   { symbol: 'GOTO', name: 'GoTo Gojek Tokopedia Tbk.' },
   { symbol: 'TLKM', name: 'Telkom Indonesia Tbk.' },
   { symbol: 'BMRI', name: 'Bank Mandiri Tbk.' },
+  { symbol: 'EURUSD=X', name: 'Euro / US Dollar' },
+  { symbol: 'GBPUSD=X', name: 'British Pound / US Dollar' },
+  { symbol: 'USDJPY=X', name: 'US Dollar / Japanese Yen' },
+  { symbol: 'AUDUSD=X', name: 'Australian Dollar / US Dollar' },
 ];
 
 export const fetchRealtimeData = async (symbol) => {
   try {
-    const querySymbol = symbol.startsWith('^') ? symbol : `${symbol}.JK`;
+    let querySymbol;
+    if (symbol.startsWith('^')) querySymbol = symbol;
+    else if (symbol.endsWith('=X') || symbol.endsWith('=F')) querySymbol = symbol;
+    else querySymbol = `${symbol}.JK`;
+    
     const response = await fetch(`/api/finance/v8/finance/chart/${querySymbol}?interval=1d&range=3mo`);
     
     if (!response.ok) {
