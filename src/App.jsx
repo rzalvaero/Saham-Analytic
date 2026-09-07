@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, LayoutDashboard, Settings, Bell, RefreshCw, Briefcase, Compass, X, LogOut } from 'lucide-react';
+import { LineChart, LayoutDashboard, Settings, Bell, RefreshCw, Briefcase, Compass, X, LogOut, Activity } from 'lucide-react';
 import StockChart from './components/StockChart';
 import RecommendationEngine from './components/RecommendationEngine';
 import MarketOverview from './components/MarketOverview';
@@ -10,6 +10,7 @@ import SettingsPage from './components/Settings';
 import FundamentalNews from './components/FundamentalNews';
 import Discover from './components/Discover';
 import Forex from './components/Forex';
+import RunningTrade from './components/RunningTrade';
 import { fetchRealtimeData } from './services/marketData';
 
 function App() {
@@ -124,6 +125,10 @@ function App() {
           <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('dashboard'); setSelectedSymbol(watchlistSymbols[0]); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'dashboard' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'dashboard' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
             <LayoutDashboard size={20} />
             Dashboard
+          </a>
+          <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('running-trade'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'running-trade' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'running-trade' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
+            <Activity size={20} />
+            Running Trade
           </a>
           <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('discover'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'discover' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'discover' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
             <Compass size={20} />
@@ -302,6 +307,12 @@ function App() {
         {activeTab === 'discover' && (
           <div className="content-wrapper animate-fade-in">
             <Discover />
+          </div>
+        )}
+         
+        {activeTab === 'running-trade' && (
+          <div className="content-wrapper animate-fade-in" style={{ height: 'calc(100vh - 4rem)' }}>
+            <RunningTrade />
           </div>
         )}
 
