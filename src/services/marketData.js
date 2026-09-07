@@ -102,7 +102,7 @@ export const mockStocks = [
   { symbol: 'GBPUSD=X', name: 'British Pound / US Dollar' },
   { symbol: 'USDJPY=X', name: 'US Dollar / Japanese Yen' },
   { symbol: 'AUDUSD=X', name: 'Australian Dollar / US Dollar' },
-  { symbol: 'XAUUSD=X', name: 'Gold (XAU) / US Dollar' },
+  { symbol: 'GC=F', name: 'Gold (XAU) / US Dollar' },
 ];
 
 export const fetchRealtimeData = async (symbol) => {

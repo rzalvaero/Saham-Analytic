@@ -1,9 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { Briefcase, TrendingUp, TrendingDown } from 'lucide-react';
+import { Briefcase, Lock, User, LogIn } from 'lucide-react';
 
-const Portfolio = ({ user }) => {
+const Portfolio = ({ user, onLogin }) => {
   const [portfolio, setPortfolio] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (username === 'admin' && password === 'admin') {
+      try {
+        const response = await fetch('/api/user/admin');
+        if (response.ok) {
+          const userData = await response.json();
+          onLogin(userData);
+        } else {
+          setLoginError('Gagal terhubung ke server');
+        }
+      } catch (err) {
+        // Fallback if backend is not running
+        onLogin({ id: 1, username: 'admin', balance: 50000000 });
+      }
+    } else {
+      setLoginError('Username atau password salah (gunakan: admin/admin)');
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -25,7 +49,61 @@ const Portfolio = ({ user }) => {
     fetchPortfolio();
   }, [user]);
 
-  if (!user) return <div className="text-muted">Harap login terlebih dahulu...</div>;
+  if (!user) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <div className="glass-card" style={{ padding: '2.5rem', width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
+              <Lock size={32} className="text-accent-primary" />
+            </div>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Akses Portofolio</h2>
+            <p className="text-muted">Silakan login untuk mengakses fitur watchlist dan portofolio trading Anda.</p>
+          </div>
+
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {loginError && (
+              <div style={{ padding: '0.75rem', background: 'var(--negative-bg)', color: 'var(--negative)', borderRadius: '8px', fontSize: '0.875rem', textAlign: 'center' }}>
+                {loginError}
+              </div>
+            )}
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <label style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Username</label>
+              <div style={{ position: 'relative' }}>
+                <User size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <input 
+                  type="text" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Masukkan username" 
+                  style={{ width: '100%', padding: '10px 10px 10px 40px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'white' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <label style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Password</label>
+              <div style={{ position: 'relative' }}>
+                <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <input 
+                  type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Masukkan password" 
+                  style={{ width: '100%', padding: '10px 10px 10px 40px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'white' }}
+                />
+              </div>
+            </div>
+
+            <button type="submit" style={{ marginTop: '1rem', padding: '12px', background: 'var(--accent-primary)', border: 'none', borderRadius: '8px', color: 'white', fontWeight: 'bold', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer', transition: 'background 0.2s' }}>
+              <LogIn size={20} /> Login Sekarang
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
   if (loading) return <div className="text-muted">Memuat portofolio...</div>;
 
   return (

@@ -22,27 +22,9 @@ function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [ihsgData, setIhsgData] = useState(null);
   
-  // Login as admin and fetch watchlist
+  // Remove automatic login fetch here
   useEffect(() => {
-    const initApp = async () => {
-      try {
-        const userRes = await fetch('/api/user/admin');
-        if (userRes.ok) {
-          const userData = await userRes.json();
-          setUser(userData);
-          
-          const watchlistRes = await fetch(`/api/watchlist/${userData.id}`);
-          if (watchlistRes.ok) {
-            const symbols = await watchlistRes.json();
-            setWatchlistSymbols(symbols.length > 0 ? symbols : ['BBCA']);
-            setSelectedSymbol(symbols[0] || 'BBCA');
-          }
-        }
-      } catch (err) {
-        console.error("Failed to connect to backend", err);
-      }
-    };
-    initApp();
+    // Only fetch IHSG
 
     const fetchIHSG = async () => {
       const ihsg = await fetchRealtimeData('^JKSE');
@@ -302,8 +284,15 @@ function App() {
 
         {/* Portfolio Content */}
         {activeTab === 'portfolio' && (
-          <div className="content-wrapper">
-             <Portfolio user={user} />
+          <div className="content-wrapper animate-fade-in">
+             <Portfolio 
+               user={user} 
+               onLogin={(userData) => {
+                 setUser(userData);
+                 setWatchlistSymbols(['BBCA']);
+                 setSelectedSymbol('BBCA');
+               }} 
+             />
           </div>
         )}
 
