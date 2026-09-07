@@ -14,8 +14,8 @@ import { fetchRealtimeData } from './services/marketData';
 
 function App() {
   const [stocksData, setStocksData] = useState([]);
-  const [watchlistSymbols, setWatchlistSymbols] = useState([]);
-  const [selectedSymbol, setSelectedSymbol] = useState(null);
+  const [watchlistSymbols, setWatchlistSymbols] = useState(['BBRI', 'BMRI', 'BBCA', '^JKSE']);
+  const [selectedSymbol, setSelectedSymbol] = useState('BBRI');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
@@ -132,14 +132,18 @@ function App() {
             <RefreshCw size={20} />
             Forex & Gold
           </a>
-          <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('portfolio'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'portfolio' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'portfolio' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
-            <Briefcase size={20} />
-            Portfolio
-          </a>
-          <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('settings'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'settings' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'settings' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
-            <Settings size={20} />
-            Settings
-          </a>
+          {user && (
+            <>
+              <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('portfolio'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'portfolio' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'portfolio' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
+                <Briefcase size={20} />
+                Portfolio
+              </a>
+              <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('settings'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'settings' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'settings' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
+                <Settings size={20} />
+                Settings
+              </a>
+            </>
+          )}
         </nav>
         
         {/* User Status */}
