@@ -142,10 +142,27 @@ function App() {
           </a>
         </nav>
         
-        {user && (
+        {/* User Status */}
+        {user ? (
           <div style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
             <p className="text-muted" style={{ fontSize: '0.75rem', marginBottom: '4px' }}>Logged in as <b>{user.username}</b></p>
             <p style={{ fontWeight: 'bold', color: 'var(--positive)' }}>Rp {parseFloat(user.balance).toLocaleString('id-ID')}</p>
+          </div>
+        ) : (
+          <div style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', border: '1px dashed var(--border-color)', borderRadius: '8px', textAlign: 'center' }}>
+            <p className="text-muted" style={{ fontSize: '0.75rem', marginBottom: '8px' }}>Belum masuk akun</p>
+            <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+              <button 
+                onClick={() => setActiveTab('portfolio')} 
+                style={{ padding: '8px', background: 'var(--accent-primary)', color: 'white', border: 'none', borderRadius: '4px', fontSize: '0.875rem', cursor: 'pointer', fontWeight: 'bold' }}>
+                Login
+              </button>
+              <button 
+                onClick={() => alert('Fitur pendaftaran (Register) akan segera hadir!')} 
+                style={{ padding: '8px', background: 'transparent', color: 'var(--accent-primary)', border: '1px solid var(--accent-primary)', borderRadius: '4px', fontSize: '0.875rem', cursor: 'pointer', fontWeight: 'bold' }}>
+                Register
+              </button>
+            </div>
           </div>
         )}
       </aside>

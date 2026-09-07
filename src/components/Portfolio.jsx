@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Briefcase, TrendingUp, TrendingDown } from 'lucide-react';
-import { Briefcase, Lock, User, LogIn } from 'lucide-react';
+import { Briefcase, TrendingUp, TrendingDown, Lock, User, LogIn } from 'lucide-react';
 
 const Portfolio = ({ user, onLogin }) => {
   const [portfolio, setPortfolio] = useState([]);
@@ -11,21 +10,27 @@ const Portfolio = ({ user, onLogin }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (username === 'admin' && password === 'admin') {
-      try {
-        const response = await fetch('/api/user/admin');
-        if (response.ok) {
-          const userData = await response.json();
-          onLogin(userData);
-        } else {
-          setLoginError('Gagal terhubung ke server');
-        }
-      } catch (err) {
-        // Fallback if backend is not running
-        onLogin({ id: 1, username: 'admin', balance: 50000000 });
+    if (!username || !password) {
+      setLoginError('Silakan masukkan username dan password');
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      
+      if (response.ok) {
+        const userData = await response.json();
+        onLogin(userData);
+      } else {
+        const errData = await response.json();
+        setLoginError(errData.error || 'Gagal login');
       }
-    } else {
-      setLoginError('Username atau password salah (gunakan: admin/admin)');
+    } catch (err) {
+      setLoginError('Gagal terhubung ke server');
     }
   };
 
