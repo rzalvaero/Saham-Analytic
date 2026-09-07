@@ -5,7 +5,7 @@ import StockChart from './StockChart';
 
 const formatPrice = (price, symbol) => {
   if (!price) return '0.00';
-  if (symbol.includes('JPY') || symbol === 'GC=F') {
+  if (symbol.includes('JPY') || symbol === 'XAUUSD=X') {
     return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
   return price.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
@@ -20,15 +20,15 @@ const Forex = () => {
     const fetchForexData = async () => {
       setLoading(true);
       try {
-        const forexSymbols = ['EURUSD=X', 'GBPUSD=X', 'USDJPY=X', 'AUDUSD=X', 'GC=F'];
+        const forexSymbols = ['EURUSD=X', 'GBPUSD=X', 'USDJPY=X', 'AUDUSD=X', 'XAUUSD=X'];
         const fPromises = forexSymbols.map(sym => fetchRealtimeData(sym));
         const fResults = await Promise.all(fPromises);
         const validData = fResults.filter(d => d !== null);
         
         // Find Gold
-        const goldIndex = validData.findIndex(d => d.symbol === 'GC=F');
+        const goldIndex = validData.findIndex(d => d.symbol === 'XAUUSD=X');
         if (goldIndex !== -1) {
-            validData[goldIndex].name = 'Gold Futures / USD';
+            validData[goldIndex].name = 'Gold (XAU) / USD';
         }
 
         setForexData(validData);
