@@ -169,50 +169,51 @@ const Discover = () => {
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Upcoming IPO - FULL WIDTH */}
-        <div style={{ marginTop: '1.5rem' }}>
-          <div className="glass-card" style={{ maxHeight: '400px', overflowY: 'auto' }}>
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', position: 'sticky', top: 0, background: 'var(--bg-secondary)', paddingBottom: '10px', borderBottom: '1px solid var(--border-color)', zIndex: 10 }}>
-              <Rocket size={18} color="#a855f7" /> Upcoming IPO & AI Analysis
-            </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
-              {ipoData.map(ipo => (
-                <div
-                  key={ipo.name}
-                  onClick={() => setExpandedIpo(expandedIpo === ipo.name ? null : ipo.name)}
-                  style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s', border: expandedIpo === ipo.name ? '1px solid var(--accent-primary)' : '1px solid transparent' }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <h4 style={{ margin: 0 }}>{ipo.name}</h4>
-                    <span className={`badge ${ipo.recommendation === 'BUY' ? 'buy' : ipo.recommendation === 'SKIP' ? 'sell' : 'hold'}`}>{ipo.recommendation}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                    <span className="text-muted">{ipo.sector}</span>
-                    <span>{ipo.offerPrice}</span>
-                  </div>
-                  <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.75rem' }} className="text-muted">Target Listing: {ipo.date}</span>
-                    <div style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      AI Score: <strong style={{ color: ipo.aiScore > 70 ? 'var(--positive)' : ipo.aiScore < 50 ? 'var(--negative)' : '#f59e0b' }}>{ipo.aiScore}/100</strong>
-                    </div>
-                  </div>
-                  {/* AI Rationale (Expandable) */}
-                  {expandedIpo === ipo.name && (
-                    <div style={{ marginTop: '12px', padding: '12px', background: 'rgba(0,0,0,0.2)', borderRadius: '6px', fontSize: '0.875rem' }} className="animate-fade-in">
-                      <div style={{ marginBottom: '4px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <Rocket size={14} color="var(--accent-primary)" /> Alasan AI {ipo.recommendation}:
-                      </div>
-                      <p style={{ color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>{ipo.reason}</p>
-                    </div>
-                  )}
+      {/* Upcoming IPO - FULL WIDTH */}
+      <div style={{ marginTop: '1.5rem' }}>
+        <div className="glass-card" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', position: 'sticky', top: 0, background: 'var(--bg-secondary)', paddingBottom: '10px', borderBottom: '1px solid var(--border-color)', zIndex: 10 }}>
+            <Rocket size={18} color="#a855f7" /> Upcoming IPO & AI Analysis
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
+            {ipoData.map(ipo => (
+              <div
+                key={ipo.name}
+                onClick={() => setExpandedIpo(expandedIpo === ipo.name ? null : ipo.name)}
+                style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s', border: expandedIpo === ipo.name ? '1px solid var(--accent-primary)' : '1px solid transparent' }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <h4 style={{ margin: 0 }}>{ipo.name}</h4>
+                  <span className={`badge ${ipo.recommendation === 'BUY' ? 'buy' : ipo.recommendation === 'SKIP' ? 'sell' : 'hold'}`}>{ipo.recommendation}</span>
                 </div>
-              ))}
-            </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                  <span className="text-muted">{ipo.sector}</span>
+                  <span>{ipo.offerPrice}</span>
+                </div>
+                <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.75rem' }} className="text-muted">Target Listing: {ipo.date}</span>
+                  <div style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    AI Score: <strong style={{ color: ipo.aiScore > 70 ? 'var(--positive)' : ipo.aiScore < 50 ? 'var(--negative)' : '#f59e0b' }}>{ipo.aiScore}/100</strong>
+                  </div>
+                </div>
+                {/* AI Rationale (Expandable) */}
+                {expandedIpo === ipo.name && (
+                  <div style={{ marginTop: '12px', padding: '12px', background: 'rgba(0,0,0,0.2)', borderRadius: '6px', fontSize: '0.875rem' }} className="animate-fade-in">
+                    <div style={{ marginBottom: '4px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Rocket size={14} color="var(--accent-primary)" /> Alasan AI {ipo.recommendation}:
+                    </div>
+                    <p style={{ color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>{ipo.reason}</p>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </div>
-      );
+    </div>
+  );
 };
 
       export default Discover;
