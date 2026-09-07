@@ -117,7 +117,7 @@ function App() {
           <div style={{ background: 'var(--accent-primary)', padding: '8px', borderRadius: '8px' }}>
             <LineChart size={24} color="white" />
           </div>
-          <h2 style={{ fontSize: '1.25rem', letterSpacing: '0.5px' }}>IDX<span className="text-accent-primary">Analytics</span></h2>
+          <h2 style={{ fontSize: '1.25rem', letterSpacing: '0.5px' }}>REEZ<span className="text-accent-primary"> Trade</span></h2>
         </div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
