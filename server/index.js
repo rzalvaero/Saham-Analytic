@@ -43,20 +43,20 @@ app.post('/api/login', async (req, res) => {
 
 // POST register
 app.post('/api/register', async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) return res.status(400).json({ error: 'Username dan password wajib diisi' });
+  const { username, password, email } = req.body;
+  if (!username || !password || !email) return res.status(400).json({ error: 'Username, email, dan password wajib diisi' });
   
   try {
-    const [existing] = await pool.query('SELECT id FROM users WHERE username = ?', [username]);
-    if (existing.length > 0) {
-      return res.status(400).json({ error: 'Username sudah terdaftar' });
-    }
+    const [existingUser] = await pool.query('SELECT id FROM users WHERE username = ?', [username]);
+    if (existingUser.length > 0) return res.status(400).json({ error: 'Username sudah terdaftar' });
+    
+    const [existingEmail] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
+    if (existingEmail.length > 0) return res.status(400).json({ error: 'Email sudah terdaftar' });
     
     const hashedPassword = await bcrypt.hash(password, 10);
-    // Initial balance for new users: Rp 10.000.000 (virtual money)
-    const [result] = await pool.query('INSERT INTO users (username, password, balance) VALUES (?, ?, 10000000)', [username, hashedPassword]);
+    const [result] = await pool.query('INSERT INTO users (username, password, email, balance) VALUES (?, ?, ?, 10000000)', [username, hashedPassword, email]);
     
-    res.json({ id: result.insertId, username, balance: 10000000 });
+    res.json({ id: result.insertId, username, email, balance: 10000000 });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -65,12 +65,36 @@ app.post('/api/register', async (req, res) => {
 // GET user info (legacy, can still be used if needed)
 app.get('/api/user/:username', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT id, username, balance FROM users WHERE username = ?', [req.params.username]);
+    const [rows] = await pool.query('SELECT id, username, email, balance FROM users WHERE username = ?', [req.params.username]);
     if (rows.length > 0) {
       res.json(rows[0]);
     } else {
       res.status(404).json({ error: 'User not found' });
     }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT update password
+app.put('/api/user/:id/password', async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const userId = req.params.id;
+  
+  if (!oldPassword || !newPassword) return res.status(400).json({ error: 'Password lama dan baru wajib diisi' });
+  
+  try {
+    const [rows] = await pool.query('SELECT password FROM users WHERE id = ?', [userId]);
+    if (rows.length === 0) return res.status(404).json({ error: 'User tidak ditemukan' });
+    
+    const user = rows[0];
+    const match = await bcrypt.compare(oldPassword, user.password);
+    if (!match) return res.status(401).json({ error: 'Password lama salah' });
+    
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await pool.query('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, userId]);
+    
+    res.json({ success: true, message: 'Password berhasil diubah' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -6,6 +6,7 @@ const Portfolio = ({ user, onLogin, authMode, setAuthMode }) => {
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
   const [loginError, setLoginError] = useState('');
 
   const handleLogin = async (e) => {
@@ -15,13 +16,19 @@ const Portfolio = ({ user, onLogin, authMode, setAuthMode }) => {
       return;
     }
     
+    if (authMode === 'register' && !email) {
+      setLoginError('Silakan masukkan email');
+      return;
+    }
+    
     const endpoint = authMode === 'register' ? '/api/register' : '/api/login';
+    const bodyData = authMode === 'register' ? { username, password, email } : { username, password };
     
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify(bodyData)
       });
       
       if (response.ok) {
@@ -92,6 +99,22 @@ const Portfolio = ({ user, onLogin, authMode, setAuthMode }) => {
                 />
               </div>
             </div>
+            
+            {authMode === 'register' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Email</label>
+                <div style={{ position: 'relative' }}>
+                  <User size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  <input 
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Masukkan email" 
+                    style={{ width: '100%', padding: '10px 10px 10px 40px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'white' }}
+                  />
+                </div>
+              </div>
+            )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <label style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Password</label>
