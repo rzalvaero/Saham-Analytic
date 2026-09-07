@@ -18,7 +18,22 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
-// GET user info (Login simulation)
+// POST login
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const [rows] = await pool.query('SELECT id, username, balance FROM users WHERE username = ? AND password = ?', [username, password]);
+    if (rows.length > 0) {
+      res.json(rows[0]);
+    } else {
+      res.status(401).json({ error: 'Username atau password salah' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET user info (legacy, can still be used if needed)
 app.get('/api/user/:username', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT id, username, balance FROM users WHERE username = ?', [req.params.username]);
