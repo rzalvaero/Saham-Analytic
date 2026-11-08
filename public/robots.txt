@@ -1,0 +1,8 @@
+# robots.txt for REEZ Trade (trade.reez.my.id)
+User-agent: *
+Allow: /
+Disallow: /api/trade-live/sync
+Disallow: /api/watchlist/
+Disallow: /api/auth/
+
+Sitemap: https://trade.reez.my.id/sitemap.xml

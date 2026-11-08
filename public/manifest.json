@@ -1,0 +1,17 @@
+{
+  "short_name": "REEZ Trade",
+  "name": "REEZ Trade — Live MT5 Real Trading Portfolio & Analytics",
+  "description": "Verifikasi Portofolio Trading Real-Time Beekeeper Ecosystem — Exness Real Account IDR",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#070a12",
+  "theme_color": "#070a12",
+  "display": "standalone",
+  "orientation": "portrait"
+}
