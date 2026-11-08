@@ -258,6 +258,31 @@ function App() {
             })}
           </div>
         )}
+
+        {/* Mobile Swipeable Tab Bar (Geser tab dengan jempol) */}
+        <div className="md:hidden bg-[#090d16] border-b border-gray-850 px-3 py-2 overflow-x-auto touch-pan-x flex items-center gap-2 no-scrollbar">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 transition ${
+                  isActive
+                    ? 'bg-cyan-500 text-gray-950 font-bold shadow-md shadow-cyan-500/20'
+                    : 'bg-gray-900/80 text-gray-400 hover:text-white border border-gray-800'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-gray-950' : 'text-gray-400'}`} />
+                <span>{item.label}</span>
+                {item.liveBadge && !isActive && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </header>
 
       {/* Main Full-Width Content Container */}

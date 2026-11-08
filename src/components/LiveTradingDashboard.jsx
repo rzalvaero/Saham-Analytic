@@ -111,13 +111,13 @@ export default function LiveTradingDashboard() {
         </div>
       </div>
 
-      {/* 2. ENAM METRIK UTAMA FINANSIAL (Anggap IDC = IDR Langsung) */}
-      <div className="rt-grid-6">
-        {/* Card 1: Bulan Ini Dapat Berapa */}
+      {/* 2. LIMA METRIK UTAMA FINANSIAL (Sesuai Permintaan: Minus Berapa Dihapus) */}
+      <div className="rt-grid-5">
+        {/* Card 1: Profit Month */}
         <div className="rt-card rt-card-emerald flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs mb-1">
-            <span className="font-bold text-emerald-400 flex items-center gap-1">
-              <TrendingUp className="w-3.5 h-3.5" /> BULAN INI DAPAT
+            <span className="font-bold text-emerald-400 flex items-center gap-1 uppercase tracking-wider text-[11px]">
+              <TrendingUp className="w-3.5 h-3.5" /> Profit Month
             </span>
             <span className="bg-emerald-500/10 text-emerald-400 text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold">
               Gross Win
@@ -128,36 +128,16 @@ export default function LiveTradingDashboard() {
               {formatMoney(stats.gross_profit_idc, true)}
             </div>
             <p className="text-[11px] text-gray-400 mt-0.5">
-              Total keuntungan trade menang ({stats.month_label || 'Bulan Ini'})
+              Total keuntungan profit ({stats.month_label || 'Bulan Ini'})
             </p>
           </div>
         </div>
 
-        {/* Card 2: Minus Berapa */}
-        <div className="rt-card rt-card-rose flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs mb-1">
-            <span className="font-bold text-rose-400 flex items-center gap-1">
-              <TrendingDown className="w-3.5 h-3.5" /> MINUS BERAPA
-            </span>
-            <span className="bg-rose-500/10 text-rose-400 text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold">
-              Total Loss
-            </span>
-          </div>
-          <div className="my-2">
-            <div className="rt-metric-value font-extrabold font-mono text-rose-400 tracking-tight">
-              {formatMoney(-Math.abs(stats.total_loss_idc || 0))}
-            </div>
-            <p className="text-[11px] text-gray-400 mt-0.5">
-              Total proteksi SL & cutloss tertutup
-            </p>
-          </div>
-        </div>
-
-        {/* Card 3: Udah WD Berapa */}
+        {/* Card 2: Withdraw Month (Minus berapa dihapus khusus pribadi) */}
         <div className="rt-card rt-card-cyan flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs mb-1">
-            <span className="font-bold text-cyan-400 flex items-center gap-1">
-              <Wallet className="w-3.5 h-3.5" /> UDAH WD BERAPA
+            <span className="font-bold text-cyan-400 flex items-center gap-1 uppercase tracking-wider text-[11px]">
+              <Wallet className="w-3.5 h-3.5" /> Withdraw Month
             </span>
             <span className="bg-cyan-500/10 text-cyan-400 text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold">
               Bank WD
@@ -173,11 +153,11 @@ export default function LiveTradingDashboard() {
           </div>
         </div>
 
-        {/* Card 4: Net PnL Bulan Ini */}
+        {/* Card 3: PNL Monthly */}
         <div className="rt-card flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs mb-1">
-            <span className="font-bold text-gray-300 flex items-center gap-1">
-              <BarChart3 className="w-3.5 h-3.5 text-cyan-400" /> NET PNL BULAN INI
+            <span className="font-bold text-gray-300 flex items-center gap-1 uppercase tracking-wider text-[11px]">
+              <BarChart3 className="w-3.5 h-3.5 text-cyan-400" /> PNL Monthly
             </span>
             <span className="text-[10px] text-gray-400 font-mono">Net Profit</span>
           </div>
@@ -189,15 +169,15 @@ export default function LiveTradingDashboard() {
             >
               {formatMoney(stats.net_pnl_idc, true)}
             </div>
-            <p className="text-[11px] text-gray-400 mt-0.5">Hasil bersih setelah profit & loss</p>
+            <p className="text-[11px] text-gray-400 mt-0.5">Hasil bersih bulan berjalan</p>
           </div>
         </div>
 
-        {/* Card 5: Saldo & Equity */}
+        {/* Card 4: Saldo */}
         <div className="rt-card flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs mb-1">
-            <span className="font-bold text-gray-300 flex items-center gap-1">
-              <DollarSign className="w-3.5 h-3.5 text-purple-400" /> SALDO & EQUITY
+            <span className="font-bold text-gray-300 flex items-center gap-1 uppercase tracking-wider text-[11px]">
+              <DollarSign className="w-3.5 h-3.5 text-purple-400" /> Saldo
             </span>
             <span className="bg-purple-500/10 text-purple-300 text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold">
               Real IDR
@@ -213,11 +193,11 @@ export default function LiveTradingDashboard() {
           </div>
         </div>
 
-        {/* Card 6: Winrate & PF */}
+        {/* Card 5: Winrate */}
         <div className="rt-card flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs mb-1">
-            <span className="font-bold text-gray-300 flex items-center gap-1">
-              <Award className="w-3.5 h-3.5 text-amber-400" /> WIN RATE & PF
+            <span className="font-bold text-gray-300 flex items-center gap-1 uppercase tracking-wider text-[11px]">
+              <Award className="w-3.5 h-3.5 text-amber-400" /> Winrate
             </span>
             <span className="text-[10px] text-gray-400 font-mono">Statistik</span>
           </div>
@@ -387,73 +367,83 @@ export default function LiveTradingDashboard() {
             <span className="text-xs text-gray-400 font-mono">{stats.month_label}</span>
           </div>
 
-          <div className="rt-table-scroll">
-            <table className="w-full text-left text-xs sm:text-sm">
-              <thead>
-                <tr className="border-b border-gray-800 text-gray-400 text-xs font-semibold">
-                  <th className="py-2.5 px-3">#</th>
-                  <th className="py-2.5 px-3">Strategi / EA</th>
-                  <th className="py-2.5 px-3">Trade (W/L)</th>
-                  <th className="py-2.5 px-3">Win Rate</th>
-                  <th className="py-2.5 px-3">Profit Factor</th>
-                  <th className="py-2.5 px-3 text-right">Net Profit</th>
-                </tr>
-              </thead>
-              <tbody>
-                {leaderboard.length === 0 ? (
-                  <tr>
-                    <td colSpan="6" className="py-6 text-center text-gray-500">
-                      Belum ada data rekaman transaksi bulan ini.
-                    </td>
-                  </tr>
-                ) : (
-                  leaderboard.map((item, idx) => {
-                    let rankBadge = (
-                      <span className="w-5 h-5 rounded-full bg-gray-800 text-gray-300 font-bold flex items-center justify-center text-xs">
-                        {idx + 1}
-                      </span>
-                    );
-                    if (idx === 0) rankBadge = <span className="text-base">🥇</span>;
-                    else if (idx === 1) rankBadge = <span className="text-base">🥈</span>;
-                    else if (idx === 2) rankBadge = <span className="text-base">🥉</span>;
+          <div className="w-full overflow-hidden rounded-xl border border-gray-850 bg-gray-950/60">
+            {/* Mobile swipe helper */}
+            <div className="md:hidden flex items-center justify-between px-3 py-1.5 bg-cyan-950/40 border-b border-cyan-850/40 text-[11px] text-cyan-400 font-medium">
+              <span className="flex items-center gap-1.5">
+                <span className="animate-pulse">👉</span> Geser tabel untuk statistik EA
+              </span>
+              <span className="font-mono text-[10px] bg-cyan-900/60 text-cyan-300 px-2 py-0.5 rounded">SWIPE ⇄</span>
+            </div>
 
-                    const isProf = item.net_idc >= 0;
-                    return (
-                      <tr
-                        key={item.name}
-                        className="border-b border-gray-800/40 hover:bg-gray-850/40 transition"
-                      >
-                        <td className="py-2.5 px-3">{rankBadge}</td>
-                        <td className="py-2.5 px-3 font-semibold text-white">{item.name}</td>
-                        <td className="py-2.5 px-3 font-mono text-gray-300">
-                          {item.trades}{' '}
-                          <span className="text-[11px] text-gray-500">
-                            ({item.wins}W / {item.losses}L)
-                          </span>
-                        </td>
-                        <td
-                          className={`py-2.5 px-3 font-mono font-semibold ${
-                            item.winrate_pct >= 50 ? 'text-emerald-400' : 'text-gray-300'
-                          }`}
+            <div className="rt-table-scroll-x">
+              <table className="w-full text-left text-xs sm:text-sm">
+                <thead>
+                  <tr className="border-b border-gray-800 text-gray-400 text-xs font-semibold">
+                    <th className="py-2.5 px-3">#</th>
+                    <th className="py-2.5 px-3">Strategi / EA</th>
+                    <th className="py-2.5 px-3">Trade (W/L)</th>
+                    <th className="py-2.5 px-3">Win Rate</th>
+                    <th className="py-2.5 px-3">Profit Factor</th>
+                    <th className="py-2.5 px-3 text-right">Net Profit</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leaderboard.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className="py-6 text-center text-gray-500">
+                        Belum ada data rekaman transaksi bulan ini.
+                      </td>
+                    </tr>
+                  ) : (
+                    leaderboard.map((item, idx) => {
+                      let rankBadge = (
+                        <span className="w-5 h-5 rounded-full bg-gray-800 text-gray-300 font-bold flex items-center justify-center text-xs">
+                          {idx + 1}
+                        </span>
+                      );
+                      if (idx === 0) rankBadge = <span className="text-base">🥇</span>;
+                      else if (idx === 1) rankBadge = <span className="text-base">🥈</span>;
+                      else if (idx === 2) rankBadge = <span className="text-base">🥉</span>;
+
+                      const isProf = item.net_idc >= 0;
+                      return (
+                        <tr
+                          key={item.name}
+                          className="border-b border-gray-800/40 hover:bg-gray-850/40 transition"
                         >
-                          {item.winrate_pct}%
-                        </td>
-                        <td className="py-2.5 px-3 font-mono text-cyan-300">
-                          {item.profit_factor}
-                        </td>
-                        <td
-                          className={`py-2.5 px-3 font-mono font-bold text-right ${
-                            isProf ? 'text-emerald-400' : 'text-rose-400'
-                          }`}
-                        >
-                          {formatMoney(item.net_idc, true)}
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+                          <td className="py-2.5 px-3">{rankBadge}</td>
+                          <td className="py-2.5 px-3 font-semibold text-white">{item.name}</td>
+                          <td className="py-2.5 px-3 font-mono text-gray-300">
+                            {item.trades}{' '}
+                            <span className="text-[11px] text-gray-500">
+                              ({item.wins}W / {item.losses}L)
+                            </span>
+                          </td>
+                          <td
+                            className={`py-2.5 px-3 font-mono font-semibold ${
+                              item.winrate_pct >= 50 ? 'text-emerald-400' : 'text-gray-300'
+                            }`}
+                          >
+                            {item.winrate_pct}%
+                          </td>
+                          <td className="py-2.5 px-3 font-mono text-cyan-300">
+                            {item.profit_factor}
+                          </td>
+                          <td
+                            className={`py-2.5 px-3 font-mono font-bold text-right ${
+                              isProf ? 'text-emerald-400' : 'text-rose-400'
+                            }`}
+                          >
+                            {formatMoney(item.net_idc, true)}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -531,61 +521,73 @@ export default function LiveTradingDashboard() {
           <span className="text-xs text-gray-400 font-mono">Deals OUT</span>
         </div>
 
-        <div className="rt-table-scroll max-h-[440px] overflow-y-auto">
-          <table className="w-full text-left text-xs sm:text-sm">
-            <thead className="sticky top-0 bg-[#0c111d] border-b border-gray-800 text-gray-400 text-xs font-semibold z-10">
-              <tr>
-                <th className="py-2.5 px-3">Waktu (WIB)</th>
-                <th className="py-2.5 px-3">Pair & Tipe</th>
-                <th className="py-2.5 px-3">Ukuran Lot</th>
-                <th className="py-2.5 px-3">Strategi</th>
-                <th className="py-2.5 px-3 text-right">Harga Close</th>
-                <th className="py-2.5 px-3 text-right">Profit Bersih</th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="py-8 text-center text-gray-500">
-                    Belum ada rekaman riwayat transaksi tertutup.
-                  </td>
-                </tr>
-              ) : (
-                history.map((h) => {
-                  const isBuy = h.type === 'BUY';
-                  const isProf = h.net_idc >= 0;
-                  return (
-                    <tr
-                      key={h.ticket}
-                      className="border-b border-gray-800/40 hover:bg-gray-850/40 transition font-mono text-xs"
-                    >
-                      <td className="py-2 px-3 text-gray-400">{h.time}</td>
-                      <td className="py-2 px-3 font-semibold text-white font-sans">
-                        {h.symbol}{' '}
-                        <span
-                          className={`text-[10px] px-1.5 py-0.2 rounded font-bold ml-1 ${
-                            isBuy ? 'rt-badge-buy' : 'rt-badge-sell'
-                          }`}
-                        >
-                          {h.type}
-                        </span>
-                      </td>
-                      <td className="py-2 px-3 text-gray-300">{h.volume} Lot</td>
-                      <td className="py-2 px-3 text-gray-400 font-sans">{h.strategy}</td>
-                      <td className="py-2 px-3 text-gray-300 text-right">{h.price}</td>
-                      <td
-                        className={`py-2 px-3 font-bold text-right ${
-                          isProf ? 'text-emerald-400' : 'text-rose-400'
-                        }`}
-                      >
-                        {formatMoney(h.net_idc, true)}
+        <div className="w-full overflow-hidden rounded-xl border border-gray-850 bg-gray-950/60">
+          {/* Mobile swipe helper */}
+          <div className="md:hidden flex items-center justify-between px-3 py-1.5 bg-cyan-950/40 border-b border-cyan-850/40 text-[11px] text-cyan-400 font-medium">
+            <span className="flex items-center gap-1.5">
+              <span className="animate-pulse">👉</span> Geser tabel untuk detail (Lot, Strategi, Profit)
+            </span>
+            <span className="font-mono text-[10px] bg-cyan-900/60 text-cyan-300 px-2 py-0.5 rounded">SWIPE ⇄</span>
+          </div>
+
+          <div className="rt-table-scroll-x">
+            <div className="max-h-[460px] overflow-y-auto">
+              <table className="w-full text-left text-xs sm:text-sm">
+                <thead className="sticky top-0 bg-[#0c111d] border-b border-gray-800 text-gray-400 text-xs font-semibold z-10">
+                  <tr>
+                    <th className="py-2.5 px-3">Waktu (WIB)</th>
+                    <th className="py-2.5 px-3">Pair & Tipe</th>
+                    <th className="py-2.5 px-3">Ukuran Lot</th>
+                    <th className="py-2.5 px-3">Strategi</th>
+                    <th className="py-2.5 px-3 text-right">Harga Close</th>
+                    <th className="py-2.5 px-3 text-right">Profit Bersih</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className="py-8 text-center text-gray-500">
+                        Belum ada rekaman riwayat transaksi tertutup.
                       </td>
                     </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+                  ) : (
+                    history.map((h) => {
+                      const isBuy = h.type === 'BUY';
+                      const isProf = h.net_idc >= 0;
+                      return (
+                        <tr
+                          key={h.ticket}
+                          className="border-b border-gray-800/40 hover:bg-gray-850/40 transition font-mono text-xs"
+                        >
+                          <td className="py-2 px-3 text-gray-400">{h.time}</td>
+                          <td className="py-2 px-3 font-semibold text-white font-sans">
+                            {h.symbol}{' '}
+                            <span
+                              className={`text-[10px] px-1.5 py-0.2 rounded font-bold ml-1 ${
+                                isBuy ? 'rt-badge-buy' : 'rt-badge-sell'
+                              }`}
+                            >
+                              {h.type}
+                            </span>
+                          </td>
+                          <td className="py-2 px-3 text-gray-300">{h.volume} Lot</td>
+                          <td className="py-2 px-3 text-gray-400 font-sans">{h.strategy}</td>
+                          <td className="py-2 px-3 text-gray-300 text-right">{h.price}</td>
+                          <td
+                            className={`py-2 px-3 font-bold text-right ${
+                              isProf ? 'text-emerald-400' : 'text-rose-400'
+                            }`}
+                          >
+                            {formatMoney(h.net_idc, true)}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
 

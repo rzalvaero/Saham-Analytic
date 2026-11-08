@@ -103,6 +103,22 @@ body {
 }
 
 /* Grid Layouts */
+.rt-grid-5 {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 1200px) {
+  .rt-grid-5 { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+  .rt-grid-5 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+  .rt-grid-5 { grid-template-columns: 1fr; }
+}
+
 .rt-grid-6 {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -189,20 +205,59 @@ body {
 }
 
 /* Custom Mobile-Optimized Table & Containers */
-.rt-table-scroll {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  border-radius: 0.75rem;
+.rt-table-scroll-x {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-x pan-y !important;
+  overscroll-behavior-x: contain;
+  width: 100%;
+  position: relative;
 }
 
-.rt-table-scroll table {
-  min-width: 600px;
+.rt-table-scroll-x::-webkit-scrollbar {
+  height: 6px;
+}
+
+.rt-table-scroll-x::-webkit-scrollbar-thumb {
+  background: rgba(6, 182, 212, 0.4);
+  border-radius: 4px;
+}
+
+.rt-table-scroll {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-x pan-y !important;
+  overscroll-behavior-x: contain;
+  border-radius: 0.75rem;
+  width: 100%;
+}
+
+.rt-table-scroll table,
+.rt-table-scroll-x table {
+  min-width: 650px;
   width: 100%;
 }
 
 .rt-table-scroll th,
-.rt-table-scroll td {
+.rt-table-scroll td,
+.rt-table-scroll-x th,
+.rt-table-scroll-x td {
   white-space: nowrap;
+}
+
+/* Mobile Nav Horizontal Scroll */
+.rt-mobile-nav {
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  scrollbar-width: none; /* Firefox */
+}
+
+.rt-mobile-nav::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
 }
 
 /* Prevent unwanted horizontal overflow on mobile */

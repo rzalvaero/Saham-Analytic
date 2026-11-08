@@ -105,7 +105,7 @@ app.get('/api/trade-live', async (req, res) => {
       account: {
         login: '452****70',
         server: 'Exness-MT5Real48',
-        currency: 'IDC',
+        currency: 'IDR',
         balance_idc: 32296418.95,
         balance_rp: 322964,
         equity_idc: 32424522.08,
