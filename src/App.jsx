@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, LayoutDashboard, Settings, Bell, RefreshCw, Briefcase, Compass, X, LogOut, Activity } from 'lucide-react';
+import { LineChart, LayoutDashboard, Settings, Bell, RefreshCw, Briefcase, Compass, X, LogOut, Activity, Zap } from 'lucide-react';
+import LiveTradingDashboard from './components/LiveTradingDashboard';
 import StockChart from './components/StockChart';
 import RecommendationEngine from './components/RecommendationEngine';
 import MarketOverview from './components/MarketOverview';
@@ -20,7 +21,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('live-trading'); // Default live MT5 dashboard
   const [authMode, setAuthMode] = useState('login');
   const [ihsgData, setIhsgData] = useState(null);
   
@@ -122,9 +123,20 @@ function App() {
         </div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+          <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('live-trading'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'live-trading' ? 'rgba(6, 182, 212, 0.15)' : 'transparent', color: activeTab === 'live-trading' ? '#38bdf8' : 'var(--text-muted)', border: activeTab === 'live-trading' ? '1px solid rgba(6, 182, 212, 0.3)' : '1px solid transparent', textDecoration: 'none', fontWeight: '600', transition: '0.2s' }}>
+            <Zap size={20} color={activeTab === 'live-trading' ? '#38bdf8' : 'currentColor'} />
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, justifyContent: 'space-between' }}>
+              Live Trading
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', display: 'inline-block', boxShadow: '0 0 8px #10b981' }} />
+            </span>
+          </a>
           <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('dashboard'); setSelectedSymbol(watchlistSymbols[0]); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'dashboard' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'dashboard' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
             <LayoutDashboard size={20} />
-            Dashboard
+            Saham & IHSG
+          </a>
+          <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('forex'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'forex' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'forex' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
+            <RefreshCw size={20} />
+            Forex & Gold
           </a>
           <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('running-trade'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'running-trade' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'running-trade' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
             <Activity size={20} />
@@ -133,10 +145,6 @@ function App() {
           <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('discover'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'discover' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'discover' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
             <Compass size={20} />
             Discover
-          </a>
-          <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('forex'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'forex' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'forex' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
-            <RefreshCw size={20} />
-            Forex & Gold
           </a>
           {user && (
             <>
@@ -198,6 +206,12 @@ function App() {
         </header>
 
         {/* Dashboard Content */}
+        {activeTab === 'live-trading' && (
+          <div className="content-wrapper animate-fade-in">
+            <LiveTradingDashboard />
+          </div>
+        )}
+
         {activeTab === 'dashboard' && (
           <div className="content-wrapper">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>

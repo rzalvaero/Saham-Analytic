@@ -19,6 +19,114 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
+// Cache in-memory untuk respons kilat
+let liveStateCache = null;
+
+// Pastikan tabel mt5_live_state tersedia
+async function initLiveStateTable() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS mt5_live_state (
+        id INT PRIMARY KEY,
+        data LONGTEXT NOT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+  } catch (err) {
+    console.error('Error init mt5_live_state table:', err.message);
+  }
+}
+initLiveStateTable();
+
+// ==========================================
+// ENDPOINT LIVE TRADING EXNESS MT5 REAL
+// ==========================================
+
+// POST: Menerima sync data dari MT5 local worker
+app.post('/api/trade-live/sync', async (req, res) => {
+  const { secret, data } = req.body;
+  const expectedSecret = process.env.SYNC_SECRET || 'reez_mt5_secret_2026';
+  
+  if (secret !== expectedSecret) {
+    return res.status(403).json({ error: 'Unauthorized secret token' });
+  }
+  if (!data) {
+    return res.status(400).json({ error: 'Data payload tidak boleh kosong' });
+  }
+
+  // Update in-memory
+  liveStateCache = {
+    ...data,
+    synced_at: new Date().toISOString()
+  };
+
+  // Simpan ke DB agar persisten antar instance Vercel
+  try {
+    const jsonStr = JSON.stringify(liveStateCache);
+    await pool.query(`
+      INSERT INTO mt5_live_state (id, data) VALUES (1, ?)
+      ON DUPLICATE KEY UPDATE data = VALUES(data), updated_at = CURRENT_TIMESTAMP
+    `, [jsonStr]);
+  } catch (err) {
+    console.error('Error simpan live state ke DB:', err.message);
+  }
+
+  res.json({ success: true, timestamp: Date.now() });
+});
+
+// GET: Publik membaca data live trade secara real-time
+app.get('/api/trade-live', async (req, res) => {
+  try {
+    if (!liveStateCache) {
+      const [rows] = await pool.query('SELECT data, updated_at FROM mt5_live_state WHERE id = 1');
+      if (rows.length > 0) {
+        liveStateCache = JSON.parse(rows[0].data);
+        liveStateCache.db_updated_at = rows[0].updated_at;
+      }
+    }
+
+    if (liveStateCache) {
+      return res.json(liveStateCache);
+    }
+
+    // Default standby jika belum pernah sync
+    return res.json({
+      connected: false,
+      message: 'Menunggu sync pertama dari terminal MetaTrader 5...',
+      account: {
+        login: '452003470',
+        server: 'Exness-MT5Real',
+        currency: 'IDC',
+        balance_idc: 32296418.95,
+        balance_rp: 322964,
+        equity_idc: 32296418.95,
+        equity_rp: 322964,
+        floating_idc: 0,
+        floating_rp: 0
+      },
+      positions_count: 0,
+      positions: [],
+      stats: {
+        month_label: 'November 2026',
+        gross_profit_idc: 62411514.19,
+        gross_profit_rp: 624115,
+        total_loss_idc: 86034853.45,
+        total_loss_rp: 860349,
+        total_wd_idc: 19159034,
+        total_wd_rp: 191590,
+        net_pnl_idc: -23623339.26,
+        net_pnl_rp: -236233,
+        winrate_pct: 52.2,
+        profit_factor: 1.64,
+        leaderboard: []
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 // POST login
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;

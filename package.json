@@ -16,7 +16,8 @@
     "lucide-react": "^1.39.0",
     "mysql2": "^3.24.2",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "ws": "^8.21.3"
   },
   "devDependencies": {
     "@types/react": "^19.2.18",
