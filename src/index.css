@@ -188,6 +188,19 @@ body {
   border: 1px solid rgba(16, 185, 129, 0.35);
 }
 
+/* Safety utilities for institutional color shades */
+.border-gray-850 {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.border-gray-750 {
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+.bg-gray-850 {
+  background-color: #121826 !important;
+}
+
 /* Animations */
 @keyframes rt-pulse {
   0% { transform: scale(0.95); opacity: 0.8; }
