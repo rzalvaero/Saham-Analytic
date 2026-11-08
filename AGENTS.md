@@ -29,3 +29,4 @@
 - `src/App.jsx`: Main routing & layout container.
 - `sync_agent.py`: Worker background lokal untuk sync MT5 -> `https://trade.reez.my.id/`.
 - `START_SYNC.bat`: Skrip 1-klik untuk menjalankan worker sync di Windows.
+

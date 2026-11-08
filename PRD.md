@@ -36,3 +36,4 @@ Platform publik yang memungkinkan siapa saja (investor, komunitas, mitra, dan pu
    - Komponen utama `LiveTradingDashboard.jsx` menampilkan tampilan *Institutional Dark Glassmorphic*.
    - Auto-refresh setiap 2 detik tanpa flicker.
    - Toggle mata uang: Rupiah (`Rp`), Cent (`IDC`), atau Dual (`Keduanya`).
+
