@@ -99,10 +99,10 @@ export default function LiveTradingDashboard() {
           </div>
 
           {/* Quick Action: Share Button */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 w-full sm:w-auto">
             <button
               onClick={handleCopyLink}
-              className="flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-lg shadow-cyan-500/20"
+              className="w-full sm:w-auto justify-center flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold px-5 py-3 rounded-xl transition shadow-lg shadow-cyan-500/20 active:scale-95 cursor-pointer"
             >
               {copied ? <CheckCircle2 className="w-4 h-4 text-white" /> : <Share2 className="w-4 h-4 text-white" />}
               {copied ? 'Tautan Berhasil Disalin!' : 'Bagikan Link Portfolio'}
@@ -124,7 +124,7 @@ export default function LiveTradingDashboard() {
             </span>
           </div>
           <div className="my-2">
-            <div className="text-xl sm:text-2xl font-extrabold font-mono text-emerald-400 tracking-tight">
+            <div className="rt-metric-value font-extrabold font-mono text-emerald-400 tracking-tight">
               {formatMoney(stats.gross_profit_idc, true)}
             </div>
             <p className="text-[11px] text-gray-400 mt-0.5">
@@ -144,7 +144,7 @@ export default function LiveTradingDashboard() {
             </span>
           </div>
           <div className="my-2">
-            <div className="text-xl sm:text-2xl font-extrabold font-mono text-rose-400 tracking-tight">
+            <div className="rt-metric-value font-extrabold font-mono text-rose-400 tracking-tight">
               {formatMoney(-Math.abs(stats.total_loss_idc || 0))}
             </div>
             <p className="text-[11px] text-gray-400 mt-0.5">
@@ -164,7 +164,7 @@ export default function LiveTradingDashboard() {
             </span>
           </div>
           <div className="my-2">
-            <div className="text-xl sm:text-2xl font-extrabold font-mono text-cyan-400 tracking-tight">
+            <div className="rt-metric-value font-extrabold font-mono text-cyan-400 tracking-tight">
               {formatMoney(stats.total_wd_idc)}
             </div>
             <p className="text-[11px] text-emerald-400 mt-0.5 flex items-center gap-1 font-medium">
@@ -183,7 +183,7 @@ export default function LiveTradingDashboard() {
           </div>
           <div className="my-2">
             <div
-              className={`text-xl sm:text-2xl font-extrabold font-mono tracking-tight ${
+              className={`rt-metric-value font-extrabold font-mono tracking-tight ${
                 (stats.net_pnl_idc || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'
               }`}
             >
@@ -204,7 +204,7 @@ export default function LiveTradingDashboard() {
             </span>
           </div>
           <div className="my-2">
-            <div className="text-xl sm:text-2xl font-extrabold font-mono text-white tracking-tight">
+            <div className="rt-metric-value font-extrabold font-mono text-white tracking-tight">
               {formatMoney(account.balance_idc)}
             </div>
             <p className="text-[11px] text-gray-400 mt-0.5 flex items-center justify-between">
@@ -222,7 +222,7 @@ export default function LiveTradingDashboard() {
             <span className="text-[10px] text-gray-400 font-mono">Statistik</span>
           </div>
           <div className="my-2">
-            <div className="text-xl sm:text-2xl font-extrabold font-mono text-amber-400 tracking-tight">
+            <div className="rt-metric-value font-extrabold font-mono text-amber-400 tracking-tight">
               {stats.winrate_pct || 0}%{' '}
               <span className="text-xs text-gray-400 font-normal font-sans">
                 (PF {stats.profit_factor || 0})
@@ -387,7 +387,7 @@ export default function LiveTradingDashboard() {
             <span className="text-xs text-gray-400 font-mono">{stats.month_label}</span>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="rt-table-scroll">
             <table className="w-full text-left text-xs sm:text-sm">
               <thead>
                 <tr className="border-b border-gray-800 text-gray-400 text-xs font-semibold">
@@ -531,7 +531,7 @@ export default function LiveTradingDashboard() {
           <span className="text-xs text-gray-400 font-mono">Deals OUT</span>
         </div>
 
-        <div className="overflow-x-auto max-h-[420px] overflow-y-auto">
+        <div className="rt-table-scroll max-h-[440px] overflow-y-auto">
           <table className="w-full text-left text-xs sm:text-sm">
             <thead className="sticky top-0 bg-[#0c111d] border-b border-gray-800 text-gray-400 text-xs font-semibold z-10">
               <tr>

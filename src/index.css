@@ -188,6 +188,47 @@ body {
   animation: rt-pulse 2s infinite ease-in-out;
 }
 
+/* Custom Mobile-Optimized Table & Containers */
+.rt-table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 0.75rem;
+}
+
+.rt-table-scroll table {
+  min-width: 600px;
+  width: 100%;
+}
+
+.rt-table-scroll th,
+.rt-table-scroll td {
+  white-space: nowrap;
+}
+
+/* Prevent unwanted horizontal overflow on mobile */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Responsive typography for financial numbers */
+.rt-metric-value {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+@media (min-width: 640px) {
+  .rt-metric-value {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+}
+@media (min-width: 1024px) {
+  .rt-metric-value {
+    font-size: 1.625rem;
+    line-height: 2.125rem;
+  }
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
