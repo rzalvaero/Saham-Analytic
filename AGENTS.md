@@ -10,9 +10,8 @@
 ## 1. Aturan Dasar & Standar Kualitas
 1. **Mandatory Pre-Flight Check:** Setiap AI agent wajib membaca `PRD.md` dan mematuhi panduan ini.
 2. **Konversi Mata Uang Mandatori:**
-   - Mata uang akun Exness Cent: **`IDC`**.
-   - Formula konversi: **`100 IDC = Rp 1`** (`1 IDC = Rp 0.01`).
-   - Seluruh nilai nominal WAJIB menyertakan estimasi Rupiah (`~Rp ...`).
+   - Mata uang akun ditampilkan sebagai **`IDR`** (Rupiah murni). Angka dari MT5 (yang berlabel IDC) dianggap langsung sebagai **`IDR / Rupiah`** tanpa dibagi 100 di tampilan publik.
+   - **STRICT BRANDING RULE:** DILARANG KERAS menyebut kata "Cent", "cent", atau "IDC" di tampilan website publik/frontend. Seluruh tampilan ditulis sebagai **`Exness Real Account (IDR)`**.
 3. **Keamanan & Read-Only Public Exposure:**
    - Endpoint publik `GET /api/trade-live` bersifat strictly **read-only**. Tidak ada kredensial trading atau hak eksekusi order yang diekspos ke publik.
    - Endpoint `POST /api/trade-live/sync` dilindungi token rahasia `SYNC_SECRET`.

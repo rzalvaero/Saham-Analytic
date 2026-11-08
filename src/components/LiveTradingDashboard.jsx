@@ -20,49 +20,13 @@ import {
 export default function LiveTradingDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [currencyMode, setCurrencyMode] = useState('dual'); // 'rp' | 'idc' | 'dual'
   const [copied, setCopied] = useState(false);
 
-  // Formatter functions
-  const formatRupiah = (val, showSign = false) => {
+  // Formatter fungsi: IDC = IDR (Rupiah) langsung tanpa dibagi 100
+  const formatMoney = (val, showSign = false) => {
     if (val === undefined || val === null || isNaN(val)) return '-';
     const sign = showSign && val > 0 ? '+' : '';
     return sign + 'Rp ' + Math.round(val).toLocaleString('id-ID');
-  };
-
-  const formatIDC = (val, showSign = false) => {
-    if (val === undefined || val === null || isNaN(val)) return '-';
-    const sign = showSign && val > 0 ? '+' : '';
-    return sign + Math.round(val).toLocaleString('en-US') + ' IDC';
-  };
-
-  const formatMoney = (idcVal, showSign = false) => {
-    if (idcVal === undefined || idcVal === null || isNaN(idcVal)) return '-';
-    const rpVal = idcVal / 100.0;
-    if (currencyMode === 'rp') {
-      return formatRupiah(rpVal, showSign);
-    } else if (currencyMode === 'idc') {
-      return formatIDC(idcVal, showSign);
-    } else {
-      const rpStr = formatRupiah(rpVal, showSign);
-      let idcShort = '';
-      const absVal = Math.abs(idcVal);
-      if (absVal >= 1000000) {
-        idcShort = (idcVal / 1000000).toFixed(2) + 'M IDC';
-      } else if (absVal >= 1000) {
-        idcShort = (idcVal / 1000).toFixed(1) + 'k IDC';
-      } else {
-        idcShort = Math.round(idcVal) + ' IDC';
-      }
-      return (
-        <span className="inline-flex items-baseline gap-1.5 flex-wrap">
-          <span>{rpStr}</span>
-          <span className="text-xs text-gray-400 font-mono font-normal">
-            ({idcShort})
-          </span>
-        </span>
-      );
-    }
   };
 
   const fetchData = async () => {
@@ -119,7 +83,7 @@ export default function LiveTradingDashboard() {
                 LIVE STREAMING MT5 REAL
               </span>
               <span className="bg-gray-800 text-gray-300 border border-gray-700/80 px-3 py-1 rounded-full text-xs font-mono">
-                {account.server || 'Exness-MT5Real48'} • Login #{account.login || '452****70'}
+                {account.server || 'Exness-MT5Real48'} • Login #{account.login || '452****70'} • Mata Uang: IDR (Rupiah)
               </span>
               <span className="text-xs text-gray-400 font-mono">
                 ⏱️ {data?.server_time || new Date().toLocaleTimeString()}
@@ -130,57 +94,24 @@ export default function LiveTradingDashboard() {
               ⚡ REEZ TRADE <span className="text-cyan-400 font-medium text-xl sm:text-2xl">Verified Portfolio</span>
             </h1>
             <p className="text-xs sm:text-sm text-gray-400 mt-1">
-              Transparansi Trading Real-Time — Beekeeper Ecosystem (Koko Reza) • Akun Cent (`100 IDC = Rp 1`)
+              Transparansi Trading Real-Time — Beekeeper Ecosystem (Koko Reza) • Akun Real Exness IDR
             </p>
           </div>
 
-          {/* Controls: Currency switcher & Share button */}
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <div className="flex items-center bg-gray-950 p-1 rounded-xl border border-gray-800 text-xs">
-              <button
-                onClick={() => setCurrencyMode('rp')}
-                className={`px-3 py-1.5 rounded-lg transition font-medium ${
-                  currencyMode === 'rp'
-                    ? 'bg-cyan-500 text-gray-950 font-bold shadow'
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                Rupiah (Rp)
-              </button>
-              <button
-                onClick={() => setCurrencyMode('idc')}
-                className={`px-3 py-1.5 rounded-lg transition font-medium ${
-                  currencyMode === 'idc'
-                    ? 'bg-cyan-500 text-gray-950 font-bold shadow'
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                Cent (IDC)
-              </button>
-              <button
-                onClick={() => setCurrencyMode('dual')}
-                className={`px-3 py-1.5 rounded-lg transition font-medium ${
-                  currencyMode === 'dual'
-                    ? 'bg-cyan-500 text-gray-950 font-bold shadow'
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                Dual (Keduanya)
-              </button>
-            </div>
-
+          {/* Quick Action: Share Button */}
+          <div className="flex items-center gap-2.5">
             <button
               onClick={handleCopyLink}
-              className="flex items-center gap-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white text-xs font-semibold px-3 py-2 rounded-xl transition shadow"
+              className="flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-lg shadow-cyan-500/20"
             >
-              {copied ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4 text-cyan-400" />}
-              {copied ? 'Tersalin!' : 'Bagikan Link'}
+              {copied ? <CheckCircle2 className="w-4 h-4 text-white" /> : <Share2 className="w-4 h-4 text-white" />}
+              {copied ? 'Tautan Berhasil Disalin!' : 'Bagikan Link Portfolio'}
             </button>
           </div>
         </div>
       </div>
 
-      {/* 2. ENAM METRIK UTAMA FINANSIAL */}
+      {/* 2. ENAM METRIK UTAMA FINANSIAL (Anggap IDC = IDR Langsung) */}
       <div className="rt-grid-6">
         {/* Card 1: Bulan Ini Dapat Berapa */}
         <div className="rt-card rt-card-emerald flex flex-col justify-between">
@@ -269,7 +200,7 @@ export default function LiveTradingDashboard() {
               <DollarSign className="w-3.5 h-3.5 text-purple-400" /> SALDO & EQUITY
             </span>
             <span className="bg-purple-500/10 text-purple-300 text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold">
-              Balance
+              Real IDR
             </span>
           </div>
           <div className="my-2">
@@ -664,7 +595,7 @@ export default function LiveTradingDashboard() {
           ⚡ trade.reez.my.id — Verified Institutional Trading Stream by Beekeeper Ecosystem
         </p>
         <p className="mt-1">
-          Exness Real Cent Account (`100 IDC = Rp 1`) • Data tersinkronisasi otomatis langsung dari MetaTrader 5
+          Exness Real Account (IDR) • Data tersinkronisasi otomatis langsung dari MetaTrader 5
         </p>
       </footer>
     </div>
