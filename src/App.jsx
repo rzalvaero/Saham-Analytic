@@ -3,7 +3,6 @@ import {
   Zap,
   LayoutDashboard,
   RefreshCw,
-  Activity,
   Compass,
   Briefcase,
   Settings,
@@ -23,7 +22,6 @@ import SettingsPage from './components/Settings';
 import FundamentalNews from './components/FundamentalNews';
 import Discover from './components/Discover';
 import Forex from './components/Forex';
-import RunningTrade from './components/RunningTrade';
 import { fetchRealtimeData } from './services/marketData';
 
 function App() {
@@ -123,7 +121,6 @@ function App() {
     { id: 'live-trading', label: 'Live Trading', icon: Zap, liveBadge: true },
     { id: 'dashboard', label: 'Saham & IHSG', icon: LayoutDashboard },
     { id: 'forex', label: 'Forex & Gold', icon: RefreshCw },
-    { id: 'running-trade', label: 'Running Trade', icon: Activity },
     { id: 'discover', label: 'Discover', icon: Compass },
   ];
 
@@ -293,18 +290,32 @@ function App() {
         {/* 2. Saham & IHSG Dashboard */}
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-900/60 p-4 rounded-2xl border border-gray-800">
-              <div>
-                <h2 className="text-xl font-bold text-white">Pasar Saham Indonesia (IDX)</h2>
-                <p className="text-xs text-gray-400">Data Realtime Yahoo Finance (IHSG, BBCA, BBRI, BMRI, dll)</p>
-              </div>
-              <div className="w-full sm:w-auto">
-                <SearchStock onAddSymbol={handleAddSymbol} />
+            {/* Top Institutional Header */}
+            <div className="rt-card bg-gradient-to-r from-[#0c1322] via-[#0f172a] to-[#0c1322] border-gray-850 p-5 sm:p-6 shadow-2xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="rt-badge rt-badge-live">
+                      <span className="rt-pulse-dot" />
+                      IDX REALTIME
+                    </span>
+                    <span className="text-xs text-gray-400 font-mono">Bursa Efek Indonesia</span>
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                    📊 Pasar Saham Indonesia (IDX)
+                  </h1>
+                  <p className="text-xs sm:text-sm text-gray-400 mt-1">
+                    Data realtime Yahoo Finance, grafik interaktif candlestick, dan sinyal algoritma momentum
+                  </p>
+                </div>
+                <div className="w-full sm:w-auto">
+                  <SearchStock onAddSymbol={handleAddSymbol} />
+                </div>
               </div>
             </div>
 
             {error && (
-              <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl text-sm">
+              <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl text-sm font-semibold">
                 {error}
               </div>
             )}
@@ -316,21 +327,22 @@ function App() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-2 space-y-4">
                     {/* Watchlist Chips */}
-                    <div className="flex gap-2 overflow-x-auto pb-1">
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+                      <span className="text-xs text-gray-500 font-semibold uppercase tracking-wider shrink-0">Watchlist:</span>
                       {watchlistSymbols.map((sym) => (
                         <button
                           key={sym}
                           onClick={() => setSelectedSymbol(sym)}
-                          className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 transition ${
+                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition shrink-0 ${
                             selectedSymbol === sym
-                              ? 'bg-cyan-500 text-gray-950 font-bold'
-                              : 'bg-gray-900 text-gray-300 border border-gray-800 hover:border-gray-700'
+                              ? 'bg-cyan-500 text-gray-950 font-bold shadow-md shadow-cyan-500/20'
+                              : 'bg-gray-950/80 text-gray-300 border border-gray-850 hover:border-gray-700'
                           }`}
                         >
-                          {sym}
+                          <span>{sym}</span>
                           <X
                             size={12}
-                            className="opacity-70 hover:opacity-100"
+                            className="opacity-70 hover:opacity-100 hover:text-rose-400"
                             onClick={(e) => handleRemoveWatchlist(e, sym)}
                           />
                         </button>
@@ -350,7 +362,7 @@ function App() {
                         symbol="IHSG (^JKSE)"
                       />
                     ) : (
-                      <div className="h-96 rounded-2xl bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-500 text-sm">
+                      <div className="h-96 rounded-2xl bg-gray-950 border border-gray-850 flex items-center justify-center text-gray-500 text-sm">
                         Memuat grafik...
                       </div>
                     )}
@@ -380,25 +392,10 @@ function App() {
         )}
 
         {/* 3. Forex & Commodities */}
-        {activeTab === 'forex' && (
-          <div className="rounded-2xl bg-gray-900/60 p-5 border border-gray-800">
-            <Forex />
-          </div>
-        )}
+        {activeTab === 'forex' && <Forex />}
 
-        {/* 4. Running Trade */}
-        {activeTab === 'running-trade' && (
-          <div className="rounded-2xl bg-gray-900/60 p-5 border border-gray-800">
-            <RunningTrade />
-          </div>
-        )}
-
-        {/* 5. Discover */}
-        {activeTab === 'discover' && (
-          <div className="rounded-2xl bg-gray-900/60 p-5 border border-gray-800">
-            <Discover />
-          </div>
-        )}
+        {/* 4. Discover */}
+        {activeTab === 'discover' && <Discover />}
 
         {/* 6. Portfolio Paper Trading */}
         {activeTab === 'portfolio' && (

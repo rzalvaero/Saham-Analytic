@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { Briefcase, Wallet, ArrowUpRight, ArrowDownRight, RefreshCw } from 'lucide-react';
 
-const PaperTrading = ({ symbol, currentPrice, user, onTrade }) => {
-  const [qty, setQty] = useState(100);
+const PaperTrading = ({ symbol, currentPrice = 0, user, onTrade }) => {
+  const [qty, setQty] = useState(1); // in lots (1 lot = 100 lembar)
   const [loading, setLoading] = useState(false);
 
   const handleTrade = async (type) => {
-    if (!user) return alert('Silakan login terlebih dahulu');
+    if (!user) return alert('Silakan login terlebih dahulu untuk simulasi');
     setLoading(true);
     try {
       const response = await fetch('/api/trade', {
@@ -15,7 +16,7 @@ const PaperTrading = ({ symbol, currentPrice, user, onTrade }) => {
           userId: user.id,
           symbol,
           type,
-          qty: parseInt(qty),
+          qty: parseInt(qty) * 100,
           price: currentPrice
         })
       });
@@ -32,92 +33,87 @@ const PaperTrading = ({ symbol, currentPrice, user, onTrade }) => {
     }
   };
 
-  const total = qty * currentPrice;
+  const total = qty * 100 * currentPrice;
 
   return (
-    <div className="glass-card" style={{ marginTop: '1.5rem' }}>
-      <div style={{ marginBottom: '1rem' }}>
-        <h3>Paper Trading (Simulasi)</h3>
-        <p className="text-muted" style={{ fontSize: '0.875rem' }}>Beli/Jual {symbol} tanpa risiko</p>
+    <div className="rt-card">
+      <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-850">
+        <div>
+          <h3 className="text-sm font-bold text-white flex items-center gap-2">
+            <Briefcase className="w-4 h-4 text-cyan-400" />
+            Simulasi Eksekusi Saham (Paper)
+          </h3>
+          <p className="text-[11px] text-gray-400 mt-0.5">
+            Latihan simulasi order {symbol} tanpa risiko modal riil
+          </p>
+        </div>
+        <span className="text-[10px] bg-gray-900 text-gray-300 border border-gray-800 px-2 py-0.5 rounded font-mono">
+          VIRTUAL
+        </span>
       </div>
-      
+
       {user ? (
-        <>
-          <div style={{ marginBottom: '1rem', background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '8px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-              <span className="text-muted">Saldo Virtual:</span>
-              <span style={{ fontWeight: '600', color: 'var(--positive)' }}>Rp {parseFloat(user.balance).toLocaleString('id-ID')}</span>
+        <div className="space-y-3">
+          <div className="p-3 rounded-xl bg-gray-950/70 border border-gray-850 text-xs font-mono space-y-1.5">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-400 font-sans">Saldo Virtual:</span>
+              <span className="font-bold text-emerald-400">
+                Rp {parseFloat(user.balance || 0).toLocaleString('id-ID')}
+              </span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span className="text-muted">Harga Saat Ini:</span>
-              <span style={{ fontWeight: '600' }}>Rp {currentPrice.toLocaleString('id-ID')}</span>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-            <div style={{ flex: '1 1 120px' }}>
-              <label className="text-muted" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.5rem' }}>Jumlah Lot (1 Lot = 100 lembar)</label>
-              <input 
-                type="number" 
-                value={qty / 100}
-                onChange={(e) => setQty(Math.max(1, parseInt(e.target.value) || 1) * 100)}
-                style={{ 
-                  width: '100%', 
-                  background: 'rgba(255,255,255,0.05)', 
-                  border: '1px solid var(--border-color)', 
-                  padding: '10px', 
-                  borderRadius: '8px',
-                  color: 'white',
-                  outline: 'none'
-                }} 
-              />
-            </div>
-            <div style={{ flex: '1 1 120px' }}>
-              <label className="text-muted" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.5rem' }}>Total Nilai</label>
-              <div style={{ padding: '10px', border: '1px solid transparent' }}>
-                Rp {total.toLocaleString('id-ID')}
-              </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-400 font-sans">Harga Satuan:</span>
+              <span className="text-gray-200 font-bold">
+                Rp {(currentPrice || 0).toLocaleString('id-ID')}
+              </span>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <button 
+          <div>
+            <label className="text-[11px] text-gray-400 font-medium block mb-1">
+              Jumlah Lot (1 Lot = 100 Lembar)
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={qty}
+              onChange={(e) => setQty(Math.max(1, parseInt(e.target.value) || 1))}
+              className="w-full bg-gray-950 border border-gray-800 focus:border-cyan-500 rounded-xl px-3 py-2 text-xs font-mono text-white outline-none"
+            />
+          </div>
+
+          <div className="p-2.5 rounded-lg bg-gray-900/60 border border-gray-850 flex justify-between items-center text-xs">
+            <span className="text-gray-400">Total Nilai Order:</span>
+            <span className="font-mono font-bold text-cyan-300">
+              Rp {total.toLocaleString('id-ID')}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            <button
               onClick={() => handleTrade('BUY')}
-              disabled={loading || user.balance < total}
-              style={{
-                flex: '1 1 120px',
-                padding: '12px',
-                background: user.balance < total ? 'rgba(255,255,255,0.1)' : 'var(--positive)',
-                color: user.balance < total ? 'var(--text-muted)' : 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontWeight: '600',
-                cursor: user.balance < total || loading ? 'not-allowed' : 'pointer'
-              }}
+              disabled={loading}
+              className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs transition shadow-md shadow-emerald-600/20 disabled:opacity-50 cursor-pointer"
             >
-              {loading ? 'Processing...' : 'BUY (Beli)'}
+              {loading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <ArrowUpRight className="w-3.5 h-3.5" />}
+              Beli (Buy)
             </button>
-            <button 
+            <button
               onClick={() => handleTrade('SELL')}
               disabled={loading}
-              style={{
-                flex: '1 1 120px',
-                padding: '12px',
-                background: 'var(--negative)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontWeight: '600',
-                cursor: loading ? 'not-allowed' : 'pointer'
-              }}
+              className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 active:scale-95 text-white font-bold text-xs transition shadow-md shadow-rose-600/20 disabled:opacity-50 cursor-pointer"
             >
-              {loading ? 'Processing...' : 'SELL (Jual)'}
+              {loading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <ArrowDownRight className="w-3.5 h-3.5" />}
+              Jual (Sell)
             </button>
           </div>
-        </>
+        </div>
       ) : (
-        <div style={{ textAlign: 'center', padding: '1rem' }}>
-          Mencoba terhubung dengan sesi...
+        <div className="py-6 text-center text-xs text-gray-400 space-y-2 bg-gray-950/40 rounded-xl border border-dashed border-gray-800 p-4">
+          <p>Login untuk mencoba simulasi paper trading saham {symbol}</p>
+          <span className="inline-block text-[11px] text-cyan-400 font-medium">
+            Gratis saldo virtual Rp 100.000.000 untuk pengujian strategi
+          </span>
         </div>
       )}
     </div>

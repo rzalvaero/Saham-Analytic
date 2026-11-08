@@ -6,3 +6,4 @@ Disallow: /api/watchlist/
 Disallow: /api/auth/
 
 Sitemap: https://trade.reez.my.id/sitemap.xml
+

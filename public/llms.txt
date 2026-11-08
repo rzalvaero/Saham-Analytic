@@ -1,0 +1,22 @@
+# REEZ Trade (trade.reez.my.id)
+> Portofolio Trading Real-Time Pribadi Koko Reza, Analitik MT5 & Screener Pasar Modal IDX
+
+REEZ Trade adalah platform analitik dan verifikasi portofolio trading live pribadi milik Koko Reza. Platform ini menyediakan transparansi penuh untuk performa trading akun pribadi Exness Real (IDR), pasar modal Indonesia (Bursa Efek Indonesia / IDX), komoditas emas (XAU/USD), serta mata uang global.
+
+## Fitur Utama & Live Data Stream
+- **Live MT5 Stream (Exness Real IDR)**: Verifikasi transaksi riil MetaTrader 5 meliputi posisi terbuka (Open Trades), riwayat 50 trade selesai, Gross Profit, Total Penarikan (WD), Net PnL, Saldo, dan Winrate/Profit Factor.
+- **Pasar Saham Indonesia (IDX / IHSG)**: Data harga saham realtime Bursa Efek Indonesia (^JKSE, BBCA, BBRI, BMRI, TLKM, ASII, dll) dilengkapi grafik candlestick interaktif dan indikator Moving Average (MA 14).
+- **Algorithmic Momentum & Trend Screener**: Model analisis kuantitatif teknikal berbasis Relative Strength Index (RSI 14), Moving Average, dan volume flow tanpa spekulasi emosional.
+- **Forex & Commodities**: Pemantauan kurs mata uang utama (EUR/USD, GBP/USD, USD/JPY, AUD/USD) dan pergerakan harga emas dunia (Gold XAU/USD).
+- **Market Screener & Discovery**: Screening emiten teraktif (Most Active), anomali lonjakan volume (Unusual Volume), jadwal cum/ex dividen, dan pipeline IPO saham baru.
+
+## Informasi Entitas
+- **Platform**: REEZ Trade
+- **Tipe Portofolio**: Portofolio Pribadi (Independent Personal Portfolio)
+- **Trader / Owner**: Koko Reza (Reez Trade)
+- **Domain Resmi**: https://trade.reez.my.id/
+- **Jenis Akun**: Exness Real Account (IDR)
+- **Integrasi Terminal**: MetaTrader 5 (MT5 Direct API Sync)
+
+## Arsitektur Teknis
+Aplikasi web ini dibangun dengan React, Tailwind CSS, lightweight-charts, dan Node.js Express serverless API dengan proteksi token sinkronisasi data real-time berlatensi rendah.

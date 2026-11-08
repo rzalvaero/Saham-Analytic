@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Newspaper, ExternalLink, Clock } from 'lucide-react';
+import { Newspaper, ExternalLink, Clock, RefreshCw } from 'lucide-react';
 
 const FundamentalNews = ({ symbol, onAddSymbol }) => {
   const [news, setNews] = useState([]);
@@ -9,29 +9,29 @@ const FundamentalNews = ({ symbol, onAddSymbol }) => {
 
   useEffect(() => {
     if (!symbol) return;
-    
+
     const fetchNews = async () => {
       setLoading(true);
       try {
         const symbolWithoutJK = symbol.replace('.JK', '').toUpperCase();
-        
-        // Strict filter to remove irrelevant clustered news (e.g., general IHSG news when searching BBRI)
+
         const filterStrict = (newsList) => {
           if (!newsList) return [];
-          return newsList.filter(article => {
+          return newsList.filter((article) => {
             const title = (article.title || '').toUpperCase();
-            const hasTicker = article.relatedTickers && 
-              (article.relatedTickers.includes(symbol) || article.relatedTickers.includes(`${symbolWithoutJK}.JK`));
+            const hasTicker =
+              article.relatedTickers &&
+              (article.relatedTickers.includes(symbol) ||
+                article.relatedTickers.includes(`${symbolWithoutJK}.JK`));
             return hasTicker || title.includes(symbolWithoutJK);
           });
         };
 
-        // Fetch specific news
         const response = await fetch(`/api/finance/v1/finance/search?q=${symbol}.JK&newsCount=15`);
         if (response.ok) {
           const data = await response.json();
           let strictNews = filterStrict(data.news);
-          
+
           if (strictNews.length === 0) {
             const fallbackRes = await fetch(`/api/finance/v1/finance/search?q=${symbol}&newsCount=15`);
             if (fallbackRes.ok) {
@@ -42,13 +42,11 @@ const FundamentalNews = ({ symbol, onAddSymbol }) => {
           setNews(strictNews);
         }
 
-        // Fetch global market news (IHSG / Pasar Indonesia)
         const globalRes = await fetch(`/api/finance/v1/finance/search?q=IHSG&newsCount=5`);
         if (globalRes.ok) {
           const globalData = await globalRes.json();
           setGlobalNews(globalData.news || []);
         }
-
       } catch (err) {
         console.error('Failed to fetch news', err);
       } finally {
@@ -59,143 +57,118 @@ const FundamentalNews = ({ symbol, onAddSymbol }) => {
     fetchNews();
   }, [symbol]);
 
-  if (loading) {
-    return (
-      <div className="glass-card" style={{ marginTop: '1.5rem', textAlign: 'center', padding: '2rem' }}>
-        <p className="text-muted">Memuat berita terbaru...</p>
-      </div>
-    );
-  }
-
   const renderNewsList = (newsList, isGlobal = false) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      {newsList.slice(0, 5).map((article, idx) => {
-        // Extract Indonesian tickers (ending in .JK) for global news
-        const tickers = isGlobal && article.relatedTickers 
-          ? article.relatedTickers.filter(t => t.endsWith('.JK')).map(t => t.replace('.JK', ''))
-          : [];
+    <div className="space-y-3">
+      {newsList.length === 0 ? (
+        <div className="text-center py-6 text-xs text-gray-500">
+          Tidak ada berita terbaru untuk kategori ini saat ini.
+        </div>
+      ) : (
+        newsList.slice(0, 5).map((article, idx) => {
+          const tickers =
+            isGlobal && article.relatedTickers
+              ? article.relatedTickers
+                  .filter((t) => t.endsWith('.JK'))
+                  .map((t) => t.replace('.JK', ''))
+              : [];
 
-        return (
-          <a 
-            key={idx} 
-            href={article.link} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            style={{ 
-              display: 'block', 
-              padding: '1rem', 
-              background: 'rgba(255,255,255,0.02)', 
-              border: '1px solid var(--border-color)', 
-              borderRadius: '8px',
-              textDecoration: 'none',
-              color: 'white',
-              transition: 'background 0.2s'
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
-          >
-            <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ flex: 1, paddingRight: '1rem' }}>{article.title}</span>
-              <ExternalLink size={14} className="text-muted" />
-            </h4>
-            
-            {tickers.length > 0 && (
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
-                {tickers.map(ticker => (
-                  <button
-                    key={ticker}
-                    onClick={(e) => {
-                      e.preventDefault(); // Stop link navigation
-                      e.stopPropagation();
-                      if(onAddSymbol) onAddSymbol(ticker);
-                    }}
-                    style={{
-                      background: 'rgba(59, 130, 246, 0.1)',
-                      color: '#3b82f6',
-                      border: '1px solid rgba(59, 130, 246, 0.2)',
-                      borderRadius: '4px',
-                      padding: '2px 8px',
-                      fontSize: '0.7rem',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)'}
-                  >
-                    + {ticker}
-                  </button>
-                ))}
+          return (
+            <a
+              key={idx}
+              href={article.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block p-3.5 rounded-xl bg-gray-950/60 border border-gray-850 hover:border-gray-750 transition group"
+            >
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <h4 className="text-xs sm:text-sm font-semibold text-gray-200 group-hover:text-cyan-400 transition leading-snug">
+                  {article.title}
+                </h4>
+                <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-cyan-400 shrink-0 transition" />
               </div>
-            )}
-            
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: '500' }}>{article.publisher}</span>
-              <span className="text-muted" style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Clock size={12} />
-                {new Date(article.providerPublishTime * 1000).toLocaleDateString('id-ID')}
-              </span>
-            </div>
-          </a>
-        );
-      })}
+
+              {tickers.length > 0 && (
+                <div className="flex gap-1.5 flex-wrap mb-2">
+                  {tickers.map((ticker) => (
+                    <button
+                      key={ticker}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (onAddSymbol) onAddSymbol(ticker);
+                      }}
+                      className="px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-mono font-bold hover:bg-cyan-500/20 transition cursor-pointer"
+                    >
+                      + {ticker}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center justify-between text-[11px] text-gray-500 pt-2 border-t border-gray-850/50">
+                <span className="font-medium text-gray-400">{article.publisher || 'Market News'}</span>
+                <span className="flex items-center gap-1 font-mono">
+                  <Clock className="w-3 h-3" />
+                  {article.providerPublishTime
+                    ? new Date(article.providerPublishTime * 1000).toLocaleDateString('id-ID')
+                    : 'Terbaru'}
+                </span>
+              </div>
+            </a>
+          );
+        })
+      )}
     </div>
   );
 
   return (
-    <div className="glass-card" style={{ marginTop: '1.5rem' }}>
-      <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
-        <Newspaper size={20} className="text-accent-primary" />
-        <h3 style={{ margin: 0, marginRight: 'auto' }}>Berita & Sentimen</h3>
-        
-        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '4px' }}>
-          <button 
+    <div className="rt-card mt-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 mb-4 border-b border-gray-850 gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 font-bold">
+            <Newspaper className="w-4 h-4" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-white">Sentimen &amp; Berita Fundamental</h3>
+            <p className="text-xs text-gray-400">
+              Kabar terkini seputar {symbol} dan dinamika pasar modal Indonesia
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center bg-gray-950 p-1 rounded-xl border border-gray-800 text-xs">
+          <button
             onClick={() => setActiveTab('specific')}
-            style={{
-              padding: '6px 12px',
-              border: 'none',
-              background: activeTab === 'specific' ? 'var(--accent-primary)' : 'transparent',
-              color: activeTab === 'specific' ? 'white' : 'var(--text-muted)',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontWeight: '500',
-              fontSize: '0.875rem',
-              transition: 'all 0.2s'
-            }}
+            className={`px-3 py-1.5 rounded-lg font-semibold transition ${
+              activeTab === 'specific'
+                ? 'bg-cyan-500 text-gray-950 font-bold'
+                : 'text-gray-400 hover:text-white'
+            }`}
           >
-            {symbol}
+            Berita {symbol}
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('global')}
-            style={{
-              padding: '6px 12px',
-              border: 'none',
-              background: activeTab === 'global' ? 'var(--accent-primary)' : 'transparent',
-              color: activeTab === 'global' ? 'white' : 'var(--text-muted)',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontWeight: '500',
-              fontSize: '0.875rem',
-              transition: 'all 0.2s'
-            }}
+            className={`px-3 py-1.5 rounded-lg font-semibold transition ${
+              activeTab === 'global'
+                ? 'bg-cyan-500 text-gray-950 font-bold'
+                : 'text-gray-400 hover:text-white'
+            }`}
           >
-            Pasar Global (IHSG)
+            Kabar Pasar IHSG
           </button>
         </div>
       </div>
 
-      {activeTab === 'specific' ? (
-        news.length === 0 ? (
-          <p className="text-muted text-center" style={{ padding: '2rem 0' }}>Tidak ada berita spesifik terbaru untuk emiten ini.</p>
-        ) : (
-          renderNewsList(news, false)
-        )
+      {loading ? (
+        <div className="py-12 text-center text-gray-500 text-xs flex flex-col items-center justify-center gap-2">
+          <RefreshCw className="w-5 h-5 text-cyan-400 animate-spin" />
+          <span>Memuat berita emiten terkini...</span>
+        </div>
+      ) : activeTab === 'specific' ? (
+        renderNewsList(news)
       ) : (
-        globalNews.length === 0 ? (
-          <p className="text-muted text-center" style={{ padding: '2rem 0' }}>Tidak ada berita pasar global terbaru saat ini.</p>
-        ) : (
-          renderNewsList(globalNews, true)
-        )
+        renderNewsList(globalNews, true)
       )}
     </div>
   );

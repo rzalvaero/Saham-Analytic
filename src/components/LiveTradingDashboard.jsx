@@ -94,7 +94,7 @@ export default function LiveTradingDashboard() {
               ⚡ REEZ TRADE <span className="text-cyan-400 font-medium text-xl sm:text-2xl">Verified Portfolio</span>
             </h1>
             <p className="text-xs sm:text-sm text-gray-400 mt-1">
-              Transparansi Trading Real-Time — Beekeeper Ecosystem (Koko Reza) • Akun Real Exness IDR
+              Transparansi Trading Real-Time — Portofolio Pribadi Koko Reza (Reez Trade) • Akun Real Exness IDR
             </p>
           </div>
 
@@ -594,7 +594,7 @@ export default function LiveTradingDashboard() {
       {/* Footer */}
       <footer className="text-center text-xs text-gray-500 py-6 border-t border-gray-800/60">
         <p className="font-medium text-gray-400">
-          ⚡ trade.reez.my.id — Verified Institutional Trading Stream by Beekeeper Ecosystem
+          ⚡ trade.reez.my.id — Verified Personal Trading Stream by Reez Trade
         </p>
         <p className="mt-1">
           Exness Real Account (IDR) • Data tersinkronisasi otomatis langsung dari MetaTrader 5

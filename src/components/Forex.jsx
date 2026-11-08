@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, RefreshCw, CircleDollarSign } from 'lucide-react';
+import { RefreshCw, CircleDollarSign, Zap, TrendingUp, TrendingDown } from 'lucide-react';
 import { fetchRealtimeData } from '../services/marketData';
 import StockChart from './StockChart';
 
 const formatPrice = (price, symbol) => {
   if (!price) return '0.00';
-  if (symbol.includes('JPY') || symbol === 'XAUUSD=X') {
+  if (symbol.includes('JPY') || symbol === 'XAUUSD=X' || symbol === 'GC=F') {
     return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
   return price.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
@@ -21,25 +21,24 @@ const Forex = () => {
       setLoading(true);
       try {
         const forexSymbols = ['EURUSD=X', 'GBPUSD=X', 'USDJPY=X', 'AUDUSD=X', 'GC=F'];
-        const fPromises = forexSymbols.map(sym => fetchRealtimeData(sym));
+        const fPromises = forexSymbols.map((sym) => fetchRealtimeData(sym));
         const fResults = await Promise.all(fPromises);
-        const validData = fResults.filter(d => d !== null);
-        
-        // Find Gold
-        const goldIndex = validData.findIndex(d => d.symbol === 'GC=F');
+        const validData = fResults.filter((d) => d !== null);
+
+        const goldIndex = validData.findIndex((d) => d.symbol === 'GC=F');
         if (goldIndex !== -1) {
-            validData[goldIndex].name = 'Gold (XAU) / USD';
+          validData[goldIndex].name = 'Gold (XAU) / USD';
         }
 
         setForexData(validData);
         if (validData.length > 0 && !selectedPair) {
           setSelectedPair(validData[0]);
         } else if (selectedPair) {
-          const updatedPair = validData.find(d => d.symbol === selectedPair.symbol);
+          const updatedPair = validData.find((d) => d.symbol === selectedPair.symbol);
           if (updatedPair) setSelectedPair(updatedPair);
         }
       } catch (err) {
-        console.error("Failed to fetch forex data", err);
+        console.error('Failed to fetch forex data', err);
       } finally {
         setLoading(false);
       }
@@ -51,97 +50,108 @@ const Forex = () => {
   }, []);
 
   return (
-    <div>
-      <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <CircleDollarSign size={24} className="text-accent-secondary" /> Forex & Commodities
-          </h1>
-          <p className="text-muted">Pantau pergerakan nilai tukar mata uang utama dunia dan harga Emas (Gold).</p>
-        </div>
-        {loading && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-primary)' }}>
-            <RefreshCw size={18} className="animate-spin" />
-            <span>Memuat Data...</span>
+    <div className="space-y-6 text-gray-100 font-sans">
+      {/* 1. Header Banner */}
+      <div className="rt-card bg-gradient-to-r from-[#0c1322] via-[#0f172a] to-[#0c1322] border-gray-850 p-5 sm:p-6 shadow-2xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="rt-badge rt-badge-live">
+                <span className="rt-pulse-dot" />
+                GLOBAL CURRENCY &amp; COMMODITIES
+              </span>
+              <span className="text-xs text-gray-400 font-mono">Spot Market Rate</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
+              <CircleDollarSign className="w-7 h-7 text-cyan-400" /> Forex &amp; Commodities
+            </h1>
+            <p className="text-xs sm:text-sm text-gray-400 mt-1">
+              Pantau pergerakan nilai tukar mata uang global utama dan komoditas Emas (Gold XAU/USD)
+            </p>
           </div>
-        )}
+
+          {loading && (
+            <div className="flex items-center gap-2 text-cyan-400 text-xs font-mono bg-cyan-950/60 border border-cyan-800/40 px-3.5 py-2 rounded-xl shrink-0">
+              <RefreshCw className="w-4 h-4 animate-spin" />
+              <span>Sinkronisasi Pasar...</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '1.5rem', flexDirection: 'column' }}>
-        {/* Top Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
-          {forexData.map(pair => (
-            <div 
-              key={pair.symbol} 
+      {/* 2. Pair Cards Carousel / Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+        {forexData.map((pair) => {
+          const isSelected = selectedPair?.symbol === pair.symbol;
+          const isUp = (pair.priceChange || 0) >= 0;
+          const rec = pair.analysis?.recommendation || 'HOLD';
+
+          return (
+            <div
+              key={pair.symbol}
               onClick={() => setSelectedPair(pair)}
-              className="glass-card"
-              style={{ 
-                padding: '1rem', 
-                cursor: 'pointer', 
-                border: selectedPair?.symbol === pair.symbol ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                transition: 'all 0.2s',
-                background: selectedPair?.symbol === pair.symbol ? 'rgba(255,255,255,0.05)' : 'var(--bg-secondary)'
-              }}
+              className={`p-3.5 rounded-xl transition-all cursor-pointer border ${
+                isSelected
+                  ? 'bg-gray-900 border-cyan-500 shadow-lg shadow-cyan-500/15'
+                  : 'bg-gray-950/70 border-gray-850 hover:border-gray-750'
+              }`}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                <h3 style={{ margin: 0, fontSize: '1.125rem' }}>{pair.name.split(' / ')[0]}</h3>
-                <span className={`badge ${pair.analysis.recommendation === 'BUY' ? 'buy' : pair.analysis.recommendation === 'SELL' ? 'sell' : 'hold'}`}>
-                  {pair.analysis.recommendation}
+              <div className="flex items-center justify-between gap-1 mb-1.5">
+                <span className="font-bold text-white text-xs sm:text-sm font-mono truncate">
+                  {pair.name?.split(' / ')[0]}
+                </span>
+                <span
+                  className={`text-[9px] px-1.5 py-0.5 rounded font-bold font-mono ${
+                    rec === 'BUY'
+                      ? 'bg-emerald-500/20 text-emerald-400'
+                      : rec === 'SELL'
+                      ? 'bg-rose-500/20 text-rose-400'
+                      : 'bg-gray-800 text-gray-400'
+                  }`}
+                >
+                  {rec}
                 </span>
               </div>
-              <div className="text-muted" style={{ fontSize: '0.75rem', marginBottom: '12px' }}>
-                {pair.name.includes('/') ? `/ ${pair.name.split(' / ')[1]}` : pair.symbol}
-              </div>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                <div style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
-                  {formatPrice(pair.currentPrice, pair.symbol)}
-                </div>
-                <div style={{ fontSize: '0.875rem', color: pair.priceChange > 0 ? 'var(--positive)' : pair.priceChange < 0 ? 'var(--negative)' : 'var(--text-muted)' }}>
-                  {pair.priceChange > 0 ? '+' : ''}{formatPrice(pair.priceChange, pair.symbol)}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
 
-        {/* Chart Section */}
-        {selectedPair && (
-          <div className="glass-card" style={{ padding: '1.5rem', marginTop: '1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <div>
-                <h2 style={{ fontSize: '1.5rem', margin: '0 0 0.5rem 0' }}>{selectedPair.name} ({selectedPair.symbol})</h2>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                  <span style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
-                    {formatPrice(selectedPair.currentPrice, selectedPair.symbol)}
-                  </span>
-                  <span style={{ 
-                    padding: '4px 8px', 
-                    borderRadius: '4px', 
-                    fontSize: '0.875rem',
-                    background: selectedPair.priceChange > 0 ? 'rgba(16, 185, 129, 0.1)' : selectedPair.priceChange < 0 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255,255,255,0.1)',
-                    color: selectedPair.priceChange > 0 ? 'var(--positive)' : selectedPair.priceChange < 0 ? 'var(--negative)' : 'var(--text-muted)' 
-                  }}>
-                    {selectedPair.priceChange > 0 ? '+' : ''}{formatPrice(selectedPair.priceChange, selectedPair.symbol)}
-                  </span>
-                </div>
+              <div className="text-[10px] text-gray-500 font-mono mb-2 truncate">
+                {pair.name?.includes('/') ? `/ ${pair.name.split(' / ')[1]}` : pair.symbol}
+              </div>
+
+              <div className="font-mono font-bold text-sm text-gray-200">
+                {formatPrice(pair.currentPrice, pair.symbol)}
+              </div>
+
+              <div
+                className={`text-[10px] font-mono font-semibold mt-0.5 flex items-center gap-0.5 ${
+                  isUp ? 'text-emerald-400' : 'text-rose-400'
+                }`}
+              >
+                {isUp ? '+' : ''}
+                {formatPrice(pair.priceChange, pair.symbol)}
               </div>
             </div>
-            
-            <div style={{ height: '400px', width: '100%' }}>
-              <StockChart data={selectedPair.historicalData} symbol={selectedPair.symbol} />
-            </div>
-
-            <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
-              <h4 style={{ margin: '0 0 8px 0', color: 'var(--accent-primary)' }}>AI Technical Analysis</h4>
-              <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.875rem', lineHeight: '1.5' }}>
-                {selectedPair.analysis.reason}
-              </p>
-            </div>
-          </div>
-        )}
-
+          );
+        })}
       </div>
+
+      {/* 3. Interactive Chart & Algorithmic Analysis */}
+      {selectedPair && (
+        <div className="space-y-4">
+          <StockChart data={selectedPair.historicalData} symbol={selectedPair.symbol} />
+
+          <div className="rt-card p-4 border-gray-850 bg-gray-950/70">
+            <div className="flex items-center gap-2 mb-2">
+              <Zap className="w-4 h-4 text-cyan-400" />
+              <h4 className="text-sm font-bold text-white">
+                Analisis Teknikal &amp; Algoritma Momentum ({selectedPair.symbol})
+              </h4>
+            </div>
+            <p className="text-xs text-gray-400 leading-relaxed font-sans">
+              {selectedPair.analysis?.reason || 'Konsolidasi range sempit pada sesi perdagangan saat ini.'}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
