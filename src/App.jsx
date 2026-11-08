@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, LayoutDashboard, Settings, Bell, RefreshCw, Briefcase, Compass, X, LogOut, Activity, Zap } from 'lucide-react';
+import {
+  Zap,
+  LayoutDashboard,
+  RefreshCw,
+  Activity,
+  Compass,
+  Briefcase,
+  Settings,
+  Bell,
+  LogOut,
+  X,
+  Menu
+} from 'lucide-react';
 import LiveTradingDashboard from './components/LiveTradingDashboard';
 import StockChart from './components/StockChart';
 import RecommendationEngine from './components/RecommendationEngine';
@@ -18,17 +30,15 @@ function App() {
   const [stocksData, setStocksData] = useState([]);
   const [watchlistSymbols, setWatchlistSymbols] = useState(['BBRI', 'BMRI', 'BBCA', '^JKSE']);
   const [selectedSymbol, setSelectedSymbol] = useState('BBRI');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('live-trading'); // Default live MT5 dashboard
+  const [activeTab, setActiveTab] = useState('live-trading'); // Default Live MT5
   const [authMode, setAuthMode] = useState('login');
   const [ihsgData, setIhsgData] = useState(null);
-  
-  // Remove automatic login fetch here
-  useEffect(() => {
-    // Only fetch IHSG
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  useEffect(() => {
     const fetchIHSG = async () => {
       const ihsg = await fetchRealtimeData('^JKSE');
       if (ihsg) setIhsgData(ihsg);
@@ -36,19 +46,17 @@ function App() {
     fetchIHSG();
   }, []);
 
-
   useEffect(() => {
-    if (watchlistSymbols.length === 0) return;
+    if (activeTab !== 'dashboard' || watchlistSymbols.length === 0) return;
 
     const fetchAllData = async () => {
       setLoading(true);
       setError(null);
       try {
-        const promises = watchlistSymbols.map(symbol => fetchRealtimeData(symbol));
+        const promises = watchlistSymbols.map((symbol) => fetchRealtimeData(symbol));
         const results = await Promise.all(promises);
-        
-        const validData = results.filter(data => data !== null);
-        
+        const validData = results.filter((data) => data !== null);
+
         if (validData.length === 0) {
           setError('Gagal memuat data saham. Pastikan koneksi dan kode saham valid.');
         } else {
@@ -60,11 +68,11 @@ function App() {
         setLoading(false);
       }
     };
-    
+
     fetchAllData();
     const interval = setInterval(fetchAllData, 60000);
     return () => clearInterval(interval);
-  }, [watchlistSymbols]);
+  }, [watchlistSymbols, activeTab]);
 
   const handleAddSymbol = async (symbol) => {
     if (!watchlistSymbols.includes(symbol) && user) {
@@ -72,12 +80,12 @@ function App() {
         await fetch('/api/watchlist', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user.id, symbol })
+          body: JSON.stringify({ userId: user.id, symbol }),
         });
         setWatchlistSymbols([...watchlistSymbols, symbol]);
         setSelectedSymbol(symbol);
       } catch (e) {
-        alert("Gagal menambahkan ke watchlist");
+        alert('Gagal menambahkan ke watchlist');
       }
     } else if (!watchlistSymbols.includes(symbol)) {
       setWatchlistSymbols([...watchlistSymbols, symbol]);
@@ -90,18 +98,18 @@ function App() {
     if (user) {
       try {
         await fetch(`/api/watchlist/${user.id}/${symbolToRemove}`, {
-          method: 'DELETE'
+          method: 'DELETE',
         });
-        const newWatchlist = watchlistSymbols.filter(sym => sym !== symbolToRemove);
+        const newWatchlist = watchlistSymbols.filter((sym) => sym !== symbolToRemove);
         setWatchlistSymbols(newWatchlist);
         if (selectedSymbol === symbolToRemove) {
           setSelectedSymbol(newWatchlist.length > 0 ? newWatchlist[0] : null);
         }
       } catch (err) {
-        console.error("Failed to remove from watchlist", err);
+        console.error('Failed to remove from watchlist', err);
       }
     } else {
-      const newWatchlist = watchlistSymbols.filter(sym => sym !== symbolToRemove);
+      const newWatchlist = watchlistSymbols.filter((sym) => sym !== symbolToRemove);
       setWatchlistSymbols(newWatchlist);
       if (selectedSymbol === symbolToRemove) {
         setSelectedSymbol(newWatchlist.length > 0 ? newWatchlist[0] : null);
@@ -109,127 +117,169 @@ function App() {
     }
   };
 
-  const selectedStockData = stocksData.find(s => s.symbol === selectedSymbol);
+  const selectedStockData = stocksData.find((s) => s.symbol === selectedSymbol);
+
+  const navItems = [
+    { id: 'live-trading', label: 'Live Trading', icon: Zap, liveBadge: true },
+    { id: 'dashboard', label: 'Saham & IHSG', icon: LayoutDashboard },
+    { id: 'forex', label: 'Forex & Gold', icon: RefreshCw },
+    { id: 'running-trade', label: 'Running Trade', icon: Activity },
+    { id: 'discover', label: 'Discover', icon: Compass },
+  ];
 
   return (
-    <div className="app-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '3rem' }}>
-          <div style={{ background: 'var(--accent-primary)', padding: '8px', borderRadius: '8px' }}>
-            <LineChart size={24} color="white" />
-          </div>
-          <h2 style={{ fontSize: '1.25rem', letterSpacing: '0.5px' }}>REEZ<span className="text-accent-primary"> Trade</span></h2>
-        </div>
+    <div className="min-h-screen bg-[#070a12] text-gray-100 flex flex-col font-sans">
+      {/* Top Institutional Navbar */}
+      <header className="sticky top-0 z-50 bg-[#0c111d]/90 backdrop-blur-xl border-b border-gray-800/80 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 gap-4">
+            {/* Brand Logo & Live Badge */}
+            <div className="flex items-center gap-3">
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveTab('live-trading');
+                }}
+                className="flex items-center gap-2.5 text-white font-extrabold text-lg sm:text-xl tracking-tight no-underline group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-600 to-emerald-400 p-0.5 shadow-lg shadow-cyan-500/20 flex items-center justify-center">
+                  <div className="w-full h-full bg-gray-950 rounded-[10px] flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
+                  </div>
+                </div>
+                <span>
+                  REEZ<span className="text-cyan-400"> Trade</span>
+                </span>
+              </a>
 
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
-          <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('live-trading'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'live-trading' ? 'rgba(6, 182, 212, 0.15)' : 'transparent', color: activeTab === 'live-trading' ? '#38bdf8' : 'var(--text-muted)', border: activeTab === 'live-trading' ? '1px solid rgba(6, 182, 212, 0.3)' : '1px solid transparent', textDecoration: 'none', fontWeight: '600', transition: '0.2s' }}>
-            <Zap size={20} color={activeTab === 'live-trading' ? '#38bdf8' : 'currentColor'} />
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, justifyContent: 'space-between' }}>
-              Live Trading
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', display: 'inline-block', boxShadow: '0 0 8px #10b981' }} />
-            </span>
-          </a>
-          <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('dashboard'); setSelectedSymbol(watchlistSymbols[0]); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'dashboard' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'dashboard' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
-            <LayoutDashboard size={20} />
-            Saham & IHSG
-          </a>
-          <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('forex'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'forex' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'forex' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
-            <RefreshCw size={20} />
-            Forex & Gold
-          </a>
-          <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('running-trade'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'running-trade' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'running-trade' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
-            <Activity size={20} />
-            Running Trade
-          </a>
-          <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('discover'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'discover' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'discover' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
-            <Compass size={20} />
-            Discover
-          </a>
-          {user && (
-            <>
-              <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('portfolio'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'portfolio' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'portfolio' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
-                <Briefcase size={20} />
-                Portfolio
-              </a>
-              <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('settings'); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', background: activeTab === 'settings' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'settings' ? 'white' : 'var(--text-muted)', textDecoration: 'none', fontWeight: '500', transition: '0.2s' }}>
-                <Settings size={20} />
-                Settings
-              </a>
-            </>
-          )}
-        </nav>
-        
-        {/* User Status */}
-        {user ? (
-          <div style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', position: 'relative' }}>
-            <p className="text-muted" style={{ fontSize: '0.75rem', marginBottom: '4px' }}>Logged in as <b>{user.username}</b></p>
-            <p style={{ fontWeight: 'bold', color: 'var(--positive)' }}>Rp {parseFloat(user.balance).toLocaleString('id-ID')}</p>
-            <button 
-              onClick={() => { setUser(null); setActiveTab('dashboard'); }} 
-              style={{ position: 'absolute', top: '12px', right: '12px', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', transition: 'color 0.2s' }}
-              title="Logout"
-            >
-              <LogOut size={16} />
-            </button>
-          </div>
-        ) : (
-          <div style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', border: '1px dashed var(--border-color)', borderRadius: '8px', textAlign: 'center' }}>
-            <p className="text-muted" style={{ fontSize: '0.75rem', marginBottom: '8px' }}>Belum masuk akun</p>
-            <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
-              <button 
-                onClick={() => { setAuthMode('login'); setActiveTab('portfolio'); }} 
-                style={{ padding: '8px', background: 'var(--accent-primary)', color: 'white', border: 'none', borderRadius: '4px', fontSize: '0.875rem', cursor: 'pointer', fontWeight: 'bold' }}>
-                Login
-              </button>
-              <button 
-                onClick={() => { setAuthMode('register'); setActiveTab('portfolio'); }} 
-                style={{ padding: '8px', background: 'transparent', color: 'var(--accent-primary)', border: '1px solid var(--accent-primary)', borderRadius: '4px', fontSize: '0.875rem', cursor: 'pointer', fontWeight: 'bold' }}>
-                Register
+              <div className="hidden sm:flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-1 rounded-full text-xs font-semibold">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>EXNESS REAL</span>
+              </div>
+            </div>
+
+            {/* Desktop Navigation Tabs */}
+            <nav className="hidden md:flex items-center gap-1.5 bg-gray-900/60 p-1 rounded-xl border border-gray-800">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive
+                        ? 'bg-cyan-500 text-gray-950 font-bold shadow-md shadow-cyan-500/20'
+                        : 'text-gray-400 hover:text-white hover:bg-gray-800/60'
+                    }`}
+                  >
+                    <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-gray-950' : 'text-gray-400'}`} />
+                    <span>{item.label}</span>
+                    {item.liveBadge && !isActive && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+
+            {/* Right Controls / Profile */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {user ? (
+                <div className="flex items-center gap-2 bg-gray-900 border border-gray-800 py-1 px-2.5 rounded-xl text-xs">
+                  <div className="text-right hidden sm:block">
+                    <span className="text-gray-400 text-[10px] block">User: {user.username}</span>
+                    <span className="font-mono font-bold text-emerald-400">
+                      Rp {parseFloat(user.balance).toLocaleString('id-ID')}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setUser(null)}
+                    className="text-gray-400 hover:text-rose-400 p-1"
+                    title="Logout"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="hidden sm:flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setAuthMode('login');
+                      setActiveTab('portfolio');
+                    }}
+                    className="text-xs text-gray-300 hover:text-white px-3 py-1.5 rounded-lg border border-gray-800 hover:border-gray-700 transition"
+                  >
+                    Paper Login
+                  </button>
+                </div>
+              )}
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-400 hover:text-white"
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
           </div>
-        )}
-      </aside>
+        </div>
 
-      {/* Main Content */}
-      <main className="main-content">
-        {/* Header */}
-        <header className="header">
-          <SearchStock onAddSymbol={handleAddSymbol} />
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <button style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-              <Bell size={20} />
-            </button>
-            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))' }} />
+        {/* Mobile Dropdown Nav */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-gray-950 border-b border-gray-800 px-4 py-3 space-y-1 animate-fade-in">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold transition ${
+                    isActive
+                      ? 'bg-cyan-500 text-gray-950 font-bold'
+                      : 'text-gray-300 hover:bg-gray-900'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icon className="w-4 h-4" />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.liveBadge && (
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  )}
+                </button>
+              );
+            })}
           </div>
-        </header>
-
-        {/* Dashboard Content */}
-        {activeTab === 'live-trading' && (
-          <div className="content-wrapper animate-fade-in">
-            <LiveTradingDashboard />
-          </div>
         )}
+      </header>
 
+      {/* Main Full-Width Content Container */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* 1. Live MT5 Institutional Dashboard (Default) */}
+        {activeTab === 'live-trading' && <LiveTradingDashboard />}
+
+        {/* 2. Saham & IHSG Dashboard */}
         {activeTab === 'dashboard' && (
-          <div className="content-wrapper">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-900/60 p-4 rounded-2xl border border-gray-800">
               <div>
-                <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Market Dashboard</h1>
-                <p className="text-muted">Data Realtime Pasar Saham Indonesia (Yahoo Finance)</p>
+                <h2 className="text-xl font-bold text-white">Pasar Saham Indonesia (IDX)</h2>
+                <p className="text-xs text-gray-400">Data Realtime Yahoo Finance (IHSG, BBCA, BBRI, BMRI, dll)</p>
               </div>
-              
-              {loading && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-primary)' }}>
-                  <RefreshCw size={18} className="animate-spin" />
-                  <span>Memuat Data...</span>
-                </div>
-              )}
+              <div className="w-full sm:w-auto">
+                <SearchStock onAddSymbol={handleAddSymbol} />
+              </div>
             </div>
 
             {error && (
-              <div style={{ padding: '1rem', background: 'var(--negative-bg)', color: 'var(--negative)', borderRadius: 'var(--border-radius-md)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+              <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl text-sm">
                 {error}
               </div>
             )}
@@ -238,132 +288,116 @@ function App() {
               <>
                 <MarketOverview stocks={stocksData} />
 
-                <div className="grid-main">
-                  <div className="item-chart" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
-                      {watchlistSymbols.map(sym => (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2 space-y-4">
+                    {/* Watchlist Chips */}
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {watchlistSymbols.map((sym) => (
                         <button
                           key={sym}
                           onClick={() => setSelectedSymbol(sym)}
-                          style={{
-                            padding: '8px 16px',
-                            background: selectedSymbol === sym ? 'var(--accent-primary)' : 'rgba(255,255,255,0.05)',
-                            border: '1px solid ' + (selectedSymbol === sym ? 'var(--accent-primary)' : 'var(--border-color)'),
-                            borderRadius: '99px',
-                            color: 'white',
-                            cursor: 'pointer',
-                            fontWeight: '500',
-                            transition: 'all 0.2s',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                          }}
+                          className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 transition ${
+                            selectedSymbol === sym
+                              ? 'bg-cyan-500 text-gray-950 font-bold'
+                              : 'bg-gray-900 text-gray-300 border border-gray-800 hover:border-gray-700'
+                          }`}
                         >
                           {sym}
-                          <X 
-                            size={14} 
-                            style={{ opacity: 0.7 }} 
-                            onClick={(e) => handleRemoveWatchlist(e, sym)} 
+                          <X
+                            size={12}
+                            className="opacity-70 hover:opacity-100"
+                            onClick={(e) => handleRemoveWatchlist(e, sym)}
                           />
                         </button>
                       ))}
                     </div>
-                    
+
                     {selectedStockData ? (
-                      <StockChart 
-                        data={selectedStockData.historicalData} 
+                      <StockChart
+                        data={selectedStockData.historicalData}
                         smaData={selectedStockData.smaData}
-                        symbol={selectedStockData.symbol} 
+                        symbol={selectedStockData.symbol}
                       />
                     ) : ihsgData ? (
-                      <StockChart 
-                        data={ihsgData.historicalData} 
+                      <StockChart
+                        data={ihsgData.historicalData}
                         smaData={ihsgData.smaData}
-                        symbol="IHSG (^JKSE)" 
+                        symbol="IHSG (^JKSE)"
                       />
                     ) : (
-                      <div className="glass-card" style={{ height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span className="text-muted">Memuat grafik...</span>
+                      <div className="h-96 rounded-2xl bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-500 text-sm">
+                        Memuat grafik...
                       </div>
                     )}
                   </div>
-                  
-                  <div className="item-reco">
+
+                  <div className="space-y-6">
                     <RecommendationEngine stocks={stocksData} />
-                  </div>
-                    
-                  <div className="item-paper">
                     {selectedStockData && (
-                      <PaperTrading 
-                        symbol={selectedStockData.symbol} 
-                        currentPrice={selectedStockData.currentPrice} 
+                      <PaperTrading
+                        symbol={selectedStockData.symbol}
+                        currentPrice={selectedStockData.currentPrice}
                         user={user}
-                        onTrade={(newBalance) => setUser({...user, balance: newBalance})}
+                        onTrade={(newBalance) => setUser({ ...user, balance: newBalance })}
                       />
                     )}
                   </div>
                 </div>
 
-                {/* News Section Full Width Below Grid */}
-                <div style={{ marginTop: '1.5rem' }}>
-                  {selectedStockData && (
-                    <div className="item-news">
-                      <FundamentalNews symbol={selectedStockData.symbol} onAddSymbol={handleAddSymbol} />
-                    </div>
-                  )}
-                </div>
+                {selectedStockData && (
+                  <div className="mt-6">
+                    <FundamentalNews symbol={selectedStockData.symbol} onAddSymbol={handleAddSymbol} />
+                  </div>
+                )}
               </>
             )}
           </div>
         )}
 
-        {/* Discover Content */}
-        {activeTab === 'discover' && (
-          <div className="content-wrapper animate-fade-in">
-            <Discover />
-          </div>
-        )}
-         
-        {activeTab === 'running-trade' && (
-          <div className="content-wrapper animate-fade-in" style={{ height: 'calc(100vh - 4rem)' }}>
-            <RunningTrade />
-          </div>
-        )}
-
+        {/* 3. Forex & Commodities */}
         {activeTab === 'forex' && (
-          <div className="content-wrapper animate-fade-in">
+          <div className="rounded-2xl bg-gray-900/60 p-5 border border-gray-800">
             <Forex />
           </div>
         )}
 
-        {/* Portfolio Content */}
-        {activeTab === 'portfolio' && (
-          <div className="content-wrapper animate-fade-in">
-             <Portfolio 
-               user={user} 
-               authMode={authMode}
-               setAuthMode={setAuthMode}
-               onLogin={(userData) => {
-                 setUser(userData);
-                 setWatchlistSymbols(['BBCA']);
-                 setSelectedSymbol('BBCA');
-               }} 
-             />
+        {/* 4. Running Trade */}
+        {activeTab === 'running-trade' && (
+          <div className="rounded-2xl bg-gray-900/60 p-5 border border-gray-800">
+            <RunningTrade />
           </div>
         )}
 
-        {/* Settings Content */}
+        {/* 5. Discover */}
+        {activeTab === 'discover' && (
+          <div className="rounded-2xl bg-gray-900/60 p-5 border border-gray-800">
+            <Discover />
+          </div>
+        )}
+
+        {/* 6. Portfolio Paper Trading */}
+        {activeTab === 'portfolio' && (
+          <div className="rounded-2xl bg-gray-900/60 p-5 border border-gray-800">
+            <Portfolio
+              user={user}
+              authMode={authMode}
+              setAuthMode={setAuthMode}
+              onLogin={(userData) => {
+                setUser(userData);
+                setWatchlistSymbols(['BBCA']);
+                setSelectedSymbol('BBCA');
+              }}
+            />
+          </div>
+        )}
+
+        {/* 7. Settings */}
         {activeTab === 'settings' && (
-          <div className="content-wrapper">
-             <SettingsPage user={user} />
+          <div className="rounded-2xl bg-gray-900/60 p-5 border border-gray-800">
+            <SettingsPage user={user} />
           </div>
         )}
       </main>
-      
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .animate-spin { animation: spin 1s linear infinite; }
-      `}} />
     </div>
   );
 }

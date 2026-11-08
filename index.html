@@ -1,13 +1,57 @@
 <!doctype html>
-<html lang="en">
+<html lang="id" class="dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>REEZ Trade — Live Institutional Trading Portfolio & Verification</title>
     <meta name="description" content="Verifikasi Trading Real-Time Beekeeper Ecosystem — Exness Real Cent Account (MT5 Live Stream)" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+            colors: {
+              brand: {
+                dark: '#080c14',
+                surface: '#0f172a',
+                card: '#111827',
+                border: 'rgba(255, 255, 255, 0.08)',
+                cyan: '#06b6d4',
+                green: '#10b981',
+                red: '#ef4444',
+                amber: '#f59e0b',
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #070a12;
+        color: #f3f4f6;
+        min-height: 100vh;
+      }
+      .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+      }
+    </style>
   </head>
-  <body>
+  <body class="bg-[#070a12] text-gray-100 antialiased selection:bg-cyan-500 selection:text-black">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Activity,
   TrendingUp,
   TrendingDown,
   DollarSign,
   Wallet,
-  ShieldCheck,
   Clock,
   CheckCircle2,
   Award,
   Share2,
-  Copy,
   RefreshCw,
   BarChart3,
-  Layers,
   Zap,
+  ShieldCheck,
+  Layers,
   ArrowUpRight,
   ArrowDownRight
 } from 'lucide-react';
@@ -22,10 +20,8 @@ import {
 export default function LiveTradingDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [currencyMode, setCurrencyMode] = useState('dual'); // 'rp' | 'idc' | 'dual'
   const [copied, setCopied] = useState(false);
-  const [lastPing, setLastPing] = useState(Date.now());
 
   // Formatter functions
   const formatRupiah = (val, showSign = false) => {
@@ -59,8 +55,8 @@ export default function LiveTradingDashboard() {
         idcShort = Math.round(idcVal) + ' IDC';
       }
       return (
-        <span>
-          {rpStr}{' '}
+        <span className="inline-flex items-baseline gap-1.5 flex-wrap">
+          <span>{rpStr}</span>
           <span className="text-xs text-gray-400 font-mono font-normal">
             ({idcShort})
           </span>
@@ -72,13 +68,11 @@ export default function LiveTradingDashboard() {
   const fetchData = async () => {
     try {
       const res = await fetch('/api/trade-live');
-      if (!res.ok) throw new Error('Gagal mengambil data live stream');
+      if (!res.ok) throw new Error('Gagal memuat live stream');
       const json = await res.json();
       setData(json);
-      setError(null);
-      setLastPing(Date.now());
     } catch (err) {
-      setError(err.message);
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -86,7 +80,7 @@ export default function LiveTradingDashboard() {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 2500); // Poll tiap 2.5 detik
+    const interval = setInterval(fetchData, 2500); // 2.5s auto poll
     return () => clearInterval(interval);
   }, []);
 
@@ -98,10 +92,10 @@ export default function LiveTradingDashboard() {
 
   if (loading && !data) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-8">
         <RefreshCw className="w-10 h-10 text-cyan-400 animate-spin mb-4" />
         <h3 className="text-xl font-bold text-white mb-2">Menghubungkan ke Live Stream MT5...</h3>
-        <p className="text-sm text-gray-400">Mengambil data posisi aktif dan histori transaksi Exness Cent Real</p>
+        <p className="text-sm text-gray-400">Mengambil data posisi aktif dan histori Exness Real</p>
       </div>
     );
   }
@@ -114,38 +108,38 @@ export default function LiveTradingDashboard() {
   const wdList = stats?.wd_list || [];
 
   return (
-    <div className="space-y-6 pb-12 animate-fade-in text-gray-100">
-      {/* Top Banner Header */}
-      <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border border-gray-700/60 rounded-2xl p-5 sm:p-6 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative z-10">
+    <div className="space-y-6 text-gray-100 font-sans">
+      {/* 1. Top Header Banner */}
+      <div className="rt-card relative overflow-hidden bg-gradient-to-r from-[#0c1322] via-[#0f172a] to-[#0c1322] border border-gray-800 p-5 sm:p-6 shadow-2xl">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 relative z-10">
           <div>
-            <div className="flex items-center gap-3 mb-2 flex-wrap">
-              <span className="flex items-center gap-2 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 px-3 py-1 rounded-full text-xs font-semibold">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                LIVE EXNESS MT5 REAL
+            <div className="flex items-center gap-2.5 mb-2.5 flex-wrap">
+              <span className="rt-badge rt-badge-live">
+                <span className="rt-pulse-dot" />
+                LIVE STREAMING MT5 REAL
               </span>
-              <span className="bg-gray-800 text-gray-300 border border-gray-700 px-3 py-1 rounded-full text-xs font-mono">
-                {account.server || 'Exness-MT5Real48'} • #{account.login || '452****70'}
+              <span className="bg-gray-800 text-gray-300 border border-gray-700/80 px-3 py-1 rounded-full text-xs font-mono">
+                {account.server || 'Exness-MT5Real48'} • Login #{account.login || '452****70'}
               </span>
               <span className="text-xs text-gray-400 font-mono">
-                {data?.server_time || new Date().toLocaleTimeString()}
+                ⏱️ {data?.server_time || new Date().toLocaleTimeString()}
               </span>
             </div>
+
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
-              ⚡ REEZ TRADE <span className="text-cyan-400 font-normal text-xl sm:text-2xl">Institutional Portfolio</span>
+              ⚡ REEZ TRADE <span className="text-cyan-400 font-medium text-xl sm:text-2xl">Verified Portfolio</span>
             </h1>
             <p className="text-xs sm:text-sm text-gray-400 mt-1">
-              Verifikasi & Transparansi Trading Real-Time — Beekeeper Ecosystem (Koko Reza)
+              Transparansi Trading Real-Time — Beekeeper Ecosystem (Koko Reza) • Akun Cent (`100 IDC = Rp 1`)
             </p>
           </div>
 
           {/* Controls: Currency switcher & Share button */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-            <div className="flex items-center bg-gray-950/80 p-1 rounded-xl border border-gray-800 text-xs font-medium">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <div className="flex items-center bg-gray-950 p-1 rounded-xl border border-gray-800 text-xs">
               <button
                 onClick={() => setCurrencyMode('rp')}
-                className={`px-3 py-1.5 rounded-lg transition ${
+                className={`px-3 py-1.5 rounded-lg transition font-medium ${
                   currencyMode === 'rp'
                     ? 'bg-cyan-500 text-gray-950 font-bold shadow'
                     : 'text-gray-400 hover:text-white'
@@ -155,7 +149,7 @@ export default function LiveTradingDashboard() {
               </button>
               <button
                 onClick={() => setCurrencyMode('idc')}
-                className={`px-3 py-1.5 rounded-lg transition ${
+                className={`px-3 py-1.5 rounded-lg transition font-medium ${
                   currencyMode === 'idc'
                     ? 'bg-cyan-500 text-gray-950 font-bold shadow'
                     : 'text-gray-400 hover:text-white'
@@ -165,7 +159,7 @@ export default function LiveTradingDashboard() {
               </button>
               <button
                 onClick={() => setCurrencyMode('dual')}
-                className={`px-3 py-1.5 rounded-lg transition ${
+                className={`px-3 py-1.5 rounded-lg transition font-medium ${
                   currencyMode === 'dual'
                     ? 'bg-cyan-500 text-gray-950 font-bold shadow'
                     : 'text-gray-400 hover:text-white'
@@ -180,22 +174,22 @@ export default function LiveTradingDashboard() {
               className="flex items-center gap-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white text-xs font-semibold px-3 py-2 rounded-xl transition shadow"
             >
               {copied ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4 text-cyan-400" />}
-              {copied ? 'Tersalin!' : 'Bagikan'}
+              {copied ? 'Tersalin!' : 'Bagikan Link'}
             </button>
           </div>
         </div>
       </div>
 
-      {/* 6 Key Executive Metric Cards (User Requirement) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      {/* 2. ENAM METRIK UTAMA FINANSIAL */}
+      <div className="rt-grid-6">
         {/* Card 1: Bulan Ini Dapat Berapa */}
-        <div className="bg-gray-900/70 border border-emerald-500/30 rounded-2xl p-4 relative overflow-hidden backdrop-blur-md shadow-lg flex flex-col justify-between">
-          <div className="flex items-center justify-between text-gray-400 text-xs mb-1">
-            <span className="font-semibold text-emerald-400 flex items-center gap-1">
+        <div className="rt-card rt-card-emerald flex flex-col justify-between">
+          <div className="flex items-center justify-between text-xs mb-1">
+            <span className="font-bold text-emerald-400 flex items-center gap-1">
               <TrendingUp className="w-3.5 h-3.5" /> BULAN INI DAPAT
             </span>
-            <span className="bg-emerald-500/10 text-emerald-400 text-[10px] px-1.5 py-0.5 rounded font-mono">
-              Gross Profit
+            <span className="bg-emerald-500/10 text-emerald-400 text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold">
+              Gross Win
             </span>
           </div>
           <div className="my-2">
@@ -209,12 +203,12 @@ export default function LiveTradingDashboard() {
         </div>
 
         {/* Card 2: Minus Berapa */}
-        <div className="bg-gray-900/70 border border-rose-500/30 rounded-2xl p-4 relative overflow-hidden backdrop-blur-md shadow-lg flex flex-col justify-between">
-          <div className="flex items-center justify-between text-gray-400 text-xs mb-1">
-            <span className="font-semibold text-rose-400 flex items-center gap-1">
+        <div className="rt-card rt-card-rose flex flex-col justify-between">
+          <div className="flex items-center justify-between text-xs mb-1">
+            <span className="font-bold text-rose-400 flex items-center gap-1">
               <TrendingDown className="w-3.5 h-3.5" /> MINUS BERAPA
             </span>
-            <span className="bg-rose-500/10 text-rose-400 text-[10px] px-1.5 py-0.5 rounded font-mono">
+            <span className="bg-rose-500/10 text-rose-400 text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold">
               Total Loss
             </span>
           </div>
@@ -223,19 +217,19 @@ export default function LiveTradingDashboard() {
               {formatMoney(-Math.abs(stats.total_loss_idc || 0))}
             </div>
             <p className="text-[11px] text-gray-400 mt-0.5">
-              Total proteksi SL & trade cutloss ({stats.month_label || 'Bulan Ini'})
+              Total proteksi SL & cutloss tertutup
             </p>
           </div>
         </div>
 
         {/* Card 3: Udah WD Berapa */}
-        <div className="bg-gray-900/70 border border-cyan-500/30 rounded-2xl p-4 relative overflow-hidden backdrop-blur-md shadow-lg flex flex-col justify-between">
-          <div className="flex items-center justify-between text-gray-400 text-xs mb-1">
-            <span className="font-semibold text-cyan-400 flex items-center gap-1">
+        <div className="rt-card rt-card-cyan flex flex-col justify-between">
+          <div className="flex items-center justify-between text-xs mb-1">
+            <span className="font-bold text-cyan-400 flex items-center gap-1">
               <Wallet className="w-3.5 h-3.5" /> UDAH WD BERAPA
             </span>
-            <span className="bg-cyan-500/10 text-cyan-400 text-[10px] px-1.5 py-0.5 rounded font-mono">
-              Bank Payout
+            <span className="bg-cyan-500/10 text-cyan-400 text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold">
+              Bank WD
             </span>
           </div>
           <div className="my-2">
@@ -249,10 +243,10 @@ export default function LiveTradingDashboard() {
         </div>
 
         {/* Card 4: Net PnL Bulan Ini */}
-        <div className="bg-gray-900/70 border border-gray-700/60 rounded-2xl p-4 relative overflow-hidden backdrop-blur-md shadow-lg flex flex-col justify-between">
-          <div className="flex items-center justify-between text-gray-400 text-xs mb-1">
-            <span className="font-semibold text-gray-300 flex items-center gap-1">
-              <BarChart3 className="w-3.5 h-3.5" /> NET PNL BULAN INI
+        <div className="rt-card flex flex-col justify-between">
+          <div className="flex items-center justify-between text-xs mb-1">
+            <span className="font-bold text-gray-300 flex items-center gap-1">
+              <BarChart3 className="w-3.5 h-3.5 text-cyan-400" /> NET PNL BULAN INI
             </span>
             <span className="text-[10px] text-gray-400 font-mono">Net Profit</span>
           </div>
@@ -269,32 +263,32 @@ export default function LiveTradingDashboard() {
         </div>
 
         {/* Card 5: Saldo & Equity */}
-        <div className="bg-gray-900/70 border border-gray-700/60 rounded-2xl p-4 relative overflow-hidden backdrop-blur-md shadow-lg flex flex-col justify-between">
-          <div className="flex items-center justify-between text-gray-400 text-xs mb-1">
-            <span className="font-semibold text-gray-300 flex items-center gap-1">
-              <DollarSign className="w-3.5 h-3.5" /> SALDO & EQUITY
+        <div className="rt-card flex flex-col justify-between">
+          <div className="flex items-center justify-between text-xs mb-1">
+            <span className="font-bold text-gray-300 flex items-center gap-1">
+              <DollarSign className="w-3.5 h-3.5 text-purple-400" /> SALDO & EQUITY
             </span>
-            <span className="bg-purple-500/10 text-purple-300 text-[10px] px-1.5 py-0.5 rounded font-mono">
-              Live Modal
+            <span className="bg-purple-500/10 text-purple-300 text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold">
+              Balance
             </span>
           </div>
           <div className="my-2">
             <div className="text-xl sm:text-2xl font-extrabold font-mono text-white tracking-tight">
               {formatMoney(account.balance_idc)}
             </div>
-            <div className="text-[11px] text-gray-400 mt-0.5 flex items-center justify-between">
+            <p className="text-[11px] text-gray-400 mt-0.5 flex items-center justify-between">
               <span>Equity: {formatMoney(account.equity_idc)}</span>
-            </div>
+            </p>
           </div>
         </div>
 
         {/* Card 6: Winrate & PF */}
-        <div className="bg-gray-900/70 border border-gray-700/60 rounded-2xl p-4 relative overflow-hidden backdrop-blur-md shadow-lg flex flex-col justify-between">
-          <div className="flex items-center justify-between text-gray-400 text-xs mb-1">
-            <span className="font-semibold text-gray-300 flex items-center gap-1">
-              <Award className="w-3.5 h-3.5" /> WIN RATE & PF
+        <div className="rt-card flex flex-col justify-between">
+          <div className="flex items-center justify-between text-xs mb-1">
+            <span className="font-bold text-gray-300 flex items-center gap-1">
+              <Award className="w-3.5 h-3.5 text-amber-400" /> WIN RATE & PF
             </span>
-            <span className="text-[10px] text-gray-400 font-mono">Metrik</span>
+            <span className="text-[10px] text-gray-400 font-mono">Statistik</span>
           </div>
           <div className="my-2">
             <div className="text-xl sm:text-2xl font-extrabold font-mono text-amber-400 tracking-tight">
@@ -310,27 +304,27 @@ export default function LiveTradingDashboard() {
         </div>
       </div>
 
-      {/* SECTION 1: POSISI AKTIF TERBUKA (LIVE OPEN POSITIONS) */}
-      <div className="bg-gray-900/70 border border-gray-800 rounded-2xl p-5 shadow-xl backdrop-blur-md">
+      {/* 3. SECTION POSISI AKTIF TERBUKA (LIVE OPEN POSITIONS) */}
+      <div className="rt-card">
         <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-800">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 font-bold">
               ⚡
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                Posisi Aktif Terbuka
-                <span className="bg-cyan-500/20 text-cyan-300 text-xs px-2 py-0.5 rounded-full font-mono font-semibold">
+              <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                Posisi Aktif Terbuka (Open Trades)
+                <span className="bg-cyan-500/20 text-cyan-300 text-xs px-2.5 py-0.5 rounded-full font-mono font-bold">
                   {positions.length} Posisi Running
                 </span>
               </h2>
               <p className="text-xs text-gray-400">
-                Data ditarik langsung tiap detik dari memori terminal MT5
+                Order yang sedang aktif dieksekusi broker MetaTrader 5 saat ini
               </p>
             </div>
           </div>
           <div className="text-right">
-            <span className="text-xs text-gray-400 block">Total Floating PnL</span>
+            <span className="text-[11px] text-gray-400 block uppercase font-medium">Total Floating PnL</span>
             <span
               className={`text-base sm:text-lg font-extrabold font-mono ${
                 (account.floating_idc || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'
@@ -343,16 +337,16 @@ export default function LiveTradingDashboard() {
 
         {positions.length === 0 ? (
           <div className="text-center py-12 px-4 rounded-xl border border-dashed border-gray-800 bg-gray-950/40">
-            <div className="w-12 h-12 rounded-full bg-gray-800/80 mx-auto flex items-center justify-center text-xl mb-3 text-gray-400">
+            <div className="w-12 h-12 rounded-full bg-gray-900 mx-auto flex items-center justify-center text-xl mb-3 text-gray-400 border border-gray-800">
               ⚪
             </div>
-            <h4 className="text-base font-semibold text-white mb-1">Semua Posisi Clear (Standby)</h4>
+            <h4 className="text-base font-semibold text-white mb-1">Semua Posisi Standby (Clear)</h4>
             <p className="text-xs text-gray-400 max-w-md mx-auto">
-              Tidak ada order yang sedang terbuka saat ini. Bot dan trader sedang menunggu konfirmasi setup sinyal berikutnya.
+              Tidak ada order terbuka saat ini. Sistem menunggu konfirmasi setup sinyal EA atau manual berikutnya.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="rt-grid-3">
             {positions.map((p) => {
               const isBuy = p.type === 'BUY';
               const isProfit = p.pnl_idc >= 0;
@@ -364,39 +358,37 @@ export default function LiveTradingDashboard() {
               return (
                 <div
                   key={p.ticket}
-                  className={`p-4 rounded-xl border transition-all ${
+                  className={`rt-card p-4 border transition-all ${
                     isProfit
-                      ? 'bg-emerald-950/20 border-emerald-500/30 hover:border-emerald-500/50'
-                      : 'bg-rose-950/20 border-rose-500/30 hover:border-rose-500/50'
+                      ? 'rt-card-emerald bg-[#0d1f1c]/80'
+                      : 'rt-card-rose bg-[#1f1015]/80'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-2.5">
                     <div className="flex items-center gap-2">
-                      <span className="text-xl">{icon}</span>
+                      <span className="text-2xl">{icon}</span>
                       <div>
                         <div className="flex items-center gap-1.5">
                           <span className="font-extrabold text-white text-base tracking-wide">
                             {p.symbol}
                           </span>
                           <span
-                            className={`text-xs px-2 py-0.5 rounded font-extrabold ${
-                              isBuy
-                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                                : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                            className={`rt-badge ${
+                              isBuy ? 'rt-badge-buy' : 'rt-badge-sell'
                             }`}
                           >
                             {p.type}
                           </span>
-                          <span className="text-xs font-mono bg-gray-800 text-gray-300 px-1.5 py-0.5 rounded border border-gray-700">
+                          <span className="text-xs font-mono bg-gray-900 text-gray-300 px-2 py-0.5 rounded border border-gray-800">
                             {p.volume} Lot
                           </span>
                         </div>
-                        <div className="text-[11px] text-gray-400 mt-0.5">{p.strategy}</div>
+                        <div className="text-[11px] text-gray-400 mt-0.5 font-medium">{p.strategy}</div>
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <div className="text-[10px] text-gray-400 uppercase">Floating</div>
+                      <div className="text-[10px] text-gray-400 uppercase font-semibold">Running PnL</div>
                       <div
                         className={`text-base font-extrabold font-mono ${
                           isProfit ? 'text-emerald-400' : 'text-rose-400'
@@ -407,14 +399,14 @@ export default function LiveTradingDashboard() {
                     </div>
                   </div>
 
-                  {/* Price Grid */}
-                  <div className="grid grid-cols-2 gap-2 my-2.5 p-2 rounded-lg bg-gray-900/80 border border-gray-800/80 text-xs font-mono">
+                  {/* Price Matrix Box */}
+                  <div className="grid grid-cols-2 gap-2 my-2.5 p-2.5 rounded-lg bg-gray-950/80 border border-gray-800/80 text-xs font-mono">
                     <div>
                       <span className="text-[10px] text-gray-500 block uppercase">Harga Entry</span>
                       <span className="text-gray-200 font-semibold">{p.price_open}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] text-gray-500 block uppercase">Harga Sekarang</span>
+                      <span className="text-[10px] text-gray-500 block uppercase">Harga Saat Ini</span>
                       <span className="text-cyan-300 font-semibold">{p.price_current}</span>
                     </div>
                     <div>
@@ -431,7 +423,7 @@ export default function LiveTradingDashboard() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-[11px] text-gray-400 pt-1 border-t border-gray-800/50">
+                  <div className="flex items-center justify-between text-[11px] text-gray-400 pt-1.5 border-t border-gray-800/50">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3 text-gray-500" />
                       Aktif {p.duration} ({p.open_time})
@@ -445,10 +437,10 @@ export default function LiveTradingDashboard() {
         )}
       </div>
 
-      {/* SECTION 2 & 3: LEADERBOARD PER-EA & RIWAYAT WITHDRAWAL */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Leaderboard Performa EA (2 Cols) */}
-        <div className="lg:col-span-2 bg-gray-900/70 border border-gray-800 rounded-2xl p-5 shadow-xl backdrop-blur-md">
+      {/* 4. LEADERBOARD PER-EA & RIWAYAT WD */}
+      <div className="rt-grid-split">
+        {/* Leaderboard Performa EA */}
+        <div className="rt-card">
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-800">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 font-bold">
@@ -480,7 +472,7 @@ export default function LiveTradingDashboard() {
                 {leaderboard.length === 0 ? (
                   <tr>
                     <td colSpan="6" className="py-6 text-center text-gray-500">
-                      Belum ada rekaman trade di bulan ini.
+                      Belum ada data rekaman transaksi bulan ini.
                     </td>
                   </tr>
                 ) : (
@@ -498,7 +490,7 @@ export default function LiveTradingDashboard() {
                     return (
                       <tr
                         key={item.name}
-                        className="border-b border-gray-800/40 hover:bg-gray-800/30 transition"
+                        className="border-b border-gray-800/40 hover:bg-gray-850/40 transition"
                       >
                         <td className="py-2.5 px-3">{rankBadge}</td>
                         <td className="py-2.5 px-3 font-semibold text-white">{item.name}</td>
@@ -534,8 +526,8 @@ export default function LiveTradingDashboard() {
           </div>
         </div>
 
-        {/* Riwayat Penarikan Dana (Withdrawals) (1 Col) */}
-        <div className="bg-gray-900/70 border border-gray-800 rounded-2xl p-5 shadow-xl backdrop-blur-md flex flex-col justify-between">
+        {/* Riwayat Penarikan Dana (Withdrawals) */}
+        <div className="rt-card flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-800">
               <div className="flex items-center gap-2.5">
@@ -543,8 +535,8 @@ export default function LiveTradingDashboard() {
                   💸
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Riwayat Penarikan (WD)</h3>
-                  <p className="text-xs text-gray-400">Bukti dana berhasil ditarik ke bank</p>
+                  <h3 className="text-base font-bold text-white">Bukti Penarikan (WD)</h3>
+                  <p className="text-xs text-gray-400">Bukti penarikan sukses ke rekening bank</p>
                 </div>
               </div>
               <span className="text-xs text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">
@@ -561,7 +553,7 @@ export default function LiveTradingDashboard() {
                 {wdList.map((w) => (
                   <div
                     key={w.ticket}
-                    className="p-3 rounded-xl bg-gray-950/60 border border-gray-800 flex items-center justify-between"
+                    className="p-3 rounded-xl bg-gray-950/70 border border-gray-800/80 flex items-center justify-between"
                   >
                     <div>
                       <div className="text-xs font-semibold text-white flex items-center gap-1.5">
@@ -585,32 +577,32 @@ export default function LiveTradingDashboard() {
           </div>
 
           <div className="mt-4 pt-3 border-t border-gray-800/60 text-xs text-gray-500 flex items-center justify-between">
-            <span>Metode WD: Rekening Bank Resmi</span>
-            <span className="text-gray-400 font-mono">Exness Instant</span>
+            <span>Metode: Transfer Bank Resmi</span>
+            <span className="text-gray-400 font-mono font-medium">Exness Instant</span>
           </div>
         </div>
       </div>
 
-      {/* SECTION 4: 50 TRANSAKSI TERAKHIR DITUTUP (CLOSED DEALS) */}
-      <div className="bg-gray-900/70 border border-gray-800 rounded-2xl p-5 shadow-xl backdrop-blur-md">
+      {/* 5. 50 TRADE TERAKHIR SELESAI */}
+      <div className="rt-card">
         <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-800">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-300 font-bold">
+            <div className="w-8 h-8 rounded-lg bg-gray-850 border border-gray-700 flex items-center justify-center text-gray-300 font-bold">
               📜
             </div>
             <div>
-              <h3 className="text-base font-bold text-white">50 Trade Terakhir Ditutup</h3>
+              <h3 className="text-base font-bold text-white">50 Trade Terakhir Selesai</h3>
               <p className="text-xs text-gray-400">
                 Riwayat eksekusi real order yang telah diselesaikan (TP / SL / Close)
               </p>
             </div>
           </div>
-          <span className="text-xs text-gray-400 font-mono">Real Deals OUT</span>
+          <span className="text-xs text-gray-400 font-mono">Deals OUT</span>
         </div>
 
         <div className="overflow-x-auto max-h-[420px] overflow-y-auto">
           <table className="w-full text-left text-xs sm:text-sm">
-            <thead className="sticky top-0 bg-gray-900 border-b border-gray-800 text-gray-400 text-xs font-semibold z-10">
+            <thead className="sticky top-0 bg-[#0c111d] border-b border-gray-800 text-gray-400 text-xs font-semibold z-10">
               <tr>
                 <th className="py-2.5 px-3">Waktu (WIB)</th>
                 <th className="py-2.5 px-3">Pair & Tipe</th>
@@ -634,16 +626,14 @@ export default function LiveTradingDashboard() {
                   return (
                     <tr
                       key={h.ticket}
-                      className="border-b border-gray-800/40 hover:bg-gray-800/30 transition font-mono text-xs"
+                      className="border-b border-gray-800/40 hover:bg-gray-850/40 transition font-mono text-xs"
                     >
                       <td className="py-2 px-3 text-gray-400">{h.time}</td>
                       <td className="py-2 px-3 font-semibold text-white font-sans">
                         {h.symbol}{' '}
                         <span
                           className={`text-[10px] px-1.5 py-0.2 rounded font-bold ml-1 ${
-                            isBuy
-                              ? 'bg-emerald-500/20 text-emerald-300'
-                              : 'bg-rose-500/20 text-rose-300'
+                            isBuy ? 'rt-badge-buy' : 'rt-badge-sell'
                           }`}
                         >
                           {h.type}
@@ -668,16 +658,15 @@ export default function LiveTradingDashboard() {
         </div>
       </div>
 
-      {/* Footer Disclaimer */}
-      <div className="text-center text-xs text-gray-500 py-4 border-t border-gray-800/60">
-        <p>
-          ⚡ trade.reez.my.id — Verified Read-Only Trading Stream powered by Beekeeper Ecosystem & Exness MT5 Real.
+      {/* Footer */}
+      <footer className="text-center text-xs text-gray-500 py-6 border-t border-gray-800/60">
+        <p className="font-medium text-gray-400">
+          ⚡ trade.reez.my.id — Verified Institutional Trading Stream by Beekeeper Ecosystem
         </p>
         <p className="mt-1">
-          Formula Akun Cent: 100 IDC = Rp 1 (IDR) • Seluruh data tersinkronisasi otomatis dari terminal MetaTrader 5.
+          Exness Real Cent Account (`100 IDC = Rp 1`) • Data tersinkronisasi otomatis langsung dari MetaTrader 5
         </p>
-      </div>
+      </footer>
     </div>
   );
 }
-
