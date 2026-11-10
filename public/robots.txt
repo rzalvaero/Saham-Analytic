@@ -1,9 +1,9 @@
 # robots.txt for REEZ Trade (trade.reez.my.id)
 User-agent: *
 Allow: /
-Disallow: /api/trade-live/sync
-Disallow: /api/watchlist/
-Disallow: /api/auth/
+Disallow: /api/
+
+# Dokumentasi untuk agen AI
+# llms.txt: https://trade.reez.my.id/llms.txt
 
 Sitemap: https://trade.reez.my.id/sitemap.xml
-
