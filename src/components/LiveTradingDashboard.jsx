@@ -383,13 +383,12 @@ export default function LiveTradingDashboard() {
                     <th className="py-2.5 px-3">Trade (W/L)</th>
                     <th className="py-2.5 px-3">Win Rate</th>
                     <th className="py-2.5 px-3">Profit Factor</th>
-                    <th className="py-2.5 px-3 text-right">Net Profit</th>
                   </tr>
                 </thead>
                 <tbody>
                   {leaderboard.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="py-6 text-center text-gray-500">
+                      <td colSpan="5" className="py-6 text-center text-gray-500">
                         Belum ada data rekaman transaksi bulan ini.
                       </td>
                     </tr>
@@ -428,13 +427,6 @@ export default function LiveTradingDashboard() {
                           <td className="py-2.5 px-3 font-mono text-cyan-300">
                             {item.profit_factor}
                           </td>
-                          <td
-                            className={`py-2.5 px-3 font-mono font-bold text-right ${
-                              isProf ? 'text-emerald-400' : 'text-rose-400'
-                            }`}
-                          >
-                            {formatMoney(item.net_idc, true)}
-                          </td>
                         </tr>
                       );
                     })
@@ -465,9 +457,6 @@ export default function LiveTradingDashboard() {
                       <div className="flex items-start gap-2 min-w-0">
                         {rankBadge}
                         <span className="font-semibold text-white text-sm break-words min-w-0 flex-1">{item.name}</span>
-                        <span className={`font-mono font-bold text-sm shrink-0 ${isProf ? 'text-emerald-400' : 'text-rose-400'}`}>
-                          {formatMoney(item.net_idc, true)}
-                        </span>
                       </div>
                       <div className="grid grid-cols-3 gap-2 text-[11px]">
                         <div className="rounded-lg bg-gray-950/70 border border-gray-850 px-2 py-1.5">
