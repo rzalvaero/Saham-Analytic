@@ -111,69 +111,9 @@ export default function LiveTradingDashboard() {
         </div>
       </div>
 
-      {/* 2. LIMA METRIK UTAMA FINANSIAL (Sesuai Permintaan: Minus Berapa Dihapus) */}
+      {/* 2. LIMA METRIK UTAMA FINANSIAL (Urutan: 1. Saldo, 2. Winrate, 3. Profit, 4. Withdrawal, 5. PNL) */}
       <div className="rt-grid-5">
-        {/* Card 1: Profit Month */}
-        <div className="rt-card rt-card-emerald flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs mb-1">
-            <span className="font-bold text-emerald-400 flex items-center gap-1 uppercase tracking-wider text-[11px]">
-              <TrendingUp className="w-3.5 h-3.5" /> Profit Month
-            </span>
-            <span className="bg-emerald-500/10 text-emerald-400 text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold">
-              Gross Win
-            </span>
-          </div>
-          <div className="my-2">
-            <div className="rt-metric-value font-extrabold font-mono text-emerald-400 tracking-tight">
-              {formatMoney(stats.gross_profit_idc, true)}
-            </div>
-            <p className="text-[11px] text-gray-400 mt-0.5">
-              Total keuntungan profit ({stats.month_label || 'Bulan Ini'})
-            </p>
-          </div>
-        </div>
-
-        {/* Card 2: Withdraw Month (Minus berapa dihapus khusus pribadi) */}
-        <div className="rt-card rt-card-cyan flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs mb-1">
-            <span className="font-bold text-cyan-400 flex items-center gap-1 uppercase tracking-wider text-[11px]">
-              <Wallet className="w-3.5 h-3.5" /> Withdraw Month
-            </span>
-            <span className="bg-cyan-500/10 text-cyan-400 text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold">
-              Bank WD
-            </span>
-          </div>
-          <div className="my-2">
-            <div className="rt-metric-value font-extrabold font-mono text-cyan-400 tracking-tight">
-              {formatMoney(stats.total_wd_idc)}
-            </div>
-            <p className="text-[11px] text-emerald-400 mt-0.5 flex items-center gap-1 font-medium">
-              <CheckCircle2 className="w-3 h-3" /> {stats.wd_count || 1}x Sukses Cair ke Rekening
-            </p>
-          </div>
-        </div>
-
-        {/* Card 3: PNL Monthly */}
-        <div className="rt-card flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs mb-1">
-            <span className="font-bold text-gray-300 flex items-center gap-1 uppercase tracking-wider text-[11px]">
-              <BarChart3 className="w-3.5 h-3.5 text-cyan-400" /> PNL Monthly
-            </span>
-            <span className="text-[10px] text-gray-400 font-mono">Net Profit</span>
-          </div>
-          <div className="my-2">
-            <div
-              className={`rt-metric-value font-extrabold font-mono tracking-tight ${
-                (stats.net_pnl_idc || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'
-              }`}
-            >
-              {formatMoney(stats.net_pnl_idc, true)}
-            </div>
-            <p className="text-[11px] text-gray-400 mt-0.5">Hasil bersih bulan berjalan</p>
-          </div>
-        </div>
-
-        {/* Card 4: Saldo */}
+        {/* Card 1: Saldo */}
         <div className="rt-card flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs mb-1">
             <span className="font-bold text-gray-300 flex items-center gap-1 uppercase tracking-wider text-[11px]">
@@ -193,7 +133,7 @@ export default function LiveTradingDashboard() {
           </div>
         </div>
 
-        {/* Card 5: Winrate */}
+        {/* Card 2: Winrate */}
         <div className="rt-card flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs mb-1">
             <span className="font-bold text-gray-300 flex items-center gap-1 uppercase tracking-wider text-[11px]">
@@ -211,6 +151,66 @@ export default function LiveTradingDashboard() {
             <p className="text-[11px] text-gray-400 mt-0.5">
               {stats.win_count || 0}W / {stats.loss_count || 0}L ({stats.total_trades || 0} total)
             </p>
+          </div>
+        </div>
+
+        {/* Card 3: Profit */}
+        <div className="rt-card rt-card-emerald flex flex-col justify-between">
+          <div className="flex items-center justify-between text-xs mb-1">
+            <span className="font-bold text-emerald-400 flex items-center gap-1 uppercase tracking-wider text-[11px]">
+              <TrendingUp className="w-3.5 h-3.5" /> Profit
+            </span>
+            <span className="bg-emerald-500/10 text-emerald-400 text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold">
+              Gross Win
+            </span>
+          </div>
+          <div className="my-2">
+            <div className="rt-metric-value font-extrabold font-mono text-emerald-400 tracking-tight">
+              {formatMoney(stats.gross_profit_idc, true)}
+            </div>
+            <p className="text-[11px] text-gray-400 mt-0.5">
+              Total keuntungan profit ({stats.month_label || 'Bulan Ini'})
+            </p>
+          </div>
+        </div>
+
+        {/* Card 4: Withdrawal */}
+        <div className="rt-card rt-card-cyan flex flex-col justify-between">
+          <div className="flex items-center justify-between text-xs mb-1">
+            <span className="font-bold text-cyan-400 flex items-center gap-1 uppercase tracking-wider text-[11px]">
+              <Wallet className="w-3.5 h-3.5" /> Withdrawal
+            </span>
+            <span className="bg-cyan-500/10 text-cyan-400 text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold">
+              Bank WD
+            </span>
+          </div>
+          <div className="my-2">
+            <div className="rt-metric-value font-extrabold font-mono text-cyan-400 tracking-tight">
+              {formatMoney(stats.total_wd_idc)}
+            </div>
+            <p className="text-[11px] text-emerald-400 mt-0.5 flex items-center gap-1 font-medium">
+              <CheckCircle2 className="w-3 h-3" /> {stats.wd_count || 1}x Sukses Cair ke Rekening
+            </p>
+          </div>
+        </div>
+
+        {/* Card 5: PNL */}
+        <div className="rt-card flex flex-col justify-between">
+          <div className="flex items-center justify-between text-xs mb-1">
+            <span className="font-bold text-gray-300 flex items-center gap-1 uppercase tracking-wider text-[11px]">
+              <BarChart3 className="w-3.5 h-3.5 text-cyan-400" /> PNL
+            </span>
+            <span className="text-[10px] text-gray-400 font-mono">Net Profit</span>
+          </div>
+          <div className="my-2">
+            <div
+              className={`rt-metric-value font-extrabold font-mono tracking-tight ${
+                (stats.net_pnl_idc || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'
+              }`}
+            >
+              {formatMoney(stats.net_pnl_idc, true)}
+            </div>
+            <p className="text-[11px] text-gray-400 mt-0.5">Hasil bersih bulan berjalan</p>
           </div>
         </div>
       </div>
