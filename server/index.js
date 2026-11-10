@@ -29,91 +29,43 @@ let liveStateCache = null;
 // Sumber jadwal: rilis BLS/BEA/Fed standar (dapat diperbarui manual).
 // ==========================================
 function getEconomicCalendar() {
-  const now = new Date();
-  const events = [
-    // setia bulan: CPI (sekitar tgl 12-13), PPI, NFP (Jumat pertama), FOMC, Retail Sales
-    { key: 'NFP', title: 'Non-Farm Payrolls (NFP)', country: 'US', impact: 'high', dayRule: 'first-friday', hour: 20, minute: 30, desc: 'Data tenaga kerja AS — pemicu volatilitas emas tertinggi.' },
-    { key: 'CPI', title: 'US CPI (Inflasi)', country: 'US', impact: 'high', dayRule: 'day', day: 12, hour: 20, minute: 30, desc: 'Indeks harga konsumen AS — acuan utama arah suku bunga Fed.' },
-    { key: 'PPI', title: 'US PPI (Inflasi Produsen)', country: 'US', impact: 'medium', dayRule: 'day', day: 14, hour: 20, minute: 30, desc: 'Inflasi tingkat produsen AS.' },
-    { key: 'JOLTS', title: 'US JOLTS Job Openings', country: 'US', impact: 'medium', dayRule: 'day', day: 5, hour: 21, minute: 0, desc: 'Jumlah lowongan kerja AS — indikator ketatnya pasar tenaga kerja.' },
-    { key: 'GDP', title: 'US GDP (Prelim/Advance)', country: 'US', impact: 'high', dayRule: 'day', day: 27, hour: 19, minute: 30, desc: 'Pertumbuhan ekonomi AS kuartalan — angka awal (advance/prelim) bergerak tajam.' },
-    { key: 'FOMC', title: 'FOMC Rate Decision', country: 'US', impact: 'high', dayRule: 'day', day: 7, hour: 2, minute: 0, desc: 'Keputusan suku bunga The Fed + konferensi pers.' },
-    { key: 'RETAIL', title: 'US Retail Sales', country: 'US', impact: 'medium', dayRule: 'day', day: 16, hour: 20, minute: 30, desc: 'Penjualan ritel AS — indikator konsumsi.' },
-    { key: 'CORE', title: 'US Core PCE (Inflasi Inti)', country: 'US', impact: 'high', dayRule: 'day', day: 28, hour: 20, minute: 30, desc: 'Ukuran inflasi favorit The Fed (Core PCE Price Index).' },
-    { key: 'JOBLESS', title: 'US Initial Jobless Claims', country: 'US', impact: 'medium', dayRule: 'every-thursday', hour: 20, minute: 30, desc: 'Klaim pengangguran mingguan AS.' }
+  // Jadwal final bulan BERJALAN saja (dikelola manual sesuai pengumuman resmi BLS/BEA/Fed).
+  // Format tanggal: YYYY-MM-DD, jam WIB (UTC+7). Tidak memakai pola tebakan.
+  const SCHEDULE = [
+    { key: 'JOLTS', date: '2026-11-03', hour: 22, minute: 0, title: 'JOLTS', impact: 'medium', desc: 'Mengukur jumlah lowongan kerja di AS, indikator kekuatan pasar tenaga kerja.' },
+    { key: 'NFP', date: '2026-11-06', hour: 20, minute: 30, title: 'NFP (NON-FARM PAYROLLS)', impact: 'high', desc: 'Data tenaga kerja utama AS yang sangat berpengaruh pada USD.' },
+    { key: 'CPI', date: '2026-11-10', hour: 20, minute: 30, title: 'CPI (CONSUMER PRICE INDEX)', impact: 'high', desc: 'Data inflasi utama yang menjadi fokus The Fed dan market.' },
+    { key: 'PPI', date: '2026-11-13', hour: 20, minute: 30, title: 'PPI (PRODUCER PRICE INDEX)', impact: 'medium', desc: 'Mengukur perubahan harga di tingkat produsen. Indikator tekanan inflasi awal.' },
+    { key: 'RETAIL', date: '2026-11-17', hour: 20, minute: 30, title: 'RETAIL SALES', impact: 'medium', desc: 'Mengukur total penjualan ritel. Indikator kekuatan konsumsi AS.' },
+    { key: 'FOMC', date: '2026-11-19', hour: 2, minute: 0, title: 'FOMC MEETING MINUTES', impact: 'high', desc: 'Risalah rapat The Fed yang memberikan gambaran arah kebijakan suku bunga.' },
+    { key: 'GDP', date: '2026-11-25', hour: 20, minute: 30, title: 'GDP Q3 (SECOND ESTIMATE)', impact: 'high', desc: 'Estimasi kedua pertumbuhan ekonomi AS pada kuartal ketiga (Q3).' },
+    { key: 'PCE', date: '2026-11-25', hour: 20, minute: 30, title: 'PCE PRICE INDEX', impact: 'high', desc: 'Indeks inflasi favorit The Fed untuk mengukur tekanan harga (inflasi).' }
   ];
 
-  const WIB_OFFSET = 7; // WIB = UTC+7
-  const toWIB = (d) => {
-    const utc = d.getTime() + d.getTimezoneOffset() * 60000;
-    return new Date(utc + WIB_OFFSET * 3600000);
-  };
+  const pad = (n) => String(n).padStart(2, '0');
 
-  const results = [];
-  for (let monthOffset = 0; monthOffset <= 1; monthOffset++) {
-    const base = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
-    const year = base.getFullYear();
-    const month = base.getMonth();
-
-    for (const ev of events) {
-      let eventDate = null;
-
-      if (ev.dayRule === 'day') {
-        // Geser ke hari kerja terdekat bila jatuh di akhir pekan (Sabtu/Minggu)
-        let cand = new Date(year, month, ev.day);
-        const wd = cand.getDay();
-        if (wd === 6) cand = new Date(year, month, ev.day + 2); // Sabtu -> Senin
-        else if (wd === 0) cand = new Date(year, month, ev.day + 1); // Minggu -> Senin
-        eventDate = cand;
-      } else if (ev.dayRule === 'first-friday') {
-        const first = new Date(year, month, 1);
-        const dayOfWeek = first.getDay(); // 0 Sun .. 5 Fri
-        const offset = (5 - dayOfWeek + 7) % 7;
-        eventDate = new Date(year, month, 1 + offset);
-      } else if (ev.dayRule === 'every-thursday') {
-        // Ambil semua Kamis pada bulan ini
-        for (let d = 1; d <= 28; d++) {
-          const candidate = new Date(year, month, d);
-          if (candidate.getDay() === 4) {
-            const evt = new Date(year, month, d, ev.hour, ev.minute);
-            const wib = toWIB(evt);
-            results.push({
-              key: ev.key,
-              title: ev.title,
-              country: ev.country,
-              impact: ev.impact,
-              desc: ev.desc,
-              iso: wib.toISOString(),
-              date_label: wib.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
-              time_wib: String(ev.hour).padStart(2, '0') + ':' + String(ev.minute).padStart(2, '0') + ' WIB',
-              ts: wib.getTime()
-            });
-          }
-        }
-        continue;
-      }
-
-      if (!eventDate) continue;
-      const evt = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), ev.hour, ev.minute);
-      const wib = toWIB(evt);
-      results.push({
-        key: ev.key,
-        title: ev.title,
-        country: ev.country,
-        impact: ev.impact,
-        desc: ev.desc,
-        iso: wib.toISOString(),
-        date_label: wib.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
-        time_wib: String(ev.hour).padStart(2, '0') + ':' + String(ev.minute).padStart(2, '0') + ' WIB',
-        ts: wib.getTime()
-      });
-    }
-  }
+  const results = SCHEDULE.map((ev) => {
+    // Tanggal & jam sudah dinyatakan dalam WIB (UTC+7)
+    const [y, m, d] = ev.date.split('-').map(Number);
+    const wib = new Date(y, m - 1, d, ev.hour, ev.minute, 0);
+    return {
+      key: ev.key,
+      title: ev.title,
+      country: 'US',
+      impact: ev.impact,
+      desc: ev.desc,
+      iso: wib.toISOString(),
+      date_label: wib.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+      time_wib: pad(ev.hour) + ':' + pad(ev.minute) + ' WIB',
+      ts: wib.getTime()
+    };
+  });
 
   const nowMs = Date.now();
   results.sort((a, b) => a.ts - b.ts);
-  // Tandai event yang sudah lewat (kurang dari -6 jam tetap disertakan sebagai 'baru saja')
-  return results.filter((e) => e.ts > nowMs - 6 * 3600000).slice(0, 16);
+  // Sertakan event yang baru saja lewat (<= 24 jam) agar tetap terlihat di hari yang sama,
+  // dan hanya bulan berjalan + beberapa hari awal bulan depan bila jadwal sudah berakhir.
+  return results.filter((e) => e.ts > nowMs - 24 * 3600000).slice(0, 16);
 }
 
 // Pastikan tabel mt5_live_state tersedia (non-blocking)
