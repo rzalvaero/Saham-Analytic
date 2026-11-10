@@ -372,16 +372,9 @@ export default function LiveTradingDashboard() {
             <span className="text-xs text-gray-400 font-mono">{stats.month_label}</span>
           </div>
 
-          <div className="w-full overflow-hidden rounded-xl border border-gray-850 bg-gray-950/60">
-            {/* Mobile swipe helper */}
-            <div className="md:hidden flex items-center justify-between px-3 py-1.5 bg-cyan-950/40 border-b border-cyan-850/40 text-[11px] text-cyan-400 font-medium">
-              <span className="flex items-center gap-1.5">
-                <span className="animate-pulse">👉</span> Geser tabel untuk statistik EA
-              </span>
-              <span className="font-mono text-[10px] bg-cyan-900/60 text-cyan-300 px-2 py-0.5 rounded">SWIPE ⇄</span>
-            </div>
-
-            <div className="rt-table-scroll-x">
+          <div className="w-full rounded-xl border border-gray-850 bg-gray-950/60 overflow-hidden">
+            {/* ===== DESKTOP: Tabel ===== */}
+            <div className="hidden md:block rt-table-scroll-x">
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
                   <tr className="border-b border-gray-800 text-gray-400 text-xs font-semibold">
@@ -448,6 +441,52 @@ export default function LiveTradingDashboard() {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* ===== MOBILE: Kartu ===== */}
+            <div className="md:hidden divide-y divide-gray-800/60">
+              {leaderboard.length === 0 ? (
+                <div className="py-6 text-center text-gray-500 text-xs">
+                  Belum ada data rekaman transaksi bulan ini.
+                </div>
+              ) : (
+                leaderboard.map((item, idx) => {
+                  let rankBadge = (
+                    <span className="w-6 h-6 rounded-full bg-gray-800 text-gray-300 font-bold flex items-center justify-center text-xs shrink-0">
+                      {idx + 1}
+                    </span>
+                  );
+                  if (idx === 0) rankBadge = <span className="text-base shrink-0">🥇</span>;
+                  else if (idx === 1) rankBadge = <span className="text-base shrink-0">🥈</span>;
+                  else if (idx === 2) rankBadge = <span className="text-base shrink-0">🥉</span>;
+                  const isProf = item.net_idc >= 0;
+                  return (
+                    <div key={item.name} className="p-3 space-y-2">
+                      <div className="flex items-start gap-2 min-w-0">
+                        {rankBadge}
+                        <span className="font-semibold text-white text-sm break-words min-w-0 flex-1">{item.name}</span>
+                        <span className={`font-mono font-bold text-sm shrink-0 ${isProf ? 'text-emerald-400' : 'text-rose-400'}`}>
+                          {formatMoney(item.net_idc, true)}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 text-[11px]">
+                        <div className="rounded-lg bg-gray-950/70 border border-gray-850 px-2 py-1.5">
+                          <span className="text-gray-500 block uppercase text-[9px]">Trade</span>
+                          <span className="font-mono text-gray-200">{item.trades} ({item.wins}W/{item.losses}L)</span>
+                        </div>
+                        <div className="rounded-lg bg-gray-950/70 border border-gray-850 px-2 py-1.5">
+                          <span className="text-gray-500 block uppercase text-[9px]">Win Rate</span>
+                          <span className={`font-mono ${item.winrate_pct >= 50 ? 'text-emerald-400' : 'text-gray-300'}`}>{item.winrate_pct}%</span>
+                        </div>
+                        <div className="rounded-lg bg-gray-950/70 border border-gray-850 px-2 py-1.5">
+                          <span className="text-gray-500 block uppercase text-[9px]">PF</span>
+                          <span className="font-mono text-cyan-300">{item.profit_factor}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>
@@ -529,16 +568,9 @@ export default function LiveTradingDashboard() {
           <span className="text-xs text-gray-400 font-mono">Deals OUT</span>
         </div>
 
-        <div className="w-full overflow-hidden rounded-xl border border-gray-850 bg-gray-950/60">
-          {/* Mobile swipe helper */}
-          <div className="md:hidden flex items-center justify-between px-3 py-1.5 bg-cyan-950/40 border-b border-cyan-850/40 text-[11px] text-cyan-400 font-medium">
-            <span className="flex items-center gap-1.5">
-              <span className="animate-pulse">👉</span> Geser tabel untuk detail (Lot, Strategi, Profit)
-            </span>
-            <span className="font-mono text-[10px] bg-cyan-900/60 text-cyan-300 px-2 py-0.5 rounded">SWIPE ⇄</span>
-          </div>
-
-          <div className="rt-table-scroll-x">
+        <div className="w-full rounded-xl border border-gray-850 bg-gray-950/60 overflow-hidden">
+          {/* ===== DESKTOP: Tabel ===== */}
+          <div className="hidden md:block rt-table-scroll-x">
             <div className="max-h-[460px] overflow-y-auto">
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead className="sticky top-0 bg-[#0c111d] border-b border-gray-800 text-gray-400 text-xs font-semibold z-10">
@@ -595,6 +627,41 @@ export default function LiveTradingDashboard() {
                 </tbody>
               </table>
             </div>
+          </div>
+
+          {/* ===== MOBILE: Kartu ===== */}
+          <div className="md:hidden divide-y divide-gray-800/60 max-h-[520px] overflow-y-auto">
+            {history.length === 0 ? (
+              <div className="py-8 text-center text-gray-500 text-xs">
+                Belum ada rekaman riwayat transaksi tertutup.
+              </div>
+            ) : (
+              history.map((h) => {
+                const isBuy = h.type === 'BUY';
+                const isProf = h.net_idc >= 0;
+                return (
+                  <div key={h.ticket} className="p-3 space-y-2">
+                    <div className="flex items-center justify-between gap-2 min-w-0">
+                      <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                        <span className="font-semibold text-white font-sans text-sm">{h.symbol}</span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${isBuy ? 'rt-badge-buy' : 'rt-badge-sell'}`}>
+                          {h.type}
+                        </span>
+                        <span className="text-[10px] text-gray-400 font-mono">{h.volume} Lot</span>
+                      </div>
+                      <span className={`font-mono font-bold text-sm shrink-0 ${isProf ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {formatMoney(h.net_idc, true)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px] text-gray-400 gap-2">
+                      <span className="font-mono truncate">{h.time}</span>
+                      <span className="font-sans truncate text-right">{h.strategy}</span>
+                    </div>
+                    <div className="text-[11px] text-gray-500 font-mono">Harga Close: <span className="text-gray-300">{h.price}</span></div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </div>

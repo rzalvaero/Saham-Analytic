@@ -31,6 +31,16 @@
   padding: 0;
 }
 
+/* Anti-overflow global: tidak ada elemen yang keluar dari card di HP */
+img, svg, video, canvas, table {
+  max-width: 100%;
+}
+
+.rt-card *,
+.rt-card {
+  min-width: 0;
+}
+
 body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--bg-primary);
