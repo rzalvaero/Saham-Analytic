@@ -310,21 +310,39 @@ html, body {
 /* ==========================================================================
    MOBILE-FIRST TWEAKS (HP) — agar tata letak rapi di layar kecil
    ========================================================================== */
-@media (max-width: 640px) {
-  .rt-container {
-    padding: 0 0.875rem;
+@media (max-width: 768px) {
+  /* Skala tipografi institusional turun agar nyaman di HP */
+  .rt-metric-value {
+    font-size: 1.05rem;
+    line-height: 1.45rem;
+    word-break: break-word;
   }
   .rt-card {
     padding: 1rem;
     border-radius: 0.875rem;
   }
-  .rt-metric-value {
-    font-size: 1.05rem;
-    line-height: 1.5rem;
-    word-break: break-word;
+  .rt-container {
+    padding: 0 0.875rem;
   }
+  /* Ikon dalam kartu & header lebih kecil */
   .rt-card h3 {
     font-size: 0.95rem;
+    line-height: 1.3rem;
+  }
+  .rt-card svg.w-8,
+  .rt-card svg.w-10 {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+  /* Badge lebih ringkas */
+  .rt-badge {
+    font-size: 0.625rem;
+    padding: 0.2rem 0.5rem;
+  }
+  /* Kotak ikon header jadi lebih kecil */
+  .rt-card .w-8.h-8 {
+    width: 1.75rem;
+    height: 1.75rem;
   }
   .rt-mobile-full button {
     width: 100%;
@@ -334,11 +352,18 @@ html, body {
 
 @media (max-width: 480px) {
   .rt-card {
-    padding: 0.875rem;
+    padding: 0.8125rem;
   }
   .rt-metric-value {
-    font-size: 1rem;
-    line-height: 1.4rem;
+    font-size: 0.95rem;
+    line-height: 1.35rem;
+  }
+  .rt-badge {
+    font-size: 0.6rem;
+    padding: 0.18rem 0.45rem;
+  }
+  .rt-card h3 {
+    font-size: 0.9rem;
   }
 }
 
