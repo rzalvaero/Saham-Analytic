@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { CalendarClock, AlertTriangle, RefreshCw, Clock, Info } from 'lucide-react';
+import { CalendarClock, AlertTriangle, RefreshCw, Clock, Info, Layers } from 'lucide-react';
 
 /**
  * Kalender Ekonomi (High-Impact US News)
@@ -42,6 +42,35 @@ export default function EconomicCalendar() {
     });
   }, [data, now]);
 
+  // Gabungkan event yang tanggal + jam rilisnya sama menjadi satu baris
+  const groupedEvents = useMemo(() => {
+    const map = new Map();
+    for (const e of events) {
+      const key = `${e.date_label}__${e.time_wib}`;
+      if (!map.has(key)) {
+        map.set(key, {
+          key,
+          date_label: e.date_label,
+          time_wib: e.time_wib,
+          ts: e.ts,
+          seconds_to: e.seconds_to,
+          is_past_now: e.is_past_now,
+          impact: e.impact,
+          items: []
+        });
+      }
+      const grp = map.get(key);
+      grp.items.push(e);
+      // Ambil impact tertinggi untuk gaya grup
+      const rank = { high: 3, medium: 2, low: 1 };
+      if (rank[e.impact] > rank[grp.impact]) grp.impact = e.impact;
+      // Hitung mundur pakai waktu terdekat
+      if (e.seconds_to < grp.seconds_to) grp.seconds_to = e.seconds_to;
+      grp.is_past_now = grp.seconds_to < 0;
+    }
+    return Array.from(map.values()).sort((a, b) => a.ts - b.ts);
+  }, [events]);
+
   const formatCountdown = (secs) => {
     if (secs <= 0) return 'Sudah rilis';
     const d = Math.floor(secs / 86400);
@@ -60,7 +89,7 @@ export default function EconomicCalendar() {
     return { bg: 'bg-gray-500/10', border: 'border-gray-500/30', text: 'text-gray-400', label: 'Rendah' };
   };
 
-  const nextEvent = events.find((e) => !e.is_past_now);
+  const nextEvent = groupedEvents.find((e) => !e.is_past_now);
 
   if (loading && !data) {
     return (
@@ -97,7 +126,7 @@ export default function EconomicCalendar() {
             <AlertTriangle className={`w-5 h-5 shrink-0 ${impactStyle(nextEvent.impact).text}`} />
             <div className="min-w-0">
               <div className="text-xs text-gray-400 uppercase font-semibold tracking-wider">Rilis Berikutnya</div>
-              <div className="text-sm font-bold text-white truncate">{nextEvent.title}</div>
+              <div className="text-sm font-bold text-white truncate">{nextEvent.items.map((i) => i.title).join(' + ')}</div>
             </div>
           </div>
           <div className="text-right shrink-0">
@@ -109,58 +138,75 @@ export default function EconomicCalendar() {
         </div>
       )}
 
-      {/* Daftar event */}
+      {/* Daftar event (digabung per tanggal + jam) */}
       <div className="space-y-2.5">
-        {events.length === 0 ? (
+        {groupedEvents.length === 0 ? (
           <div className="text-center py-8 text-xs text-gray-500">Belum ada jadwal rilis terdekat.</div>
         ) : (
-          events.map((e, idx) => {
-            const st = impactStyle(e.impact);
-            const past = e.is_past_now;
-            const isToday = e.date_label && new Date(e.ts).toDateString() === new Date(now).toDateString();
+          groupedEvents.map((g) => {
+            const st = impactStyle(g.impact);
+            const past = g.is_past_now;
+            const isToday = g.date_label && new Date(g.ts).toDateString() === new Date(now).toDateString();
+            const merged = g.items.length > 1;
             return (
               <div
-                key={`${e.key}-${idx}`}
-                className={`p-3 rounded-xl border flex items-center justify-between gap-3 transition ${
+                key={g.key}
+                className={`p-3 rounded-xl border transition ${
                   past ? 'bg-gray-950/40 border-gray-850 opacity-60' : 'bg-gray-950/70 border-gray-800/80 hover:border-gray-700'
                 }`}
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0 ${st.bg} ${st.border} border ${st.text}`}>
-                    {e.key}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-semibold text-white">{e.title}</span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold border ${st.bg} ${st.border} ${st.text}`}>
-                        {st.label}
-                      </span>
-                      {isToday && !past && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded font-bold bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
-                          HARI INI
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${st.bg} ${st.border} border ${st.text}`}>
+                      {merged ? <Layers className="w-4 h-4" /> : <span className="text-[11px] font-bold">{g.items[0].key}</span>}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-semibold text-white">
+                          {merged ? g.items.map((i) => i.title).join(' + ') : g.items[0].title}
                         </span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold border ${st.bg} ${st.border} ${st.text}`}>
+                          {st.label}
+                        </span>
+                        {merged && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded font-bold bg-gray-800 border border-gray-700 text-gray-300">
+                            {g.items.length} rilis
+                          </span>
+                        )}
+                        {isToday && !past && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded font-bold bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
+                            HARI INI
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[11px] text-gray-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                        <Clock className="w-3 h-3" />
+                        <span className="font-mono">{g.time_wib}</span>
+                        <span className="text-gray-600">•</span>
+                        <span>{g.date_label}</span>
+                      </div>
+                      {merged && (
+                        <div className="text-[10px] text-gray-500 mt-1 flex flex-wrap gap-1.5">
+                          {g.items.map((i, ii) => (
+                            <span key={ii} className="px-1.5 py-0.5 rounded bg-gray-900 border border-gray-800">{i.title}</span>
+                          ))}
+                        </div>
+                      )}
+                      {!merged && g.items[0].desc && (
+                        <div className="text-[10px] text-gray-500 mt-0.5 hidden sm:block">{g.items[0].desc}</div>
                       )}
                     </div>
-                    <div className="text-[11px] text-gray-400 mt-0.5 flex items-center gap-1.5">
-                      <Clock className="w-3 h-3" />
-                      <span className="font-mono">{e.time_wib}</span>
-                      <span className="text-gray-600">•</span>
-                      <span>{e.date_label}</span>
-                    </div>
-                    {e.desc && (
-                      <div className="text-[10px] text-gray-500 mt-0.5 hidden sm:block">{e.desc}</div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    {past ? (
+                      <span className="text-[11px] text-gray-500 font-mono">Selesai</span>
+                    ) : (
+                      <>
+                        <div className="text-[10px] text-gray-500 uppercase font-semibold">Hitungan</div>
+                        <div className={`text-sm font-bold font-mono ${st.text}`}>{formatCountdown(g.seconds_to)}</div>
+                      </>
                     )}
                   </div>
-                </div>
-                <div className="text-right shrink-0">
-                  {past ? (
-                    <span className="text-[11px] text-gray-500 font-mono">Selesai</span>
-                  ) : (
-                    <>
-                      <div className="text-[10px] text-gray-500 uppercase font-semibold">Hitungan</div>
-                      <div className={`text-sm font-bold font-mono ${st.text}`}>{formatCountdown(e.seconds_to)}</div>
-                    </>
-                  )}
                 </div>
               </div>
             );
