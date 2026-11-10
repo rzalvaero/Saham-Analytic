@@ -56,7 +56,12 @@ function getEconomicCalendar() {
       let eventDate = null;
 
       if (ev.dayRule === 'day') {
-        eventDate = new Date(year, month, ev.day);
+        // Geser ke hari kerja terdekat bila jatuh di akhir pekan (Sabtu/Minggu)
+        let cand = new Date(year, month, ev.day);
+        const wd = cand.getDay();
+        if (wd === 6) cand = new Date(year, month, ev.day + 2); // Sabtu -> Senin
+        else if (wd === 0) cand = new Date(year, month, ev.day + 1); // Minggu -> Senin
+        eventDate = cand;
       } else if (ev.dayRule === 'first-friday') {
         const first = new Date(year, month, 1);
         const dayOfWeek = first.getDay(); // 0 Sun .. 5 Fri
