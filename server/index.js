@@ -134,6 +134,7 @@ app.get('/api/economic-calendar', (req, res) => {
     res.json({
       generated_at: new Date().toISOString(),
       server_time: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) + ' WIB',
+      server_ms: nowMs,
       count: events.length,
       events
     });

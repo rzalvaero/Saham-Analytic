@@ -16,6 +16,7 @@ export default function EconomicCalendar() {
       const res = await fetch('/api/economic-calendar');
       if (!res.ok) throw new Error('Gagal memuat kalender ekonomi');
       const json = await res.json();
+      json.offset_at_fetch = Date.now(); // jam perangkat saat fetch, untuk hitung skew vs server
       setData(json);
     } catch (err) {
       console.error(err);
@@ -37,7 +38,10 @@ export default function EconomicCalendar() {
   const events = useMemo(() => {
     const list = data?.events || [];
     return list.map((e) => {
-      const secs = Math.round((e.ts - now) / 1000);
+      // PENTING: countdown dipatok ke waktu SERVER (WIB), bukan jam perangkat.
+      // Backend mengirim server_ms; selisihnya terhadap jam lokal jadi offset.
+      const skew = typeof data?.server_ms === 'number' ? (data.server_ms - (data.offset_at_fetch || Date.now())) : 0;
+      const secs = Math.round((e.ts - (now + skew)) / 1000);
       return { ...e, seconds_to: secs, is_past_now: secs < 0 };
     });
   }, [data, now]);
