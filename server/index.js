@@ -23,6 +23,91 @@ const pool = mysql.createPool({
 // Cache in-memory untuk respons kilat
 let liveStateCache = null;
 
+// ==========================================
+// KALENDER EKONOMI (High-Impact US News)
+// Jadwal rilis rutin (jam WIB) — disimpan statis agar tanpa dependensi API eksternal.
+// Sumber jadwal: rilis BLS/BEA/Fed standar (dapat diperbarui manual).
+// ==========================================
+function getEconomicCalendar() {
+  const now = new Date();
+  const events = [
+    // setia bulan: CPI (sekitar tgl 12-13), PPI, NFP (Jumat pertama), FOMC, Retail Sales
+    { key: 'NFP', title: 'Non-Farm Payrolls (NFP)', country: 'US', impact: 'high', dayRule: 'first-friday', hour: 20, minute: 30, desc: 'Data tenaga kerja AS — pemicu volatilitas emas tertinggi.' },
+    { key: 'CPI', title: 'US CPI (Inflasi)', country: 'US', impact: 'high', dayRule: 'day', day: 12, hour: 20, minute: 30, desc: 'Indeks harga konsumen AS — acuan utama arah suku bunga Fed.' },
+    { key: 'PPI', title: 'US PPI (Inflasi Produsen)', country: 'US', impact: 'medium', dayRule: 'day', day: 14, hour: 20, minute: 30, desc: 'Inflasi tingkat produsen AS.' },
+    { key: 'FOMC', title: 'FOMC Rate Decision', country: 'US', impact: 'high', dayRule: 'day', day: 7, hour: 2, minute: 0, desc: 'Keputusan suku bunga The Fed + konferensi pers.' },
+    { key: 'RETAIL', title: 'US Retail Sales', country: 'US', impact: 'medium', dayRule: 'day', day: 15, hour: 20, minute: 30, desc: 'Penjualan ritel AS — indikator konsumsi.' },
+    { key: 'JOBLESS', title: 'US Initial Jobless Claims', country: 'US', impact: 'medium', dayRule: 'every-thursday', hour: 20, minute: 30, desc: 'Klaim pengangguran mingguan AS.' }
+  ];
+
+  const WIB_OFFSET = 7; // WIB = UTC+7
+  const toWIB = (d) => {
+    const utc = d.getTime() + d.getTimezoneOffset() * 60000;
+    return new Date(utc + WIB_OFFSET * 3600000);
+  };
+
+  const results = [];
+  for (let monthOffset = 0; monthOffset <= 1; monthOffset++) {
+    const base = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+    const year = base.getFullYear();
+    const month = base.getMonth();
+
+    for (const ev of events) {
+      let eventDate = null;
+
+      if (ev.dayRule === 'day') {
+        eventDate = new Date(year, month, ev.day);
+      } else if (ev.dayRule === 'first-friday') {
+        const first = new Date(year, month, 1);
+        const dayOfWeek = first.getDay(); // 0 Sun .. 5 Fri
+        const offset = (5 - dayOfWeek + 7) % 7;
+        eventDate = new Date(year, month, 1 + offset);
+      } else if (ev.dayRule === 'every-thursday') {
+        // Ambil semua Kamis pada bulan ini
+        for (let d = 1; d <= 28; d++) {
+          const candidate = new Date(year, month, d);
+          if (candidate.getDay() === 4) {
+            const evt = new Date(year, month, d, ev.hour, ev.minute);
+            const wib = toWIB(evt);
+            results.push({
+              key: ev.key,
+              title: ev.title,
+              country: ev.country,
+              impact: ev.impact,
+              desc: ev.desc,
+              iso: wib.toISOString(),
+              date_label: wib.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+              time_wib: String(ev.hour).padStart(2, '0') + ':' + String(ev.minute).padStart(2, '0') + ' WIB',
+              ts: wib.getTime()
+            });
+          }
+        }
+        continue;
+      }
+
+      if (!eventDate) continue;
+      const evt = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), ev.hour, ev.minute);
+      const wib = toWIB(evt);
+      results.push({
+        key: ev.key,
+        title: ev.title,
+        country: ev.country,
+        impact: ev.impact,
+        desc: ev.desc,
+        iso: wib.toISOString(),
+        date_label: wib.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+        time_wib: String(ev.hour).padStart(2, '0') + ':' + String(ev.minute).padStart(2, '0') + ' WIB',
+        ts: wib.getTime()
+      });
+    }
+  }
+
+  const nowMs = Date.now();
+  results.sort((a, b) => a.ts - b.ts);
+  // Tandai event yang sudah lewat (kurang dari -6 jam tetap disertakan sebagai 'baru saja')
+  return results.filter((e) => e.ts > nowMs - 6 * 3600000).slice(0, 16);
+}
+
 // Pastikan tabel mt5_live_state tersedia (non-blocking)
 async function initLiveStateTable() {
   try {
@@ -75,6 +160,86 @@ app.post('/api/trade-live/sync', async (req, res) => {
   }
 
   res.json({ success: true, timestamp: Date.now() });
+});
+
+// GET: Kalender ekonomi high-impact (US) dengan jam rilis WIB
+app.get('/api/economic-calendar', (req, res) => {
+  try {
+    const nowMs = Date.now();
+    const events = getEconomicCalendar().map((e) => ({
+      ...e,
+      is_past: e.ts < nowMs,
+      seconds_to: Math.round((e.ts - nowMs) / 1000)
+    }));
+    res.json({
+      generated_at: new Date().toISOString(),
+      server_time: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) + ' WIB',
+      count: events.length,
+      events
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET: Equity curve (kurva pertumbuhan saldo) — dihitung dari state live
+app.get('/api/trade-live/equity', async (req, res) => {
+  try {
+    let state = liveStateCache;
+    if (!state) {
+      try {
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('DB Timeout')), 2500));
+        const dbPromise = pool.query('SELECT data FROM mt5_live_state WHERE id = 1');
+        const [rows] = await Promise.race([dbPromise, timeoutPromise]);
+        if (rows && rows.length > 0) state = JSON.parse(rows[0].data);
+      } catch (dbErr) {
+        // fallback di bawah
+      }
+    }
+
+    if (!state) {
+      return res.json({ available: false, points: [], message: 'Belum ada data live dari MT5.' });
+    }
+
+    const account = state.account || {};
+    const stats = state.stats || {};
+    const history = state.history || [];
+
+    const balance = Number(account.balance_idc || 0);
+    const equity = Number(account.equity_idc || 0);
+
+    // Rekonstruksi kurva: mulai dari saldo awal, lalu kumulatifkan net profit tiap trade
+    // (dari histori terbaru). Jika tidak ada histori, tampilkan titik tunggal.
+    const points = [];
+    const chrono = [...history].reverse(); // history terbaru dulu -> jadi tertua dulu
+    let running = balance - chrono.reduce((acc, h) => acc + Number(h.net_idc || 0), 0);
+    if (chrono.length === 0) {
+      points.push({ t: state.synced_at || new Date().toISOString(), v: balance });
+    } else {
+      points.push({ t: chrono[0].time, v: Math.round(running) });
+      for (const h of chrono) {
+        running += Number(h.net_idc || 0);
+        points.push({ t: h.time, v: Math.round(running) });
+      }
+    }
+
+    const start = points.length ? points[0].v : balance;
+    const growth = start > 0 ? ((balance - start) / start) * 100 : 0;
+
+    res.json({
+      available: true,
+      currency: 'IDR',
+      start_value: start,
+      current_value: Math.round(balance),
+      current_equity: Math.round(equity),
+      growth_pct: Number(growth.toFixed(2)),
+      net_pnl_idc: Math.round(Number(stats.net_pnl_idc || 0)),
+      points,
+      synced_at: state.synced_at || null
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // GET: Publik membaca data live trade secara real-time

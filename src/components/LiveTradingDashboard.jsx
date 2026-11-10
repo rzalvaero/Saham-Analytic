@@ -16,6 +16,8 @@ import {
   ArrowUpRight,
   ArrowDownRight
 } from 'lucide-react';
+import EquityCurve from './EquityCurve';
+import EconomicCalendar from './EconomicCalendar';
 
 export default function LiveTradingDashboard() {
   const [data, setData] = useState(null);
@@ -214,6 +216,9 @@ export default function LiveTradingDashboard() {
           </div>
         </div>
       </div>
+
+      {/* 2b. KURVA PERTUMBUHAN SALDO (EQUITY CURVE) */}
+      <EquityCurve />
 
       {/* 3. SECTION POSISI AKTIF TERBUKA (LIVE OPEN POSITIONS) */}
       <div className="rt-card">
@@ -503,6 +508,9 @@ export default function LiveTradingDashboard() {
           </div>
         </div>
       </div>
+
+      {/* 4b. KALENDER EKONOMI GLOBAL (HIGH-IMPACT NEWS) */}
+      <EconomicCalendar />
 
       {/* 5. 50 TRADE TERAKHIR SELESAI */}
       <div className="rt-card">
