@@ -140,7 +140,7 @@ class MT5LiveSync:
                 "positions_count": len(pos_list),
                 "positions": pos_list,
                 "stats": self.cached_stats,
-                "history": self.cached_history[:50]
+                "history": self.cached_history[:300]
             }
 
             return payload
@@ -224,7 +224,7 @@ class MT5LiveSync:
                         st["losses"] += 1
                         st["loss_idc"] += abs(net)
 
-                    if len(history) < 50:
+                    if len(history) < 300:
                         history.append({
                             "ticket": d.ticket,
                             "symbol": d.symbol,
