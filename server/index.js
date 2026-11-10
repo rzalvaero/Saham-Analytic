@@ -35,8 +35,11 @@ function getEconomicCalendar() {
     { key: 'NFP', title: 'Non-Farm Payrolls (NFP)', country: 'US', impact: 'high', dayRule: 'first-friday', hour: 20, minute: 30, desc: 'Data tenaga kerja AS — pemicu volatilitas emas tertinggi.' },
     { key: 'CPI', title: 'US CPI (Inflasi)', country: 'US', impact: 'high', dayRule: 'day', day: 12, hour: 20, minute: 30, desc: 'Indeks harga konsumen AS — acuan utama arah suku bunga Fed.' },
     { key: 'PPI', title: 'US PPI (Inflasi Produsen)', country: 'US', impact: 'medium', dayRule: 'day', day: 14, hour: 20, minute: 30, desc: 'Inflasi tingkat produsen AS.' },
+    { key: 'JOLTS', title: 'US JOLTS Job Openings', country: 'US', impact: 'medium', dayRule: 'day', day: 5, hour: 21, minute: 0, desc: 'Jumlah lowongan kerja AS — indikator ketatnya pasar tenaga kerja.' },
+    { key: 'GDP', title: 'US GDP (Prelim/Advance)', country: 'US', impact: 'high', dayRule: 'day', day: 27, hour: 19, minute: 30, desc: 'Pertumbuhan ekonomi AS kuartalan — angka awal (advance/prelim) bergerak tajam.' },
     { key: 'FOMC', title: 'FOMC Rate Decision', country: 'US', impact: 'high', dayRule: 'day', day: 7, hour: 2, minute: 0, desc: 'Keputusan suku bunga The Fed + konferensi pers.' },
-    { key: 'RETAIL', title: 'US Retail Sales', country: 'US', impact: 'medium', dayRule: 'day', day: 15, hour: 20, minute: 30, desc: 'Penjualan ritel AS — indikator konsumsi.' },
+    { key: 'RETAIL', title: 'US Retail Sales', country: 'US', impact: 'medium', dayRule: 'day', day: 16, hour: 20, minute: 30, desc: 'Penjualan ritel AS — indikator konsumsi.' },
+    { key: 'CORE', title: 'US Core PCE (Inflasi Inti)', country: 'US', impact: 'high', dayRule: 'day', day: 28, hour: 20, minute: 30, desc: 'Ukuran inflasi favorit The Fed (Core PCE Price Index).' },
     { key: 'JOBLESS', title: 'US Initial Jobless Claims', country: 'US', impact: 'medium', dayRule: 'every-thursday', hour: 20, minute: 30, desc: 'Klaim pengangguran mingguan AS.' }
   ];
 

@@ -112,7 +112,7 @@ export default function EquityCurve() {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center bg-gray-950 p-1 rounded-xl border border-gray-800 text-xs">
+          <div className="flex items-center bg-gray-950 p-1 rounded-xl border border-gray-800 text-xs overflow-x-auto no-scrollbar">
             {[
               { id: '7', label: '7 Trade' },
               { id: '30', label: '30 Trade' },
@@ -121,7 +121,7 @@ export default function EquityCurve() {
               <button
                 key={r.id}
                 onClick={() => setRange(r.id)}
-                className={`px-3 py-1.5 rounded-lg font-semibold transition ${
+                className={`px-3 py-1.5 rounded-lg font-semibold transition whitespace-nowrap ${
                   range === r.id
                     ? 'bg-cyan-500 text-gray-950 font-bold'
                     : 'text-gray-400 hover:text-white'
@@ -135,7 +135,7 @@ export default function EquityCurve() {
       </div>
 
       {/* Ringkasan */}
-      <div className="grid grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div className="p-3 rounded-xl bg-gray-950/60 border border-gray-850">
           <span className="text-[10px] text-gray-500 uppercase font-semibold block">Saldo Saat Ini</span>
           <span className="text-base font-extrabold font-mono text-white">{formatMoney(data.current_value)}</span>

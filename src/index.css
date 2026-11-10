@@ -297,6 +297,50 @@ html, body {
   }
 }
 
+/* ==========================================================================
+   MOBILE-FIRST TWEAKS (HP) — agar tata letak rapi di layar kecil
+   ========================================================================== */
+@media (max-width: 640px) {
+  .rt-container {
+    padding: 0 0.875rem;
+  }
+  .rt-card {
+    padding: 1rem;
+    border-radius: 0.875rem;
+  }
+  .rt-metric-value {
+    font-size: 1.05rem;
+    line-height: 1.5rem;
+    word-break: break-word;
+  }
+  .rt-card h3 {
+    font-size: 0.95rem;
+  }
+  .rt-mobile-full button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .rt-card {
+    padding: 0.875rem;
+  }
+  .rt-metric-value {
+    font-size: 1rem;
+    line-height: 1.4rem;
+  }
+}
+
+/* Hide scrollbar utility (tab/segmented control di HP) */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
