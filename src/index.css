@@ -2,7 +2,7 @@
    REEZ TRADE — INSTITUTIONAL DESIGN SYSTEM (PURE CSS + DUAL-LAYER)
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap");
 
 :root {
   --bg-primary: #07090e;
@@ -11,7 +11,7 @@
   --bg-card-hover: rgba(22, 30, 48, 0.95);
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-hover: rgba(255, 255, 255, 0.16);
-  
+
   --cyan-primary: #06b6d4;
   --cyan-glow: rgba(6, 182, 212, 0.25);
   --emerald-primary: #10b981;
@@ -19,7 +19,7 @@
   --rose-primary: #f43f5e;
   --rose-glow: rgba(244, 63, 94, 0.25);
   --amber-primary: #f59e0b;
-  
+
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
@@ -32,7 +32,11 @@
 }
 
 /* Anti-overflow global: tidak ada elemen yang keluar dari card di HP */
-img, svg, video, canvas, table {
+img,
+svg,
+video,
+canvas,
+table {
   max-width: 100%;
 }
 
@@ -42,7 +46,11 @@ img, svg, video, canvas, table {
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    "Plus Jakarta Sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.5;
@@ -51,7 +59,7 @@ body {
 }
 
 .font-mono {
-  font-family: 'JetBrains Mono', monospace !important;
+  font-family: "JetBrains Mono", monospace !important;
 }
 
 /* Base Container */
@@ -120,13 +128,19 @@ body {
 }
 
 @media (max-width: 1200px) {
-  .rt-grid-5 { grid-template-columns: repeat(3, 1fr); }
+  .rt-grid-5 {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 @media (max-width: 768px) {
-  .rt-grid-5 { grid-template-columns: repeat(2, 1fr); }
+  .rt-grid-5 {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 @media (max-width: 520px) {
-  .rt-grid-5 { grid-template-columns: 1fr; }
+  .rt-grid-5 {
+    grid-template-columns: 1fr;
+  }
 }
 
 .rt-grid-6 {
@@ -136,13 +150,19 @@ body {
 }
 
 @media (max-width: 1200px) {
-  .rt-grid-6 { grid-template-columns: repeat(3, 1fr); }
+  .rt-grid-6 {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 @media (max-width: 768px) {
-  .rt-grid-6 { grid-template-columns: repeat(2, 1fr); }
+  .rt-grid-6 {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 @media (max-width: 500px) {
-  .rt-grid-6 { grid-template-columns: 1fr; }
+  .rt-grid-6 {
+    grid-template-columns: 1fr;
+  }
 }
 
 .rt-grid-3 {
@@ -152,10 +172,14 @@ body {
 }
 
 @media (max-width: 992px) {
-  .rt-grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .rt-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 @media (max-width: 640px) {
-  .rt-grid-3 { grid-template-columns: 1fr; }
+  .rt-grid-3 {
+    grid-template-columns: 1fr;
+  }
 }
 
 .rt-grid-split {
@@ -165,7 +189,9 @@ body {
 }
 
 @media (max-width: 992px) {
-  .rt-grid-split { grid-template-columns: 1fr; }
+  .rt-grid-split {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Badge Styles */
@@ -213,9 +239,18 @@ body {
 
 /* Animations */
 @keyframes rt-pulse {
-  0% { transform: scale(0.95); opacity: 0.8; }
-  50% { transform: scale(1.1); opacity: 1; }
-  100% { transform: scale(0.95); opacity: 0.8; }
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
 }
 
 .rt-pulse-dot {
@@ -284,27 +319,37 @@ body {
 }
 
 /* Prevent unwanted horizontal overflow on mobile */
-html, body {
+html,
+body {
   overflow-x: hidden;
   max-width: 100vw;
 }
 
-/* Responsive typography for financial numbers */
+/* Responsive typography for financial numbers — auto-shrink per digit count */
 .rt-metric-value {
-  font-size: 1.25rem;
-  line-height: 1.75rem;
+  font-size: clamp(0.95rem, 2.8vw, 1.15rem);
+  line-height: 1.4;
+  word-break: break-all;
 }
 @media (min-width: 640px) {
   .rt-metric-value {
-    font-size: 1.5rem;
-    line-height: 2rem;
+    font-size: clamp(1.05rem, 2.4vw, 1.35rem);
   }
 }
 @media (min-width: 1024px) {
   .rt-metric-value {
-    font-size: 1.625rem;
-    line-height: 2.125rem;
+    font-size: clamp(1.15rem, 2vw, 1.5rem);
   }
+}
+/* Utility: constrain wide numbers inside their parent */
+.rt-num-wrap {
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.rt-num-wrap::-webkit-scrollbar {
+  display: none;
 }
 
 /* ==========================================================================
