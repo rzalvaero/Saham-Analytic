@@ -1,5 +1,19 @@
 // src/services/marketData.js
 
+/**
+ * Pembulatan sesuai fraksi harga resmi Bursa Efek Indonesia (BEI / IDX)
+ */
+export const roundToIdxTick = (price) => {
+  if (!price || isNaN(price) || price <= 0) return 0;
+  let tick = 1;
+  if (price < 200) tick = 1;
+  else if (price < 500) tick = 2;
+  else if (price < 2000) tick = 5;
+  else if (price < 5000) tick = 10;
+  else tick = 25;
+  return Math.round(price / tick) * tick;
+};
+
 export const calculateSMA = (data, period = 14) => {
   const sma = [];
   for (let i = 0; i < data.length; i++) {
@@ -57,47 +71,228 @@ export const calculateRSI = (data, period = 14) => {
   return rsi;
 };
 
+export const calculateATR = (data, period = 14) => {
+  if (!data || data.length < 2) return [];
+  const tr = [];
+  for (let i = 1; i < data.length; i++) {
+    const current = data[i];
+    const prev = data[i - 1];
+    const hl = current.high - current.low;
+    const hc = Math.abs(current.high - prev.close);
+    const lc = Math.abs(current.low - prev.close);
+    tr.push(Math.max(hl, hc, lc));
+  }
+  if (tr.length < period) return [];
+  let sum = 0;
+  for (let i = 0; i < period; i++) sum += tr[i];
+  const atr = [sum / period];
+  for (let i = period; i < tr.length; i++) {
+    const currentATR = (atr[atr.length - 1] * (period - 1) + tr[i]) / period;
+    atr.push(currentATR);
+  }
+  return atr;
+};
+
+/**
+ * Sniper Kuantitatif BEI — Terinspirasi dari konsep DEX Volume/Momentum Hunter
+ * Menghitung lonjakan volume akumulasi, deteksi fresh breakout, dan target harga presisi (Beli, TP1, TP2, SL)
+ */
 export const analyzeStock = (stockData) => {
-  if (stockData.length < 14) return { recommendation: 'HOLD', reason: 'Data tidak cukup' };
+  if (!stockData || stockData.length < 14) {
+    return {
+      recommendation: 'HOLD',
+      actionType: 'HOLD',
+      badge: '⏳ DATA KURANG',
+      score: 50,
+      reason: 'Riwayat data belum cukup untuk kalkulasi kuantitatif',
+      executionNotes: 'Pantau emiten hingga data candle harian mencukupi.',
+      buyZone: { min: 0, max: 0, label: '-' },
+      targetPrice1: { price: 0, percent: '+0.0%', label: '-' },
+      targetPrice2: { price: 0, percent: '+0.0%', label: '-' },
+      stopLoss: { price: 0, percent: '-0.0%', label: '-' },
+      riskReward: '1 : 2.0',
+      volumeSpike: '1.0x'
+    };
+  }
 
   const rsiData = calculateRSI(stockData, 14);
-  const smaData = calculateSMA(stockData, 14);
-  
-  if (rsiData.length === 0 || smaData.length === 0) {
-    return { recommendation: 'HOLD', reason: 'Analisis gagal' };
-  }
+  const sma14Data = calculateSMA(stockData, 14);
+  const sma20Data = calculateSMA(stockData, Math.min(20, stockData.length - 1));
+  const atrData = calculateATR(stockData, 14);
 
   const currentPrice = stockData[stockData.length - 1].close;
-  const rsi = rsiData[rsiData.length - 1].value;
-  const sma = smaData[smaData.length - 1].value;
+  const previousPrice = stockData.length > 1 ? stockData[stockData.length - 2].close : currentPrice;
+  const currentVolume = stockData[stockData.length - 1].volume || 0;
 
-  let analysis = { recommendation: 'HOLD', reason: 'Netral' };
-
-  if (currentPrice > sma && rsi < 70) {
-    analysis.recommendation = 'BUY';
-    analysis.reason = 'Tren harga di atas MA14 dan RSI belum overbought.';
-  } else if (currentPrice < sma && rsi > 30) {
-    analysis.recommendation = 'SELL';
-    analysis.reason = 'Tren harga di bawah MA14 dan RSI belum oversold.';
-  } else if (rsi >= 70) {
-    analysis.recommendation = 'SELL';
-    analysis.reason = 'RSI Overbought (>70), rawan aksi ambil untung.';
-  } else if (rsi <= 30) {
-    analysis.recommendation = 'BUY';
-    analysis.reason = 'RSI Oversold (<30), potensi teknikal rebound.';
-  } else {
-    analysis = { recommendation: 'HOLD', reason: `Bearish/Neutral (RSI: ${rsi})` };
+  // 20-day Volume Average
+  const volPeriod = Math.min(20, stockData.length - 1);
+  let totalVol = 0;
+  for (let i = stockData.length - 1 - volPeriod; i < stockData.length - 1 && i >= 0; i++) {
+    totalVol += stockData[i].volume || 0;
   }
-  
-  return analysis;
+  const avgVolume20 = volPeriod > 0 ? totalVol / volPeriod : currentVolume;
+  const volumeMultiplier = avgVolume20 > 0 ? (currentVolume / avgVolume20) : 1.0;
+  const volumeSpikeStr = `${volumeMultiplier.toFixed(1)}x`;
+
+  // 20-day High & Low (Breakout Resistance & Support Channels)
+  const lookbackPeriod = Math.min(20, stockData.length - 1);
+  const recentCandles = stockData.slice(-1 - lookbackPeriod, -1);
+  const high20 = recentCandles.length > 0 ? Math.max(...recentCandles.map((d) => d.high)) : currentPrice;
+  const low20 = recentCandles.length > 0 ? Math.min(...recentCandles.map((d) => d.low)) : currentPrice;
+
+  const rsi = rsiData.length > 0 ? rsiData[rsiData.length - 1].value : 50;
+  const sma14 = sma14Data.length > 0 ? sma14Data[sma14Data.length - 1].value : currentPrice;
+  const sma20 = sma20Data.length > 0 ? sma20Data[sma20Data.length - 1].value : sma14;
+  const atr = atrData.length > 0 ? atrData[atrData.length - 1] : currentPrice * 0.03;
+
+  // Baseline Price Targets (Rounded to BEI Ticks)
+  let buyMin = roundToIdxTick(currentPrice * 0.985);
+  let buyMax = roundToIdxTick(currentPrice * 1.01);
+  let stopLossPrice = roundToIdxTick(Math.min(currentPrice * 0.962, currentPrice - atr * 1.2));
+  let tp1Price = roundToIdxTick(Math.max(currentPrice * 1.06, currentPrice + atr * 1.8));
+  let tp2Price = roundToIdxTick(Math.max(currentPrice * 1.15, currentPrice + atr * 4.2));
+
+  // Ensure logical hierarchy: StopLoss < BuyMin <= currentPrice <= TP1 < TP2
+  if (stopLossPrice >= currentPrice) stopLossPrice = roundToIdxTick(currentPrice * 0.96);
+  if (tp1Price <= currentPrice) tp1Price = roundToIdxTick(currentPrice * 1.055);
+  if (tp2Price <= tp1Price) tp2Price = roundToIdxTick(tp1Price * 1.08);
+
+  const slPct = (((stopLossPrice - currentPrice) / currentPrice) * 100).toFixed(1);
+  const tp1Pct = (((tp1Price - currentPrice) / currentPrice) * 100).toFixed(1);
+  const tp2Pct = (((tp2Price - currentPrice) / currentPrice) * 100).toFixed(1);
+
+  const risk = Math.max(1, currentPrice - stopLossPrice);
+  const reward1 = Math.max(1, tp1Price - currentPrice);
+  const rrRatio = (reward1 / risk).toFixed(1);
+  const riskRewardStr = `1 : ${rrRatio}`;
+
+  let recommendation = 'HOLD';
+  let actionType = 'HOLD';
+  let badge = '⏳ KONSOLIDASI';
+  let score = 55;
+  let reason = 'Konsolidasi wajar dalam rentang normal.';
+  let executionNotes = 'Volume stabil, belum ada dorongan akumulasi besar. Tunggu sinyal breakout.';
+
+  // KONSEP DEX SNIPER: Deteksi Fresh Breakout, Accumulation Bounce, atau Warning Overbought
+  const isFreshBreakout =
+    (currentPrice >= high20 * 0.995 || (currentPrice > sma20 && previousPrice <= sma20)) &&
+    volumeMultiplier >= 1.25 &&
+    rsi >= 46 &&
+    rsi <= 72;
+
+  const isAccumulationBounce =
+    (currentPrice >= low20 * 0.99 && currentPrice <= low20 * 1.04 || (currentPrice > sma14 && previousPrice <= sma14)) &&
+    rsi >= 32 &&
+    rsi < 52 &&
+    volumeMultiplier >= 1.1;
+
+  const isTakeProfitZone = rsi >= 72 || currentPrice >= sma20 * 1.14;
+
+  const isMomentumRunner = currentPrice > sma14 && currentPrice > sma20 && rsi >= 50 && rsi < 70;
+
+  if (isTakeProfitZone) {
+    recommendation = 'SELL';
+    actionType = 'SELL';
+    badge = '💰 TAKE PROFIT ZONE';
+    score = 35;
+    reason = `RSI Overbought (${rsi}) & harga bergerak terlalu jauh di atas MA. Rawan aksi profit taking.`;
+    executionNotes = `JANGAN kejar beli di pucuk. Amankan profit bertahap (TP1 di Rp ${tp1Price.toLocaleString('id-ID')}). Naikkan trailing stop ke Rp ${roundToIdxTick(currentPrice * 0.97).toLocaleString('id-ID')}.`;
+    buyMin = roundToIdxTick(sma14 * 0.99);
+    buyMax = roundToIdxTick(sma14 * 1.01);
+  } else if (isFreshBreakout) {
+    recommendation = 'BUY';
+    actionType = 'BUY';
+    badge = '🔥 FRESH BREAKOUT';
+    score = Math.min(96, Math.round(75 + volumeMultiplier * 8));
+    reason = `Breakout resisten kuat disertai lonjakan volume akumulasi ${volumeSpikeStr} di atas rata-rata.`;
+    executionNotes = `Area beli optimal Rp ${buyMin.toLocaleString('id-ID')} - Rp ${buyMax.toLocaleString('id-ID')}. Target TP1 Rp ${tp1Price.toLocaleString('id-ID')} (+${tp1Pct}%), TP2 potensi ARA Rp ${tp2Price.toLocaleString('id-ID')} (+${tp2Pct}%). Cut Loss tegas bila tembus Rp ${stopLossPrice.toLocaleString('id-ID')}.`;
+  } else if (isAccumulationBounce) {
+    recommendation = 'BUY';
+    actionType = 'BUY';
+    badge = '🎯 ACCUMULATION BOUNCE';
+    score = Math.min(88, Math.round(70 + volumeMultiplier * 6));
+    reason = `Pantulan dari area support/akumulasi bawah dengan volume serap aktif (${volumeSpikeStr}).`;
+    executionNotes = `Beli bertahap di area Rp ${buyMin.toLocaleString('id-ID')} - Rp ${buyMax.toLocaleString('id-ID')}. Rasio Risk:Reward optimal ${riskRewardStr}. Stop Loss di Rp ${stopLossPrice.toLocaleString('id-ID')} (${slPct}%).`;
+  } else if (isMomentumRunner) {
+    recommendation = 'BUY';
+    actionType = 'BUY';
+    badge = '⚡ MOMENTUM RUNNER';
+    score = 75;
+    reason = `Tren bullish konsisten di atas MA14 & MA20. RSI (${rsi}) sehat dalam fase ekspansi.`;
+    executionNotes = `Pertahankan posisi hold runner. Entry susulan hanya dianjurkan saat pullback mendekati area Rp ${buyMin.toLocaleString('id-ID')}. Target TP2 di Rp ${tp2Price.toLocaleString('id-ID')}.`;
+  } else if (rsi <= 30) {
+    recommendation = 'BUY';
+    actionType = 'BUY';
+    badge = '🛡️ OVERSOLD REVERSAL';
+    score = 72;
+    reason = `RSI Oversold (${rsi}). Potensi technical rebound kuat dari titik jenuh jual.`;
+    executionNotes = `Spekulasi beli cicil di Rp ${buyMin.toLocaleString('id-ID')}. Jual cepat di TP1 Rp ${tp1Price.toLocaleString('id-ID')}. Disiplin Cut Loss di Rp ${stopLossPrice.toLocaleString('id-ID')}.`;
+  } else {
+    recommendation = 'HOLD';
+    actionType = 'HOLD';
+    badge = '⏳ KONSOLIDASI';
+    score = 52;
+    reason = `Konsolidasi sideways (RSI: ${rsi}). Volume transaksi masih dalam rentang wajar (${volumeSpikeStr}).`;
+    executionNotes = `Wait & See. Tunggu konfirmasi lonjakan volume di atas 1.3x atau candle breakout menembus Rp ${high20.toLocaleString('id-ID')}.`;
+  }
+
+  return {
+    recommendation,
+    actionType,
+    badge,
+    score,
+    currentPrice,
+    rsi,
+    sma14,
+    sma20,
+    high20,
+    low20,
+    buyZone: {
+      min: buyMin,
+      max: buyMax,
+      label: `Rp ${buyMin.toLocaleString('id-ID')} - Rp ${buyMax.toLocaleString('id-ID')}`
+    },
+    targetPrice1: {
+      price: tp1Price,
+      percent: `+${tp1Pct}%`,
+      label: `Rp ${tp1Price.toLocaleString('id-ID')} (+${tp1Pct}%)`
+    },
+    targetPrice2: {
+      price: tp2Price,
+      percent: `+${tp2Pct}%`,
+      label: `Rp ${tp2Price.toLocaleString('id-ID')} (+${tp2Pct}% ARA)`
+    },
+    stopLoss: {
+      price: stopLossPrice,
+      percent: `${slPct}%`,
+      label: `Rp ${stopLossPrice.toLocaleString('id-ID')} (${slPct}%)`
+    },
+    riskReward: riskRewardStr,
+    volumeSpike: volumeSpikeStr,
+    reason,
+    executionNotes
+  };
 };
 
 export const mockStocks = [
+  { symbol: 'PANI', name: 'Pantai Indah Kapuk Dua Tbk.' },
+  { symbol: 'BREN', name: 'Barito Renewables Energy Tbk.' },
+  { symbol: 'CUAN', name: 'Petrindo Jaya Kreasi Tbk.' },
+  { symbol: 'AMMN', name: 'Amman Mineral Internasional Tbk.' },
+  { symbol: 'BRPT', name: 'Barito Pacific Tbk.' },
+  { symbol: 'TPIA', name: 'Chandra Asri Pacific Tbk.' },
+  { symbol: 'ANTM', name: 'Aneka Tambang Tbk.' },
+  { symbol: 'MDKA', name: 'Merdeka Copper Gold Tbk.' },
+  { symbol: 'ADRO', name: 'Alamtri Resources Indonesia Tbk.' },
+  { symbol: 'PTBA', name: 'Bukit Asam Tbk.' },
+  { symbol: 'PGEO', name: 'Pertamina Geothermal Energy Tbk.' },
+  { symbol: 'MEDC', name: 'Medco Energi Internasional Tbk.' },
   { symbol: 'BBCA', name: 'Bank Central Asia Tbk.' },
   { symbol: 'BBRI', name: 'Bank Rakyat Indonesia Tbk.' },
+  { symbol: 'BMRI', name: 'Bank Mandiri Tbk.' },
   { symbol: 'GOTO', name: 'GoTo Gojek Tokopedia Tbk.' },
   { symbol: 'TLKM', name: 'Telkom Indonesia Tbk.' },
-  { symbol: 'BMRI', name: 'Bank Mandiri Tbk.' },
+  { symbol: 'ASII', name: 'Astra International Tbk.' },
   { symbol: 'EURUSD=X', name: 'Euro / US Dollar' },
   { symbol: 'GBPUSD=X', name: 'British Pound / US Dollar' },
   { symbol: 'USDJPY=X', name: 'US Dollar / Japanese Yen' },
@@ -119,7 +314,7 @@ export const fetchRealtimeData = async (symbol) => {
     }
     
     const data = await response.json();
-    const result = data.chart.result[0];
+    const result = data.chart?.result?.[0];
     
     if (!result || !result.indicators || !result.indicators.quote[0]) return null;
     
@@ -129,11 +324,8 @@ export const fetchRealtimeData = async (symbol) => {
     const historicalData = [];
     
     for (let i = 0; i < timestamps.length; i++) {
-      // Yahoo finance sometimes returns nulls or undefined for some days
       if (quotes?.open?.[i] != null && quotes?.close?.[i] != null) {
-        // Convert timestamp to YYYY-MM-DD
         const dateObj = new Date(timestamps[i] * 1000);
-        // Ensure local string format matches YYYY-MM-DD for the chart
         const timeStr = dateObj.toISOString().split('T')[0];
         
         historicalData.push({
@@ -147,12 +339,14 @@ export const fetchRealtimeData = async (symbol) => {
       }
     }
 
-    // Calculate volume stats
-    const currentVolume = historicalData.length > 0 ? historicalData[historicalData.length - 1].volume : 0;
+    if (historicalData.length === 0) return null;
+
+    // Calculate volume stats (20-day moving average volume)
+    const currentVolume = historicalData[historicalData.length - 1].volume || 0;
     let totalVol = 0;
-    const volDays = Math.min(5, historicalData.length - 1);
+    const volDays = Math.min(20, historicalData.length - 1);
     for (let i = historicalData.length - 1 - volDays; i < historicalData.length - 1 && i >= 0; i++) {
-      totalVol += historicalData[i].volume;
+      totalVol += historicalData[i].volume || 0;
     }
     const avgVolume = volDays > 0 ? totalVol / volDays : currentVolume;
 

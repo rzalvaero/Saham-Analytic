@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, AlertTriangle, Calendar, Rocket, RefreshCw, ChevronDown, ChevronUp, Layers, CheckCircle2 } from 'lucide-react';
+import { Activity, AlertTriangle, Calendar, Rocket, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { fetchRealtimeData } from '../services/marketData';
 
 const dividendData = [
@@ -80,8 +80,9 @@ const Discover = () => {
     const fetchScreenerData = async () => {
       setLoading(true);
       const targetSymbols = [
-        'GOTO', 'BBRI', 'BMRI', 'TLKM', 'BBCA', 'AMMN', 'BREN',
-        'CUAN', 'PANI', 'ASII', 'ADRO', 'PGEO', 'BRPT', 'MDKA'
+        'PANI', 'BREN', 'CUAN', 'AMMN', 'BRPT', 'TPIA', 'ANTM', 'MDKA',
+        'ADRO', 'PTBA', 'PGEO', 'MEDC', 'BBCA', 'BBRI', 'BMRI', 'GOTO',
+        'TLKM', 'ASII'
       ];
 
       try {
@@ -229,10 +230,24 @@ const Discover = () => {
                   <div className="text-center py-6 text-xs text-gray-500">Data tidak tersedia</div>
                 ) : (
                   unusualVolume.map((stock) => {
+                    const multiplier = stock.avgVolume > 0 ? (stock.volume / stock.avgVolume).toFixed(1) : '1.0';
                     const surge = stock.avgVolume > 0 ? ((stock.volume / stock.avgVolume) * 100).toFixed(0) : '100';
+                    const analysis = stock.analysis || {};
                     return (
                       <div key={stock.symbol} className="grid grid-cols-3 items-center py-2.5 text-xs">
-                        <div className="font-bold text-white font-mono">{stock.symbol}</div>
+                        <div>
+                          <div className="font-bold text-white font-mono flex items-center gap-1">
+                            {stock.symbol}
+                            {analysis.badge && (
+                              <span className="text-[9px] text-cyan-400 font-normal">
+                                {analysis.badge.split(' ')[0]}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[10px] text-gray-400 truncate max-w-[90px]">
+                            {analysis.buyZone?.min ? `Area Rp ${analysis.buyZone.min}` : (stock.name || stock.symbol)}
+                          </div>
+                        </div>
                         <div className="text-right font-mono">
                           <div className="text-gray-200">{formatVolume(stock.volume || 0)}</div>
                           <div className="text-[10px] text-gray-500">
@@ -242,12 +257,12 @@ const Discover = () => {
                         <div className="text-right font-mono">
                           <span
                             className={`px-2 py-0.5 rounded text-[11px] font-bold ${
-                              parseInt(surge) > 100
+                              parseFloat(multiplier) >= 1.3
                                 ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
                                 : 'text-gray-400'
                             }`}
                           >
-                            {surge}%
+                            {multiplier}x ({surge}%)
                           </span>
                         </div>
                       </div>

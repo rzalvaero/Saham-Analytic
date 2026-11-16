@@ -26,7 +26,7 @@ import { fetchRealtimeData } from './services/marketData';
 
 function App() {
   const [stocksData, setStocksData] = useState([]);
-  const [watchlistSymbols, setWatchlistSymbols] = useState(['BBRI', 'BMRI', 'BBCA', '^JKSE']);
+  const [watchlistSymbols, setWatchlistSymbols] = useState(['PANI', 'BBRI', 'BMRI', 'BBCA', '^JKSE']);
   const [selectedSymbol, setSelectedSymbol] = useState('BBRI');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
