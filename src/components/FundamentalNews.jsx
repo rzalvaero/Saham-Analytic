@@ -17,13 +17,17 @@ const FundamentalNews = ({ symbol, onAddSymbol }) => {
 
         const filterStrict = (newsList) => {
           if (!newsList) return [];
+          // Hanya berita yang tidak lebih tua dari 30 hari agar tetap relevan
+          const cutoff = Date.now() - 30 * 24 * 3600 * 1000;
           return newsList.filter((article) => {
             const title = (article.title || '').toUpperCase();
             const hasTicker =
               article.relatedTickers &&
               (article.relatedTickers.includes(symbol) ||
                 article.relatedTickers.includes(`${symbolWithoutJK}.JK`));
-            return hasTicker || title.includes(symbolWithoutJK);
+            const pubTime = article.providerPublishTime ? article.providerPublishTime * 1000 : 0;
+            const fresh = !pubTime || pubTime >= cutoff;
+            return (hasTicker || title.includes(symbolWithoutJK)) && fresh;
           });
         };
 
@@ -55,6 +59,8 @@ const FundamentalNews = ({ symbol, onAddSymbol }) => {
     };
 
     fetchNews();
+    const interval = setInterval(fetchNews, 300000); // refresh berita tiap 5 menit
+    return () => clearInterval(interval);
   }, [symbol]);
 
   const renderNewsList = (newsList, isGlobal = false) => (

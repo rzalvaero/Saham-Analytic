@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Activity, AlertTriangle, Calendar, Rocket, RefreshCw, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Activity, AlertTriangle, Calendar, Rocket, RefreshCw, CheckCircle2, Clock, Info } from 'lucide-react';
 import { fetchRealtimeData } from '../services/marketData';
 
 const dividendData = [
@@ -75,6 +75,13 @@ const Discover = () => {
   const [mostActive, setMostActive] = useState([]);
   const [unusualVolume, setUnusualVolume] = useState([]);
   const [expandedIpo, setExpandedIpo] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
+
+  // Jadwal dividen yang masih relevan (ex-date belum lewat), berdasarkan tanggal hari ini
+  const upcomingDividends = useMemo(() => {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    return dividendData.filter((d) => d.exDate >= todayStr).slice(0, 10);
+  }, []);
 
   useEffect(() => {
     const fetchScreenerData = async () => {
@@ -107,6 +114,8 @@ const Discover = () => {
         } else {
           setUnusualVolume(unusual);
         }
+
+        setLastUpdated(new Date());
       } catch (err) {
         console.error('Failed to fetch screener data', err);
       } finally {
@@ -115,6 +124,8 @@ const Discover = () => {
     };
 
     fetchScreenerData();
+    const interval = setInterval(fetchScreenerData, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -136,14 +147,23 @@ const Discover = () => {
             <p className="text-xs sm:text-sm text-gray-400 mt-1">
               Pusat screening emiten aktif, lonjakan volume tidak biasa, dividen, dan IPO baru
             </p>
+            <p className="text-[11px] text-gray-500 mt-2 flex items-center gap-1.5 font-mono">
+              <Clock className="w-3 h-3 text-cyan-400" />
+              Auto-refresh setiap 1 menit{lastUpdated ? ` • Update terakhir: ${lastUpdated.toLocaleTimeString('id-ID')}` : ' • Menyiapkan data...'}
+            </p>
           </div>
 
-          {loading && (
-            <div className="flex items-center gap-2 text-cyan-400 text-xs font-mono bg-cyan-950/60 border border-cyan-800/40 px-3.5 py-2 rounded-xl shrink-0">
-              <RefreshCw className="w-4 h-4 animate-spin" />
-              <span>Memindai Bursa...</span>
-            </div>
-          )}
+          <div className="flex flex-col items-start sm:items-end gap-2">
+            {loading && (
+              <div className="flex items-center gap-2 text-cyan-400 text-xs font-mono bg-cyan-950/60 border border-cyan-800/40 px-3.5 py-2 rounded-xl shrink-0">
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span>Memindai Bursa...</span>
+              </div>
+            )}
+            <span className="text-[10px] text-gray-600 font-mono flex items-center gap-1">
+              <Info className="w-3 h-3" /> Bagian quota realtime: Most Active &amp; Lonjakan Volume
+            </span>
+          </div>
         </div>
       </div>
 
@@ -274,7 +294,7 @@ const Discover = () => {
           </div>
         </div>
 
-        {/* Jadwal Dividen */}
+        {/* Jadwal Dividen — Referensi Manual (bukan realtime) */}
         <div className="rt-card flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-850">
@@ -282,13 +302,13 @@ const Discover = () => {
                 <Calendar className="w-4 h-4 text-emerald-400" />
                 Jadwal Cum &amp; Ex Dividen
               </h3>
-              <span className="text-[10px] bg-emerald-950/60 text-emerald-300 px-2 py-0.5 rounded font-mono">
-                Cash Yield
+              <span className="text-[10px] bg-gray-900 text-gray-400 px-2 py-0.5 rounded font-mono">
+                Referensi Manual
               </span>
             </div>
 
             <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-              {dividendData.map((div) => (
+              {upcomingDividends.map((div) => (
                 <div
                   key={div.symbol}
                   className="p-2.5 rounded-xl bg-gray-950/60 border border-gray-850/80 flex items-center justify-between"
@@ -324,8 +344,8 @@ const Discover = () => {
               </p>
             </div>
           </div>
-          <span className="text-xs font-mono text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/30">
-            Pipeline 2026
+          <span className="text-xs font-mono text-gray-400 bg-gray-900 px-2.5 py-1 rounded-full border border-gray-800">
+            Referensi Manual — bukan realtime
           </span>
         </div>
 

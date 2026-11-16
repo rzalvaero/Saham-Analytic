@@ -4,21 +4,15 @@ import {
   LayoutDashboard,
   RefreshCw,
   Compass,
-  Briefcase,
-  Settings,
-  Bell,
-  LogOut,
   X,
-  Menu
+  Menu,
+  Clock
 } from 'lucide-react';
 import LiveTradingDashboard from './components/LiveTradingDashboard';
 import StockChart from './components/StockChart';
 import RecommendationEngine from './components/RecommendationEngine';
 import MarketOverview from './components/MarketOverview';
 import SearchStock from './components/SearchStock';
-import PaperTrading from './components/PaperTrading';
-import Portfolio from './components/Portfolio';
-import SettingsPage from './components/Settings';
 import FundamentalNews from './components/FundamentalNews';
 import Discover from './components/Discover';
 import Forex from './components/Forex';
@@ -30,9 +24,8 @@ function App() {
   const [selectedSymbol, setSelectedSymbol] = useState('BBRI');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('live-trading'); // Default Live MT5
-  const [authMode, setAuthMode] = useState('login');
+  const [activeTab, setActiveTab] = useState('live-trading'); // Default Live Trading
+  const [lastUpdated, setLastUpdated] = useState(null);
   const [ihsgData, setIhsgData] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -59,6 +52,7 @@ function App() {
           setError('Gagal memuat data saham. Pastikan koneksi dan kode saham valid.');
         } else {
           setStocksData(validData);
+          setLastUpdated(new Date());
         }
       } catch (err) {
         setError('Terjadi kesalahan saat mengambil data.');
@@ -73,62 +67,35 @@ function App() {
   }, [watchlistSymbols, activeTab]);
 
   const handleAddSymbol = async (symbol) => {
-    if (!watchlistSymbols.includes(symbol) && user) {
-      try {
-        await fetch('/api/watchlist', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user.id, symbol }),
-        });
-        setWatchlistSymbols([...watchlistSymbols, symbol]);
-        setSelectedSymbol(symbol);
-      } catch (e) {
-        alert('Gagal menambahkan ke watchlist');
-      }
-    } else if (!watchlistSymbols.includes(symbol)) {
+    if (!watchlistSymbols.includes(symbol)) {
       setWatchlistSymbols([...watchlistSymbols, symbol]);
       setSelectedSymbol(symbol);
     }
   };
 
-  const handleRemoveWatchlist = async (e, symbolToRemove) => {
+  const handleRemoveWatchlist = (e, symbolToRemove) => {
     e.stopPropagation();
-    if (user) {
-      try {
-        await fetch(`/api/watchlist/${user.id}/${symbolToRemove}`, {
-          method: 'DELETE',
-        });
-        const newWatchlist = watchlistSymbols.filter((sym) => sym !== symbolToRemove);
-        setWatchlistSymbols(newWatchlist);
-        if (selectedSymbol === symbolToRemove) {
-          setSelectedSymbol(newWatchlist.length > 0 ? newWatchlist[0] : null);
-        }
-      } catch (err) {
-        console.error('Failed to remove from watchlist', err);
-      }
-    } else {
-      const newWatchlist = watchlistSymbols.filter((sym) => sym !== symbolToRemove);
-      setWatchlistSymbols(newWatchlist);
-      if (selectedSymbol === symbolToRemove) {
-        setSelectedSymbol(newWatchlist.length > 0 ? newWatchlist[0] : null);
-      }
+    const newWatchlist = watchlistSymbols.filter((sym) => sym !== symbolToRemove);
+    setWatchlistSymbols(newWatchlist);
+    if (selectedSymbol === symbolToRemove) {
+      setSelectedSymbol(newWatchlist.length > 0 ? newWatchlist[0] : null);
     }
   };
 
   const selectedStockData = stocksData.find((s) => s.symbol === selectedSymbol);
 
   const navItems = [
-    { id: 'live-trading', label: 'Live Trading', icon: Zap, liveBadge: true },
+    { id: 'live-trading', label: 'Live XAUUSD', icon: Zap, liveBadge: true },
     { id: 'dashboard', label: 'Saham & IHSG', icon: LayoutDashboard },
-    { id: 'forex', label: 'Forex & Gold', icon: RefreshCw },
     { id: 'discover', label: 'Discover', icon: Compass },
+    { id: 'forex', label: 'Forex & Gold', icon: RefreshCw },
   ];
 
   return (
     <div className="min-h-screen bg-[#070a12] text-gray-100 flex flex-col font-sans">
       {/* Top Institutional Navbar */}
       <header className="sticky top-0 z-50 bg-[#0c111d]/90 backdrop-blur-xl border-b border-gray-800/80 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 gap-4">
             {/* Brand Logo & Live Badge */}
             <div className="flex items-center gap-3">
@@ -183,36 +150,6 @@ function App() {
 
             {/* Right Controls / Profile */}
             <div className="flex items-center gap-2 sm:gap-3">
-              {user ? (
-                <div className="flex items-center gap-2 bg-gray-900 border border-gray-800 py-1 px-2.5 rounded-xl text-xs">
-                  <div className="text-right hidden sm:block">
-                    <span className="text-gray-400 text-[10px] block">User: {user.username}</span>
-                    <span className="font-mono font-bold text-emerald-400">
-                      Rp {parseFloat(user.balance).toLocaleString('id-ID')}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => setUser(null)}
-                    className="text-gray-400 hover:text-rose-400 p-1"
-                    title="Logout"
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="hidden sm:flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      setAuthMode('login');
-                      setActiveTab('portfolio');
-                    }}
-                    className="text-xs text-gray-300 hover:text-white px-3 py-1.5 rounded-lg border border-gray-800 hover:border-gray-700 transition"
-                  >
-                    Paper Login
-                  </button>
-                </div>
-              )}
-
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -283,8 +220,8 @@ function App() {
       </header>
 
       {/* Main Full-Width Content Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* 1. Live MT5 Institutional Dashboard (Default) */}
+      <main className="flex-1 max-w-[1500px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* 1. Live Trading Dashboard (Default) */}
         {activeTab === 'live-trading' && <LiveTradingDashboard />}
 
         {/* 2. Saham & IHSG Dashboard */}
@@ -306,6 +243,10 @@ function App() {
                   </h1>
                   <p className="text-xs sm:text-sm text-gray-400 mt-1">
                     Data realtime Yahoo Finance, grafik interaktif candlestick, dan sinyal algoritma momentum
+                  </p>
+                  <p className="text-[11px] text-gray-500 mt-2 flex items-center gap-1.5 font-mono">
+                    <Clock className="w-3 h-3 text-cyan-400" />
+                    Auto-refresh setiap 1 menit{lastUpdated ? ` • Update terakhir: ${lastUpdated.toLocaleTimeString('id-ID')}` : ' • Menyiapkan data...'}
                   </p>
                 </div>
                 <div className="w-full sm:w-auto">
@@ -370,14 +311,6 @@ function App() {
 
                   <div className="space-y-6">
                     <RecommendationEngine stocks={stocksData} />
-                    {selectedStockData && (
-                      <PaperTrading
-                        symbol={selectedStockData.symbol}
-                        currentPrice={selectedStockData.currentPrice}
-                        user={user}
-                        onTrade={(newBalance) => setUser({ ...user, balance: newBalance })}
-                      />
-                    )}
                   </div>
                 </div>
 
@@ -396,29 +329,6 @@ function App() {
 
         {/* 4. Discover */}
         {activeTab === 'discover' && <Discover />}
-
-        {/* 6. Portfolio Paper Trading */}
-        {activeTab === 'portfolio' && (
-          <div className="rounded-2xl bg-gray-900/60 p-5 border border-gray-800">
-            <Portfolio
-              user={user}
-              authMode={authMode}
-              setAuthMode={setAuthMode}
-              onLogin={(userData) => {
-                setUser(userData);
-                setWatchlistSymbols(['BBCA']);
-                setSelectedSymbol('BBCA');
-              }}
-            />
-          </div>
-        )}
-
-        {/* 7. Settings */}
-        {activeTab === 'settings' && (
-          <div className="rounded-2xl bg-gray-900/60 p-5 border border-gray-800">
-            <SettingsPage user={user} />
-          </div>
-        )}
       </main>
     </div>
   );
