@@ -1,10 +1,10 @@
 # AGENTS.md — Aturan & Instruksi Operasional trade.reez.my.id (Reez Trade)
 
-> **MANDATORI:** Setiap AI agent/asisten WAJIB membaca file ini dan `PRD.md` sebelum melakukan perubahan atau analisis kode di direktori `D:\Beekeper IT\analytic`.
-> **Direktori Root Proyek:** `D:\Beekeper IT\analytic\`
+> **MANDATORI:** Setiap AI agent/asisten WAJIB membaca file ini dan `PRD.md` sebelum melakukan perubahan atau analisis kode di direktori `D:\Beekeper IT\reezTrade`.
+> **Direktori Root Proyek:** `D:\Beekeper IT\reezTrade\`
 > **Domain Live:** [https://trade.reez.my.id/](https://trade.reez.my.id/)
 > **Target Git:** `https://github.com/rzalvaero/Saham-Analytic.git` (Branch: `main` — Auto Deploy ke Vercel)
-> **Terakhir Diperbarui:** **2026-11-10 09:10 WIB**
+> **Terakhir Diperbarui:** **2026-11-17 08:30 WIB**
 
 ---
 
@@ -37,12 +37,12 @@ Tampilan ringkasan metrik finansial pada `src/components/LiveTradingDashboard.js
 
 ## 3. Struktur Tab & Desain UI
 
-1. **Tab Navigasi Aktif (4 Tab):**
-   - `live`: Live Trading (Dashboard portofolio MT5 real-time).
-   - `saham`: Saham & IHSG (Chart teknikal, rekomendasi kuantitatif, summary bursa).
-   - `forex`: Forex & Gold (Spot rates dan chart XAU/USD).
-   - `discover`: Screener pasar terpadu (Most Active, Unusual Volume, Dividen, IPO baru).
-   *(Tab Running Trade telah **dihapus permanen**).*
+1. **Tab Navigasi Aktif (4 Tab - Urutan Wajib):**
+   - `live-trading`: Live XAUUSD (Dashboard utama streaming langsung dari terminal MT5 secara real-time).
+   - `dashboard`: Saham & IHSG (Chart teknikal candlestick, rekomendasi kuantitatif, summary bursa per menit, berita fundamental).
+   - `discover`: Discover (Screener pasar riil, dividen 2026, upcoming IPO BEI 2026).
+   - `forex`: Forex & Gold (Spot rates global dan chart XAU/USD).
+   *(Tab Running Trade & Simulasi Eksekusi Saham (Paper) telah **dihapus permanen**).*
 2. **Sistem Desain & Tema Gelap Institusional:**
    - Gunakan palet warna gelap terpadu (`bg-gray-950`, `bg-gray-900`, `border-gray-850`, `border-gray-750`).
    - Gunakan utility class kartu `rt-card`, badge `rt-badge`, dan font `JetBrains Mono` untuk angka finansial.

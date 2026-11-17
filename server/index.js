@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
+const https = require('https');
 
 const app = express();
 app.use(cors());
@@ -343,6 +344,88 @@ app.get('/api/trade-live', async (req, res) => {
 });
 
 
+
+// ==========================================
+// ENDPOINT BERITA PASAR & FUNDAMENTAL REALTIME (RSS IDX / IHSG)
+// Menyediakan berita terkini seputar emiten saham & bursa Indonesia
+// ==========================================
+const newsCache = new Map();
+
+function fetchGoogleNewsRss(query) {
+  return new Promise((resolve) => {
+    const encoded = encodeURIComponent(query);
+    const url = `https://news.google.com/rss/search?q=${encoded}&hl=id&gl=ID&ceid=ID:id`;
+    const req = https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' } }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        const items = [];
+        const itemMatches = data.match(/<item>[\s\S]*?<\/item>/g) || [];
+        for (const item of itemMatches.slice(0, 15)) {
+          const title = (item.match(/<title>([\s\S]*?)<\/title>/) || [])[1] || '';
+          const link = (item.match(/<link>([\s\S]*?)<\/link>/) || [])[1] || '';
+          const pubDate = (item.match(/<pubDate>([\s\S]*?)<\/pubDate>/) || [])[1] || '';
+          const source = (item.match(/<source[\s\S]*?>([\s\S]*?)<\/source>/) || [])[1] || 'Market News';
+          
+          let cleanTitle = title.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim();
+          let publisher = source.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim();
+          if (cleanTitle.includes(' - ')) {
+            const parts = cleanTitle.split(' - ');
+            publisher = parts[parts.length - 1];
+            cleanTitle = parts.slice(0, -1).join(' - ');
+          }
+          items.push({
+            title: cleanTitle,
+            link: link.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim(),
+            publisher: publisher,
+            pubDate: pubDate,
+            pubTime: pubDate ? new Date(pubDate).getTime() : Date.now()
+          });
+        }
+        resolve(items);
+      });
+    });
+    req.on('error', (err) => {
+      console.error('RSS fetch error:', err.message);
+      resolve([]);
+    });
+    req.setTimeout(4000, () => {
+      req.destroy();
+      resolve([]);
+    });
+  });
+}
+
+app.get('/api/news', async (req, res) => {
+  try {
+    const symbol = (req.query.symbol || '').trim().toUpperCase();
+    const query = req.query.q || (symbol ? `saham ${symbol} OR ${symbol}.JK` : 'saham IHSG Bursa Efek Indonesia');
+    const cacheKey = `news_${query.toLowerCase()}`;
+    const now = Date.now();
+
+    // Cek cache (TTL 3 menit)
+    const cached = newsCache.get(cacheKey);
+    if (cached && (now - cached.timestamp < 180000)) {
+      return res.json({ success: true, count: cached.data.length, news: cached.data, cached: true });
+    }
+
+    const items = await fetchGoogleNewsRss(query);
+    if (items.length > 0) {
+      newsCache.set(cacheKey, { timestamp: now, data: items });
+      return res.json({ success: true, count: items.length, news: items, cached: false });
+    }
+
+    // Jika pencarian spesifik kosong, fallback ke berita umum IHSG
+    if (symbol) {
+      const fallbackItems = await fetchGoogleNewsRss('saham IHSG Bursa Efek Indonesia');
+      return res.json({ success: true, count: fallbackItems.length, news: fallbackItems, fallback: true });
+    }
+
+    res.json({ success: true, count: 0, news: [] });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 3001;

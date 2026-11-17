@@ -126,8 +126,8 @@ export default function LiveTradingDashboard() {
         </div>
       </div>
 
-      {/* 2. LIMA METRIK UTAMA FINANSIAL — Enhanced Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      {/* 2. LIMA METRIK UTAMA FINANSIAL — Enhanced Cards (Responsive Widescreen Grid) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
         {/* Card 1: Saldo */}
         <div
           className="rt-card relative overflow-hidden group flex flex-col justify-between"

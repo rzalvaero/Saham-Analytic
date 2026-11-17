@@ -1,9 +1,9 @@
 # PRD.md — trade.reez.my.id (Portofolio Pribadi Koko Reza / REEZ Trade)
 
-> **Status:** AKTIF (Living Document) — Direvisi: **2026-11-10 09:05 WIB**
+> **Status:** AKTIF (Living Document) — Direvisi: **2026-11-17 08:30 WIB**
 > **Domain Live:** [https://trade.reez.my.id/](https://trade.reez.my.id/)
 > **Hosting & Deployment:** Vercel (Auto-deployed dari repository `https://github.com/rzalvaero/Saham-Analytic.git`)
-> **Direktori Proyek:** `D:\Beekeper IT\analytic`
+> **Direktori Proyek:** `D:\Beekeper IT\reezTrade`
 > **Koneksi Akun Broker:** Exness Real Account IDR (Login: `452****70`, Server: `Exness-MT5Real48`)
 > **Identitas Portofolio:** Murni Portofolio Pribadi Koko Reza (Reez Trade) — **DILARANG** menyebut nama kantor / "Beekeeper".
 > **Konversi Mata Uang Mandatori:** Nilai MT5 langsung disajikan sebagai **`IDR / Rupiah`** (angka balance ~35 juta langsung dibaca Rp 35.xxx.xxx). **DILARANG** menyebut kata "Cent", "cent", atau "IDC" di seluruh antarmuka publik.
@@ -23,17 +23,17 @@ Platform publik transparan yang memungkinkan siapa saja memverifikasi performa t
    *(Catatan: Kartu "Minus Berapa / Total Loss" telah dihapus dari antarmuka publik dan hanya dipantau pribadi via Telegram).*
 3. **Peringkat Performa EA & Strategi (Leaderboard):** Evaluasi performa strategi (`ReyFX-BTC`, `ReyFX-M15 Breakout`, `ReyFX-M15 EMA`, `ReyFX-M5`, `ReyFX-NewsStop`, dan `Manual Trades`).
 4. **50 Transaksi Tertutup Terakhir (Deals OUT):** Rekaman riwayat eksekusi transparan.
-5. **Pasar Saham Indonesia (IDX) & Screener:** Data realtime Yahoo Finance untuk emiten BEI (^JKSE, BBCA, BBRI, dll), sinyal algoritma momentum (RSI 14 & MA), sentimen berita, dan screener (Most Active, Unusual Volume, Dividen, IPO baru).
+5. **Pasar Saham Indonesia (IDX) & Screener:** Data realtime Yahoo Finance dengan auto-refresh per menit untuk emiten BEI (^JKSE, BBCA, BBRI, dll), sinyal algoritma momentum (RSI 14 & MA), sentimen berita real-time via endpoint Google News RSS, dan screener riil (Most Active, Unusual Volume, Dividen 2026, IPO BEI 2026).
 6. **Forex & Gold:** Pemantauan spot rate mata uang global dan komoditas Emas (XAU/USD).
 
 ---
 
 ## 2. Fitur & Tab Navigasi Aktif
-Navigasi website disederhanakan menjadi 4 tab utama (Tab *Running Trade* telah **dihapus permanen**):
-- **1. Live Trading:** Dashboard utama streaming langsung dari terminal MT5.
-- **2. Saham & IHSG:** Grafik interaktif candlestick, MA 14, ringkasan bursa (IHSG level, Volume, Turnover), dan rekomendasi kuantitatif.
-- **3. Forex & Gold:** Kurs nilai tukar global dan chart komoditas Emas (XAU/USD).
-- **4. Discover:** Market screener terpadu untuk saham teraktif, lonjakan volume, jadwal dividen, dan evaluasi IPO baru.
+Navigasi website disederhanakan menjadi 4 tab utama (Tab *Running Trade* dan *Simulasi Eksekusi Saham (Paper)* telah **dihapus permanen**):
+- **1. Live XAUUSD:** Dashboard utama live trading emas & portofolio akun Exness streaming langsung dari terminal MT5 secara real-time.
+- **2. Saham & IHSG:** Grafik interaktif candlestick, MA 14, ringkasan bursa (IHSG level, Volume, Turnover) polling fresh per menit, rekomendasi kuantitatif, dan berita fundamental terkini via Google News RSS (`/api/news`).
+- **3. Discover:** Market screener terpadu untuk saham teraktif, lonjakan volume, kalender dividen riil 2026 (UNTR, ASII, BBCA, ITMG, dll), dan evaluasi IPO baru BEI 2026 (ANDA, JECX, PRDL, WBSA, JELI, RANS).
+- **4. Forex & Gold:** Kurs nilai tukar global dan chart komoditas Emas (XAU/USD).
 
 ---
 

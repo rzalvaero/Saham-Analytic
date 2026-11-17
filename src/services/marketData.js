@@ -290,9 +290,15 @@ export const mockStocks = [
   { symbol: 'BBCA', name: 'Bank Central Asia Tbk.' },
   { symbol: 'BBRI', name: 'Bank Rakyat Indonesia Tbk.' },
   { symbol: 'BMRI', name: 'Bank Mandiri Tbk.' },
+  { symbol: 'BBNI', name: 'Bank Negara Indonesia Tbk.' },
+  { symbol: 'UNTR', name: 'United Tractors Tbk.' },
+  { symbol: 'INCO', name: 'Vale Indonesia Tbk.' },
+  { symbol: 'KLBF', name: 'Kalbe Farma Tbk.' },
+  { symbol: 'ICBP', name: 'Indofood CBP Sukses Makmur Tbk.' },
   { symbol: 'GOTO', name: 'GoTo Gojek Tokopedia Tbk.' },
   { symbol: 'TLKM', name: 'Telkom Indonesia Tbk.' },
   { symbol: 'ASII', name: 'Astra International Tbk.' },
+  { symbol: '^JKSE', name: 'IHSG Composite (Bursa Efek Indonesia)' },
   { symbol: 'EURUSD=X', name: 'Euro / US Dollar' },
   { symbol: 'GBPUSD=X', name: 'British Pound / US Dollar' },
   { symbol: 'USDJPY=X', name: 'US Dollar / Japanese Yen' },
@@ -307,7 +313,9 @@ export const fetchRealtimeData = async (symbol) => {
     else if (symbol.endsWith('=X') || symbol.endsWith('=F')) querySymbol = symbol;
     else querySymbol = `${symbol}.JK`;
     
-    const response = await fetch(`/api/finance/v8/finance/chart/${querySymbol}?interval=1d&range=3mo`);
+    // Cache-busting timestamp memastikan data realtime per menit dan tidak tertahan cache disk/browser
+    const cacheBuster = Date.now();
+    const response = await fetch(`/api/finance/v8/finance/chart/${querySymbol}?interval=1d&range=3mo&_=${cacheBuster}`);
     
     if (!response.ok) {
       throw new Error('Failed to fetch data');
@@ -320,6 +328,7 @@ export const fetchRealtimeData = async (symbol) => {
     
     const timestamps = result.timestamp;
     const quotes = result.indicators.quote[0];
+    const meta = result.meta || {};
     
     const historicalData = [];
     
@@ -341,8 +350,28 @@ export const fetchRealtimeData = async (symbol) => {
 
     if (historicalData.length === 0) return null;
 
+    // Ambil harga pasar realtime aktual dari meta quote (fresh per menit)
+    const livePrice = (typeof meta.regularMarketPrice === 'number' && meta.regularMarketPrice > 0)
+      ? meta.regularMarketPrice
+      : historicalData[historicalData.length - 1].close;
+
+    const previousClose = (typeof meta.chartPreviousClose === 'number' && meta.chartPreviousClose > 0)
+      ? meta.chartPreviousClose
+      : (historicalData.length > 1 ? historicalData[historicalData.length - 2].close : livePrice);
+
+    // Sinkronkan candle terakhir dengan live market price jika bursa sedang berjalan
+    if (historicalData.length > 0) {
+      const lastCandle = historicalData[historicalData.length - 1];
+      lastCandle.close = parseFloat(livePrice.toFixed(2));
+      lastCandle.high = Math.max(lastCandle.high, livePrice);
+      lastCandle.low = Math.min(lastCandle.low, livePrice);
+      if (meta.regularMarketVolume) {
+        lastCandle.volume = meta.regularMarketVolume;
+      }
+    }
+
     // Calculate volume stats (20-day moving average volume)
-    const currentVolume = historicalData[historicalData.length - 1].volume || 0;
+    const currentVolume = meta.regularMarketVolume || historicalData[historicalData.length - 1].volume || 0;
     let totalVol = 0;
     const volDays = Math.min(20, historicalData.length - 1);
     for (let i = historicalData.length - 1 - volDays; i < historicalData.length - 1 && i >= 0; i++) {
@@ -353,11 +382,10 @@ export const fetchRealtimeData = async (symbol) => {
     const analysis = analyzeStock(historicalData);
     const stockInfo = mockStocks.find(s => s.symbol === symbol);
     
-    const currentPrice = historicalData[historicalData.length - 1].close;
-    const previousPrice = historicalData.length > 1 ? historicalData[historicalData.length - 2].close : currentPrice;
-    
     // Calculate SMA to pass to chart
     const smaData = calculateSMA(historicalData, 14);
+
+    const priceChange = parseFloat((livePrice - previousClose).toFixed(2));
 
     return {
       symbol,
@@ -365,10 +393,12 @@ export const fetchRealtimeData = async (symbol) => {
       historicalData,
       smaData,
       analysis,
-      currentPrice: currentPrice,
-      priceChange: parseFloat((currentPrice - previousPrice).toFixed(2)),
+      currentPrice: parseFloat(livePrice.toFixed(2)),
+      priceChange: priceChange,
+      changePercent: previousClose > 0 ? parseFloat(((priceChange / previousClose) * 100).toFixed(2)) : 0,
       volume: currentVolume,
-      avgVolume: avgVolume
+      avgVolume: avgVolume,
+      marketTime: meta.regularMarketTime ? meta.regularMarketTime * 1000 : Date.now()
     };
   } catch (error) {
     console.error(`Error fetching data for ${symbol}:`, error);

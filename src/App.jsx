@@ -35,6 +35,8 @@ function App() {
       if (ihsg) setIhsgData(ihsg);
     };
     fetchIHSG();
+    const interval = setInterval(fetchIHSG, 60000); // Auto-refresh IHSG setiap 1 menit (60s)
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -95,7 +97,7 @@ function App() {
     <div className="min-h-screen bg-[#070a12] text-gray-100 flex flex-col font-sans">
       {/* Top Institutional Navbar */}
       <header className="sticky top-0 z-50 bg-[#0c111d]/90 backdrop-blur-xl border-b border-gray-800/80 shadow-lg">
-        <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
           <div className="flex items-center justify-between h-16 gap-4">
             {/* Brand Logo & Live Badge */}
             <div className="flex items-center gap-3">
@@ -220,7 +222,7 @@ function App() {
       </header>
 
       {/* Main Full-Width Content Container */}
-      <main className="flex-1 max-w-[1500px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6">
         {/* 1. Live Trading Dashboard (Default) */}
         {activeTab === 'live-trading' && <LiveTradingDashboard />}
 
@@ -324,11 +326,11 @@ function App() {
           </div>
         )}
 
-        {/* 3. Forex & Commodities */}
-        {activeTab === 'forex' && <Forex />}
-
-        {/* 4. Discover */}
+        {/* 3. Discover (Market Screener, Volume Surge, IPO, Dividen) */}
         {activeTab === 'discover' && <Discover />}
+
+        {/* 4. Forex & Gold (Spot Rates & XAU/USD) */}
+        {activeTab === 'forex' && <Forex />}
       </main>
     </div>
   );
