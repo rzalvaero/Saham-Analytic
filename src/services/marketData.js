@@ -454,7 +454,9 @@ export const fetchRealtimeData = async (symbol) => {
     
     // Cache-busting timestamp memastikan data realtime per menit dan tidak tertahan cache disk/browser
     const cacheBuster = Date.now();
-    const response = await fetch(`/api/finance/v8/finance/chart/${querySymbol}?interval=1d&range=3mo&_=${cacheBuster}`);
+    // Range 5 tahun agar MA280 (butuh 280 bar) dan 52W High/Low benar-benar
+    // bisa dihitung, bukan tebakan.
+    const response = await fetch(`/api/finance/v8/finance/chart/${querySymbol}?interval=1d&range=5y&_=${cacheBuster}`);
     
     if (!response.ok) {
       throw new Error('Failed to fetch data');
@@ -520,21 +522,50 @@ export const fetchRealtimeData = async (symbol) => {
 
     const analysis = analyzeStock(historicalData);
     const stockInfo = mockStocks.find(s => s.symbol === symbol);
-    
-    // Calculate SMA to pass to chart
+
+    // MA jangka pendek & panjang, mengikuti tampilan terminal saham
     const smaData = calculateSMA(historicalData, 14);
+    const ma60 = calculateSMA(historicalData, 60);
+    const ma280 = calculateSMA(historicalData, 280);
 
     const priceChange = parseFloat((livePrice - previousClose).toFixed(2));
 
+    const lastBar = historicalData[historicalData.length - 1];
+    const dayOpen = lastBar ? lastBar.open : null;
+    const dayHigh = meta.regularMarketDayHigh ?? (lastBar ? lastBar.high : null);
+    const dayLow = meta.regularMarketDayLow ?? (lastBar ? lastBar.low : null);
+
+    // Nilai transaksi (turnover) = harga x volume. Bukan market cap.
+    const turnover = livePrice * currentVolume;
+
+    // 52 minggu dihitung dari data yang ada bila meta tidak menyediakannya
+    let w52High = meta.fiftyTwoWeekHigh ?? null;
+    let w52Low = meta.fiftyTwoWeekLow ?? null;
+    if (w52High == null || w52Low == null) {
+      const window = historicalData.slice(-252);
+      if (window.length) {
+        w52High = Math.max(...window.map((d) => d.high));
+        w52Low = Math.min(...window.map((d) => d.low));
+      }
+    }
+
     return {
       symbol,
-      name: stockInfo ? stockInfo.name : symbol,
+      name: meta.longName || meta.shortName || (stockInfo ? stockInfo.name : symbol),
       historicalData,
       smaData,
+      ma60,
+      ma280,
       analysis,
       currentPrice: parseFloat(livePrice.toFixed(2)),
       priceChange: priceChange,
       changePercent: previousClose > 0 ? parseFloat(((priceChange / previousClose) * 100).toFixed(2)) : 0,
+      dayOpen,
+      dayHigh,
+      dayLow,
+      week52High: w52High,
+      week52Low: w52Low,
+      turnover,
       volume: currentVolume,
       avgVolume: avgVolume,
       marketTime: meta.regularMarketTime ? meta.regularMarketTime * 1000 : Date.now()

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import LiveTradingDashboard from './components/LiveTradingDashboard';
 import StockChart from './components/StockChart';
+import StockInfoPanel from './components/StockInfoPanel';
 import RecommendationEngine from './components/RecommendationEngine';
 import MarketOverview from './components/MarketOverview';
 import SearchStock from './components/SearchStock';
@@ -307,13 +308,15 @@ function App() {
                     {selectedStockData ? (
                       <StockChart
                         data={selectedStockData.historicalData}
-                        smaData={selectedStockData.smaData}
+                        ma60={selectedStockData.ma60}
+                        ma280={selectedStockData.ma280}
                         symbol={selectedStockData.symbol}
                       />
                     ) : ihsgData ? (
                       <StockChart
                         data={ihsgData.historicalData}
-                        smaData={ihsgData.smaData}
+                        ma60={ihsgData.ma60}
+                        ma280={ihsgData.ma280}
                         symbol="IHSG (^JKSE)"
                       />
                     ) : (
@@ -324,6 +327,7 @@ function App() {
                   </div>
 
                   <div className="space-y-6">
+                    {selectedStockData && <StockInfoPanel stock={selectedStockData} />}
                     <RecommendationEngine stocks={stocksData} />
                   </div>
                 </div>

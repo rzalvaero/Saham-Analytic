@@ -1,11 +1,29 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createChart } from 'lightweight-charts';
-import { BarChart3, TrendingUp } from 'lucide-react';
+import { BarChart3, Maximize2, Minimize2 } from 'lucide-react';
 
-const StockChart = ({ data = [], symbol = '', smaData = [] }) => {
+// Rentang tampilan: berapa bar terakhir yang langsung terlihat.
+// Data tetap 5 tahun penuh supaya bisa di-zoom mundur.
+const RANGES = [
+  { label: '1B', bars: 22 },
+  { label: '3B', bars: 66 },
+  { label: '6B', bars: 126 },
+  { label: '1T', bars: 252 },
+  { label: '3T', bars: 756 },
+  { label: '5T', bars: 0 },
+];
+
+const StockChart = ({ data = [], symbol = '', ma60 = [], ma280 = [] }) => {
   const chartContainerRef = useRef();
   const chartRef = useRef();
+  const candleRef = useRef();
+  const ma60Ref = useRef();
+  const ma280Ref = useRef();
+  const [range, setRange] = useState('1T');
+  const [expanded, setExpanded] = useState(false);
 
+  // Buat chart sekali saja; update data lewat effect terpisah supaya
+  // zoom/pan pengguna tidak ter-reset setiap data baru masuk.
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
@@ -13,67 +31,96 @@ const StockChart = ({ data = [], symbol = '', smaData = [] }) => {
       layout: {
         background: { type: 'solid', color: 'transparent' },
         textColor: '#94a3b8',
+        fontSize: 11,
       },
       grid: {
         vertLines: { color: 'rgba(255, 255, 255, 0.04)' },
         horzLines: { color: 'rgba(255, 255, 255, 0.04)' },
       },
       width: chartContainerRef.current.clientWidth,
-      height: 380,
+      height: expanded ? 620 : 400,
+      crosshair: {
+        mode: 0,
+        vertLine: { color: 'rgba(148,163,184,0.4)', width: 1, style: 2, labelBackgroundColor: '#0e7490' },
+        horzLine: { color: 'rgba(148,163,184,0.4)', width: 1, style: 2, labelBackgroundColor: '#0e7490' },
+      },
       timeScale: {
         borderColor: 'rgba(255, 255, 255, 0.08)',
-        timeVisible: true,
+        timeVisible: false,
+        rightOffset: 6,
       },
       rightPriceScale: {
         borderColor: 'rgba(255, 255, 255, 0.08)',
+        scaleMargins: { top: 0.08, bottom: 0.08 },
+      },
+      localization: {
+        locale: 'id-ID',
+        priceFormatter: (p) => Number(p).toLocaleString('id-ID'),
       },
     };
 
     chartRef.current = createChart(chartContainerRef.current, chartOptions);
 
-    const candlestickSeries = chartRef.current.addCandlestickSeries({
+    candleRef.current = chartRef.current.addCandlestickSeries({
       upColor: '#10b981',
       downColor: '#ef4444',
       borderVisible: false,
       wickUpColor: '#10b981',
       wickDownColor: '#ef4444',
+      priceFormat: { type: 'price', precision: 0, minMove: 1 },
     });
 
-    const smaSeries = chartRef.current.addLineSeries({
-      color: '#06b6d4',
+    ma60Ref.current = chartRef.current.addLineSeries({
+      color: '#f59e0b',
       lineWidth: 2,
       crosshairMarkerVisible: false,
+      priceLineVisible: false,
+      lastValueVisible: false,
     });
 
-    if (data && data.length > 0) {
-      candlestickSeries.setData(data);
-    }
-
-    if (smaData && smaData.length > 0) {
-      smaSeries.setData(smaData);
-    }
-
-    if (data && data.length > 0) {
-      chartRef.current.timeScale().fitContent();
-    }
+    ma280Ref.current = chartRef.current.addLineSeries({
+      color: '#8b5cf6',
+      lineWidth: 2,
+      crosshairMarkerVisible: false,
+      priceLineVisible: false,
+      lastValueVisible: false,
+    });
 
     const resizeObserver = new ResizeObserver((entries) => {
       if (entries.length === 0 || entries[0].target !== chartContainerRef.current) return;
-      const newRect = entries[0].contentRect;
-      if (newRect.width > 0 && chartRef.current) {
-        chartRef.current.applyOptions({ width: newRect.width });
+      const rect = entries[0].contentRect;
+      if (rect.width > 0 && chartRef.current) {
+        chartRef.current.applyOptions({ width: rect.width });
       }
     });
-
     resizeObserver.observe(chartContainerRef.current);
 
     return () => {
       resizeObserver.disconnect();
-      if (chartRef.current) {
-        chartRef.current.remove();
-      }
+      if (chartRef.current) chartRef.current.remove();
+      chartRef.current = null;
     };
-  }, [data, smaData]);
+  }, [expanded]);
+
+  // Update data
+  useEffect(() => {
+    if (!candleRef.current || !data.length) return;
+    candleRef.current.setData(data);
+    ma60Ref.current?.setData(ma60 || []);
+    ma280Ref.current?.setData(ma280 || []);
+
+    const n = RANGES.find((r) => r.label === range)?.bars ?? 0;
+    if (n > 0 && data.length > n) {
+      chartRef.current.timeScale().setVisibleLogicalRange({
+        from: data.length - n,
+        to: data.length + 4,
+      });
+    } else {
+      chartRef.current.timeScale().fitContent();
+    }
+  }, [data, ma60, ma280, range]);
+
+  const last = data.length ? data[data.length - 1] : null;
 
   return (
     <div className="rt-card shadow-xl overflow-hidden">
@@ -84,31 +131,69 @@ const StockChart = ({ data = [], symbol = '', smaData = [] }) => {
           </div>
           <div>
             <h3 className="text-base font-bold text-white flex items-center gap-2">
-              Grafik Candlestick {symbol}
-              <span className="text-[10px] bg-cyan-950/80 text-cyan-400 border border-cyan-800/40 px-2 py-0.5 rounded-full font-mono font-bold">
-                REALTIME
-              </span>
+              Grafik Harga {symbol}
             </h3>
             <p className="text-xs text-gray-400">
-              Price Action Historis &amp; Indikator Moving Average (MA 14)
+              Candlestick harian &amp; Moving Average 60 / 280
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-xs">
-          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-950 border border-gray-800 text-gray-300 font-mono text-[11px]">
-            <span className="w-2 h-2 rounded-full bg-cyan-400" /> MA 14
-          </span>
-          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-950 border border-gray-800 text-emerald-400 font-mono text-[11px]">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" /> Bullish Candle
-          </span>
-          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-950 border border-gray-800 text-rose-400 font-mono text-[11px]">
-            <span className="w-2 h-2 rounded-full bg-rose-400" /> Bearish Candle
-          </span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 text-[10px] font-mono">
+            <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/25 text-amber-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /> MA60
+            </span>
+            <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-violet-500/10 border border-violet-500/25 text-violet-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-violet-400" /> MA280
+            </span>
+          </div>
+
+          <div className="flex items-center gap-0.5 rounded-lg bg-gray-950 border border-gray-800 p-0.5">
+            {RANGES.map((r) => (
+              <button
+                key={r.label}
+                onClick={() => setRange(r.label)}
+                className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold transition ${
+                  range === r.label
+                    ? 'bg-cyan-500/20 text-cyan-300'
+                    : 'text-gray-500 hover:text-gray-300'
+                }`}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="p-1 rounded-lg border border-gray-800 bg-gray-950 text-gray-400 hover:text-gray-200 transition"
+            title={expanded ? 'Perkecil' : 'Perbesar'}
+          >
+            {expanded ? <Minimize2 className="w-3 h-3" /> : <Maximize2 className="w-3 h-3" />}
+          </button>
         </div>
       </div>
 
-      <div ref={chartContainerRef} className="w-full min-h-[380px]" />
+      <div ref={chartContainerRef} className="w-full" style={{ minHeight: expanded ? 620 : 400 }} />
+
+      {last && (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-2 mt-1 border-t border-gray-850/60 text-[10px] font-mono text-gray-500">
+          <span>
+            O <span className="text-gray-300">{Number(last.open).toLocaleString('id-ID')}</span>
+          </span>
+          <span>
+            H <span className="text-emerald-400">{Number(last.high).toLocaleString('id-ID')}</span>
+          </span>
+          <span>
+            L <span className="text-rose-400">{Number(last.low).toLocaleString('id-ID')}</span>
+          </span>
+          <span>
+            C <span className="text-gray-100 font-bold">{Number(last.close).toLocaleString('id-ID')}</span>
+          </span>
+          <span className="ml-auto text-gray-600">{data.length} bar harian</span>
+        </div>
+      )}
     </div>
   );
 };
