@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import backtest from '../data/backtest_idx.json';
 import sweep from '../data/sweep_idx.json';
+import ResearchLog from './ResearchLog';
 
 const fmtPct = (v, digits = 2) =>
   `${v > 0 ? '+' : ''}${Number(v).toFixed(digits)}%`;
@@ -348,6 +349,9 @@ const BacktestHistoris = () => {
           Biaya dihitung dua arah. Angka ini bukan jaminan hasil masa depan.
         </span>
       </p>
+
+      {/* Catatan riset lanjutan: 234 konfigurasi + uji ketahanan */}
+      <ResearchLog />
     </div>
   );
 };
