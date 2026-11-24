@@ -7,7 +7,8 @@ import {
   X,
   Menu,
   Clock,
-  FlaskConical
+  FlaskConical,
+  Scale
 } from 'lucide-react';
 import LiveTradingDashboard from './components/LiveTradingDashboard';
 import StockChart from './components/StockChart';
@@ -21,6 +22,7 @@ import RiskRegime from './components/RiskRegime';
 import MultiTimeframe from './components/MultiTimeframe';
 import BacktestHistoris from './components/BacktestHistoris';
 import FullUniverse from './components/FullUniverse';
+import OrderFlow from './components/OrderFlow';
 import { fetchRealtimeData } from './services/marketData';
 
 function App() {
@@ -97,6 +99,7 @@ function App() {
     { id: 'backtest', label: 'Backtest', icon: FlaskConical },
     { id: 'discover', label: 'Discover', icon: Compass },
     { id: 'forex', label: 'Forex & Gold', icon: RefreshCw },
+  { id: 'orderflow', label: 'Arus Beli/Jual', icon: Scale },
   ];
 
   return (
@@ -355,6 +358,9 @@ function App() {
 
         {/* 5. Forex & Gold (Spot Rates & XAU/USD) */}
         {activeTab === 'forex' && <Forex />}
+
+        {/* 6. Arus Beli vs Jual per level harga (profil order flow) */}
+        {activeTab === 'orderflow' && <OrderFlow />}
       </main>
     </div>
   );

@@ -306,6 +306,145 @@ export const mockStocks = [
   { symbol: 'GC=F', name: 'Gold (XAU) / US Dollar' },
 ];
 
+/**
+ * Ukuran tick (fraksi harga) resmi BEI.
+ * Dipakai untuk membulatkan level harga agar profil arus tidak pecah
+ * menjadi puluhan level tipis yang sebenarnya satu harga.
+ */
+export const idxTickSize = (price) => {
+  if (price < 200) return 1;
+  if (price < 500) return 2;
+  if (price < 2000) return 5;
+  if (price < 5000) return 10;
+  return 25;
+};
+
+/**
+ * fetchOrderFlow - Membangun profil arus beli/jual per level harga dari data
+ * intraday 1 menit.
+ *
+ * CATATAN KEJUJURAN DATA (penting, jangan diubah menjadi klaim palsu):
+ * Bursa Efek Indonesia tidak menyediakan order book L2 (antrian bid/ask broker)
+ * melalui Yahoo Finance. Endpoint quote Yahoo mengembalikan 401 Unauthorized.
+ * Jadi ini BUKAN order book asli dan BUKAN data broker asing/masing-masing.
+ *
+ * Yang benar-benar dihitung: klasifikasi volume tiap bar 1 menit menjadi
+ * sisi BELI atau JUAL memakai tick rule (close vs open, fallback ke close
+ * sebelumnya), lalu diagregasi per level harga sesuai fraksi tick BEI.
+ * Ini pendekatan standar "volume profile + delta" yang dipakai trader untuk
+ * membaca agresor mana yang dominan di suatu harga.
+ */
+export const fetchOrderFlow = async (symbol) => {
+  try {
+    const querySymbol = symbol.startsWith('^') ? symbol : `${symbol}.JK`;
+    const response = await fetch(
+      `/api/finance/v8/finance/chart/${querySymbol}?interval=1m&range=1d&_=${Date.now()}`
+    );
+    if (!response.ok) throw new Error('Gagal mengambil data intraday');
+
+    const data = await response.json();
+    const result = data.chart?.result?.[0];
+    if (!result?.indicators?.quote?.[0] || !result.timestamp) return null;
+
+    const q = result.indicators.quote[0];
+    const meta = result.meta || {};
+
+    // Kumpulkan bar yang benar-benar punya transaksi
+    const bars = [];
+    for (let i = 0; i < result.timestamp.length; i++) {
+      if (q.close?.[i] == null || !q.volume?.[i]) continue;
+      bars.push({
+        t: result.timestamp[i],
+        o: q.open?.[i] ?? q.close[i],
+        h: q.high?.[i] ?? q.close[i],
+        l: q.low?.[i] ?? q.close[i],
+        c: q.close[i],
+        v: q.volume[i],
+      });
+    }
+    if (bars.length === 0) return null;
+
+    let buyVol = 0;
+    let sellVol = 0;
+    const levels = new Map();
+    const series = [];
+
+    let cumDelta = 0;
+
+    for (let i = 0; i < bars.length; i++) {
+      const b = bars[i];
+
+      // Tick rule: bandingkan close dengan open bar yang sama. Jika harga
+      // tidak bergerak, warisi arah dari bar sebelumnya (metode standar).
+      let side = 0;
+      if (b.c > b.o) side = 1;
+      else if (b.c < b.o) side = -1;
+      else if (i > 0) {
+        const prev = bars[i - 1].c;
+        side = b.c > prev ? 1 : b.c < prev ? -1 : 0;
+      }
+
+      if (side > 0) buyVol += b.v;
+      else if (side < 0) sellVol += b.v;
+
+      cumDelta += side * b.v;
+      series.push({
+        time: Math.floor(b.t / 60) * 60,
+        value: cumDelta,
+        price: b.c,
+      });
+
+      const tick = idxTickSize(b.c);
+      const key = Math.round(b.c / tick) * tick;
+      if (!levels.has(key)) levels.set(key, { price: key, buy: 0, sell: 0 });
+      const lv = levels.get(key);
+
+      if (side > 0) lv.buy += b.v;
+      else if (side < 0) lv.sell += b.v;
+      else {
+        // Volume tanpa arah dibagi rata agar tidak menciptakan bias palsu
+        lv.buy += b.v / 2;
+        lv.sell += b.v / 2;
+      }
+    }
+
+    const levelArr = Array.from(levels.values())
+      .map((lv) => ({
+        ...lv,
+        total: lv.buy + lv.sell,
+        delta: lv.buy - lv.sell,
+      }))
+      .sort((a, b) => b.total - a.total);
+
+    const totalVol = buyVol + sellVol;
+    const maxLevel = levelArr.length ? levelArr[0].total : 0;
+
+    // Lima level dengan transaksi terbesar = "dinding" harga hari ini
+    const walls = levelArr.slice(0, 8);
+
+    return {
+      symbol,
+      bars: bars.length,
+      buyVol,
+      sellVol,
+      totalVol,
+      delta: buyVol - sellVol,
+      buyPct: totalVol > 0 ? (buyVol / totalVol) * 100 : 0,
+      sellPct: totalVol > 0 ? (sellVol / totalVol) * 100 : 0,
+      levels: levelArr,
+      walls,
+      maxLevel,
+      series,
+      lastPrice: meta.regularMarketPrice ?? bars[bars.length - 1].c,
+      prevClose: meta.chartPreviousClose ?? null,
+      marketTime: meta.regularMarketTime ? meta.regularMarketTime * 1000 : Date.now(),
+    };
+  } catch (error) {
+    console.error(`Error fetching order flow for ${symbol}:`, error);
+    return null;
+  }
+};
+
 export const fetchRealtimeData = async (symbol) => {
   try {
     let querySymbol;
