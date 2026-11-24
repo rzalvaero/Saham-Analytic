@@ -20,6 +20,7 @@ import Forex from './components/Forex';
 import RiskRegime from './components/RiskRegime';
 import MultiTimeframe from './components/MultiTimeframe';
 import BacktestHistoris from './components/BacktestHistoris';
+import FullUniverse from './components/FullUniverse';
 import { fetchRealtimeData } from './services/marketData';
 
 function App() {
@@ -342,7 +343,12 @@ function App() {
         )}
 
         {/* 3. Backtest Historis (hasil precomputed, JSON statis) */}
-        {activeTab === 'backtest' && <BacktestHistoris />}
+        {activeTab === 'backtest' && (
+          <div className="space-y-5">
+            <BacktestHistoris />
+            <FullUniverse />
+          </div>
+        )}
 
         {/* 4. Discover (Market Screener, Volume Surge, IPO, Dividen) */}
         {activeTab === 'discover' && <Discover />}
