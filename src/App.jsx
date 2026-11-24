@@ -24,6 +24,7 @@ import MultiTimeframe from './components/MultiTimeframe';
 import BacktestHistoris from './components/BacktestHistoris';
 import FullUniverse from './components/FullUniverse';
 import OrderFlow from './components/OrderFlow';
+import PasarHariIni from './components/PasarHariIni';
 import { fetchRealtimeData } from './services/marketData';
 
 function App() {
@@ -272,6 +273,9 @@ function App() {
                 {error}
               </div>
             )}
+
+            {/* Pasar Hari Ini: breadth IHSG + top mover seluruh emiten BEI */}
+            <PasarHariIni />
 
             {/* Kondisi Pasar & Status Indeks (selalu tampil, tidak bergantung watchlist) */}
             <RiskRegime />
