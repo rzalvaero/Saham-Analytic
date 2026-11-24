@@ -1,0 +1,71 @@
+{
+  "feeRoundTripPct": 0.4,
+  "results": [
+    {
+      "name": "A RSI5 dip + EMA50 (baseline)",
+      "trades": 14,
+      "wr": 35.714285714285715,
+      "pf": 1.6361552469372365,
+      "avgNet": -2.0675971975627085,
+      "dd": 10.436999384255152,
+      "pos": 4,
+      "universe": 12,
+      "verdict": "TOLAK"
+    },
+    {
+      "name": "B RSI5 dip + EMA200, TP 6x",
+      "trades": 88,
+      "wr": 27.27272727272727,
+      "pf": 0.815584160310001,
+      "avgNet": -3.027939369850827,
+      "dd": 33.38148537332515,
+      "pos": 5,
+      "universe": 27,
+      "verdict": "TOLAK"
+    },
+    {
+      "name": "C RSI14 dip + EMA200",
+      "trades": 15,
+      "wr": 6.666666666666667,
+      "pf": 0.0,
+      "avgNet": -7.209721739576106,
+      "dd": 24.483357261341887,
+      "pos": 1,
+      "universe": 12,
+      "verdict": "TOLAK"
+    },
+    {
+      "name": "D Breakout 20 + vol 1.3x",
+      "trades": 599,
+      "wr": 39.23205342237062,
+      "pf": 1.0272155667922414,
+      "avgNet": 6.556841734342442,
+      "dd": 62.56852126540415,
+      "pos": 11,
+      "universe": 32,
+      "verdict": "TOLAK"
+    },
+    {
+      "name": "E Pullback uptrend RSI14<=50",
+      "trades": 8,
+      "wr": 25.0,
+      "pf": 0.010825964694983424,
+      "avgNet": -4.881897584308237,
+      "dd": 14.486504222450169,
+      "pos": 1,
+      "universe": 6,
+      "verdict": "TOLAK"
+    },
+    {
+      "name": "F MA20 cross MA50 + EMA200",
+      "trades": 305,
+      "wr": 33.442622950819676,
+      "pf": 1.247923164732559,
+      "avgNet": -5.97181440752957,
+      "dd": 66.24310412723351,
+      "pos": 11,
+      "universe": 32,
+      "verdict": "TOLAK"
+    }
+  ]
+}

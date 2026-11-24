@@ -6,7 +6,8 @@ import {
   Compass,
   X,
   Menu,
-  Clock
+  Clock,
+  FlaskConical
 } from 'lucide-react';
 import LiveTradingDashboard from './components/LiveTradingDashboard';
 import StockChart from './components/StockChart';
@@ -16,6 +17,9 @@ import SearchStock from './components/SearchStock';
 import FundamentalNews from './components/FundamentalNews';
 import Discover from './components/Discover';
 import Forex from './components/Forex';
+import RiskRegime from './components/RiskRegime';
+import MultiTimeframe from './components/MultiTimeframe';
+import BacktestHistoris from './components/BacktestHistoris';
 import { fetchRealtimeData } from './services/marketData';
 
 function App() {
@@ -89,6 +93,7 @@ function App() {
   const navItems = [
     { id: 'live-trading', label: 'Live XAUUSD', icon: Zap, liveBadge: true },
     { id: 'dashboard', label: 'Saham & IHSG', icon: LayoutDashboard },
+    { id: 'backtest', label: 'Backtest', icon: FlaskConical },
     { id: 'discover', label: 'Discover', icon: Compass },
     { id: 'forex', label: 'Forex & Gold', icon: RefreshCw },
   ];
@@ -263,6 +268,9 @@ function App() {
               </div>
             )}
 
+            {/* Kondisi Pasar & Status Indeks (selalu tampil, tidak bergantung watchlist) */}
+            <RiskRegime />
+
             {stocksData.length > 0 && (
               <>
                 <MarketOverview stocks={stocksData} />
@@ -317,6 +325,13 @@ function App() {
                 </div>
 
                 {selectedStockData && (
+                  <MultiTimeframe
+                    historicalData={selectedStockData.historicalData}
+                    symbol={selectedStockData.symbol}
+                  />
+                )}
+
+                {selectedStockData && (
                   <div className="mt-6">
                     <FundamentalNews symbol={selectedStockData.symbol} onAddSymbol={handleAddSymbol} />
                   </div>
@@ -326,10 +341,13 @@ function App() {
           </div>
         )}
 
-        {/* 3. Discover (Market Screener, Volume Surge, IPO, Dividen) */}
+        {/* 3. Backtest Historis (hasil precomputed, JSON statis) */}
+        {activeTab === 'backtest' && <BacktestHistoris />}
+
+        {/* 4. Discover (Market Screener, Volume Surge, IPO, Dividen) */}
         {activeTab === 'discover' && <Discover />}
 
-        {/* 4. Forex & Gold (Spot Rates & XAU/USD) */}
+        {/* 5. Forex & Gold (Spot Rates & XAU/USD) */}
         {activeTab === 'forex' && <Forex />}
       </main>
     </div>

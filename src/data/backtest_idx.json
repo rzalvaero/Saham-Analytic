@@ -1,0 +1,679 @@
+{
+  "generatedAt": "2026-11-24T13:08:57Z",
+  "config": {
+    "strategy": "RSI5_TREND_D1",
+    "timeframe": "1d",
+    "range": "5y",
+    "feeRoundTripPct": 0.4,
+    "feeBuyPct": 0.15,
+    "feeSellPct": 0.15,
+    "taxSellPct": 0.1,
+    "rsiPeriod": 5,
+    "rsiBuyMax": 25.0,
+    "rsiSellMin": 75.0,
+    "emaTrend": 50,
+    "atrPeriod": 14,
+    "slMultAtr": 2.0,
+    "tpMultAtr": 4.0,
+    "timeStopBars": 20
+  },
+  "summary": {
+    "universe": 32,
+    "tested": 32,
+    "traded": 12,
+    "profitable": 4,
+    "failed": [],
+    "totalTrades": 14,
+    "winRate": 35.71,
+    "profitFactor": 2.803,
+    "avgNetPct": -2.07,
+    "worstMaxDdPct": 10.44,
+    "verdict": "TIDAK LAYAK"
+  },
+  "emiten": [
+    {
+      "symbol": "BMRI",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 3990.0,
+      "trades": 2,
+      "winRate": 50.0,
+      "profitFactor": 18.7,
+      "netPct": 7.05,
+      "maxDrawdownPct": 0.4,
+      "avgBars": 13.0,
+      "exitBreakdown": {
+        "TP": 1,
+        "TIME": 1
+      },
+      "sample": [
+        {
+          "entryDate": "2024-01-26",
+          "exitDate": "2024-02-05",
+          "entry": 6300.0,
+          "exit": 6796.7,
+          "bars": 6,
+          "reason": "TP",
+          "netPct": 7.48
+        },
+        {
+          "entryDate": "2024-09-27",
+          "exitDate": "2024-10-25",
+          "entry": 7050.0,
+          "exit": 7050.0,
+          "bars": 20,
+          "reason": "TIME",
+          "netPct": -0.4
+        }
+      ]
+    },
+    {
+      "symbol": "ISAT",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 1510.0,
+      "trades": 1,
+      "winRate": 100.0,
+      "profitFactor": 0.0,
+      "netPct": 6.39,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 20.0,
+      "exitBreakdown": {
+        "TIME": 1
+      },
+      "sample": [
+        {
+          "entryDate": "2022-08-29",
+          "exitDate": "2022-09-26",
+          "entry": 1750.0,
+          "exit": 1868.75,
+          "bars": 20,
+          "reason": "TIME",
+          "netPct": 6.39
+        }
+      ]
+    },
+    {
+      "symbol": "ANTM",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 2670.0,
+      "trades": 1,
+      "winRate": 100.0,
+      "profitFactor": 0.0,
+      "netPct": 0.62,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 20.0,
+      "exitBreakdown": {
+        "TIME": 1
+      },
+      "sample": [
+        {
+          "entryDate": "2025-06-26",
+          "exitDate": "2025-07-25",
+          "entry": 2940.0,
+          "exit": 2970.0,
+          "bars": 20,
+          "reason": "TIME",
+          "netPct": 0.62
+        }
+      ]
+    },
+    {
+      "symbol": "TOWR",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 380.0,
+      "trades": 1,
+      "winRate": 100.0,
+      "profitFactor": 0.0,
+      "netPct": 0.02,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 20.0,
+      "exitBreakdown": {
+        "TIME": 1
+      },
+      "sample": [
+        {
+          "entryDate": "2022-09-14",
+          "exitDate": "2022-10-12",
+          "entry": 1195.0,
+          "exit": 1200.0,
+          "bars": 20,
+          "reason": "TIME",
+          "netPct": 0.02
+        }
+      ]
+    },
+    {
+      "symbol": "BBRI",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 3100.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "TLKM",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 2080.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "ASII",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 5450.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "UNTR",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 23300.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "ADRO",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 2340.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "KLBF",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 795.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "INDF",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 7175.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "GOTO",
+      "bars": 1106,
+      "firstDate": "2022-04-11",
+      "lastDate": "2026-11-24",
+      "lastClose": 26.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "MEDC",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 1170.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "MDKA",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 1795.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "AMMN",
+      "bars": 809,
+      "firstDate": "2023-07-07",
+      "lastDate": "2026-11-24",
+      "lastClose": 3300.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "BRPT",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 680.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "CPIN",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 2380.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "SMGR",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 1575.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "INTP",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 6075.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "JSMR",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 2600.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "MIKA",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 1435.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "SIDO",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 342.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "ACES",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 356.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "MAPI",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 1070.0,
+      "trades": 0,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": 0.0,
+      "maxDrawdownPct": 0.0,
+      "avgBars": 0.0,
+      "exitBreakdown": {},
+      "sample": []
+    },
+    {
+      "symbol": "PTBA",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 2920.0,
+      "trades": 1,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": -0.4,
+      "maxDrawdownPct": 0.4,
+      "avgBars": 20.0,
+      "exitBreakdown": {
+        "TIME": 1
+      },
+      "sample": [
+        {
+          "entryDate": "2022-06-13",
+          "exitDate": "2022-07-11",
+          "entry": 3870.0,
+          "exit": 3870.0,
+          "bars": 20,
+          "reason": "TIME",
+          "netPct": -0.4
+        }
+      ]
+    },
+    {
+      "symbol": "BBCA",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 5800.0,
+      "trades": 2,
+      "winRate": 50.0,
+      "profitFactor": 0.923,
+      "netPct": -0.6,
+      "maxDrawdownPct": 4.94,
+      "avgBars": 12.0,
+      "exitBreakdown": {
+        "TP": 1,
+        "SL": 1
+      },
+      "sample": [
+        {
+          "entryDate": "2024-01-25",
+          "exitDate": "2024-02-15",
+          "entry": 9500.0,
+          "exit": 9971.67,
+          "bars": 12,
+          "reason": "TP",
+          "netPct": 4.56
+        },
+        {
+          "entryDate": "2025-06-02",
+          "exitDate": "2025-06-20",
+          "entry": 9100.0,
+          "exit": 8686.62,
+          "bars": 12,
+          "reason": "SL",
+          "netPct": -4.94
+        }
+      ]
+    },
+    {
+      "symbol": "EXCL",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 1710.0,
+      "trades": 1,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": -2.61,
+      "maxDrawdownPct": 2.61,
+      "avgBars": 20.0,
+      "exitBreakdown": {
+        "TIME": 1
+      },
+      "sample": [
+        {
+          "entryDate": "2025-09-01",
+          "exitDate": "2025-09-30",
+          "entry": 2720.0,
+          "exit": 2660.0,
+          "bars": 20,
+          "reason": "TIME",
+          "netPct": -2.61
+        }
+      ]
+    },
+    {
+      "symbol": "BBNI",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 3570.0,
+      "trades": 1,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": -4.42,
+      "maxDrawdownPct": 4.42,
+      "avgBars": 5.0,
+      "exitBreakdown": {
+        "SL": 1
+      },
+      "sample": [
+        {
+          "entryDate": "2022-10-10",
+          "exitDate": "2022-10-17",
+          "entry": 4375.0,
+          "exit": 4199.28,
+          "bars": 5,
+          "reason": "SL",
+          "netPct": -4.42
+        }
+      ]
+    },
+    {
+      "symbol": "ICBP",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 7150.0,
+      "trades": 1,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": -5.79,
+      "maxDrawdownPct": 5.79,
+      "avgBars": 8.0,
+      "exitBreakdown": {
+        "SL": 1
+      },
+      "sample": [
+        {
+          "entryDate": "2026-09-03",
+          "exitDate": "2026-09-15",
+          "entry": 7375.0,
+          "exit": 6977.4,
+          "bars": 8,
+          "reason": "SL",
+          "netPct": -5.79
+        }
+      ]
+    },
+    {
+      "symbol": "TPIA",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 1225.0,
+      "trades": 1,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": -7.19,
+      "maxDrawdownPct": 7.19,
+      "avgBars": 20.0,
+      "exitBreakdown": {
+        "SL": 1
+      },
+      "sample": [
+        {
+          "entryDate": "2024-08-22",
+          "exitDate": "2024-09-20",
+          "entry": 9475.0,
+          "exit": 8832.02,
+          "bars": 20,
+          "reason": "SL",
+          "netPct": -7.19
+        }
+      ]
+    },
+    {
+      "symbol": "PGAS",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 1530.0,
+      "trades": 1,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": -7.45,
+      "maxDrawdownPct": 7.45,
+      "avgBars": 15.0,
+      "exitBreakdown": {
+        "SL": 1
+      },
+      "sample": [
+        {
+          "entryDate": "2022-06-13",
+          "exitDate": "2022-07-04",
+          "entry": 1640.0,
+          "exit": 1524.38,
+          "bars": 15,
+          "reason": "SL",
+          "netPct": -7.45
+        }
+      ]
+    },
+    {
+      "symbol": "INCO",
+      "bars": 1200,
+      "firstDate": "2021-11-24",
+      "lastDate": "2026-11-24",
+      "lastClose": 3380.0,
+      "trades": 1,
+      "winRate": 0.0,
+      "profitFactor": 0.0,
+      "netPct": -10.44,
+      "maxDrawdownPct": 10.44,
+      "avgBars": 7.0,
+      "exitBreakdown": {
+        "SL": 1
+      },
+      "sample": [
+        {
+          "entryDate": "2022-06-14",
+          "exitDate": "2022-06-23",
+          "entry": 7200.0,
+          "exit": 6477.34,
+          "bars": 7,
+          "reason": "SL",
+          "netPct": -10.44
+        }
+      ]
+    }
+  ]
+}

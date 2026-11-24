@@ -7,10 +7,13 @@ const FundamentalNews = ({ symbol, onAddSymbol }) => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('specific');
   const [lastRefreshed, setLastRefreshed] = useState(null);
+  const [error, setError] = useState(null);
 
   const fetchNews = async () => {
     if (!symbol) return;
     setLoading(true);
+    let errSpecific = null;
+    let errGlobal = null;
     try {
       const symbolClean = symbol.replace('.JK', '').replace('^', '').toUpperCase();
 
@@ -18,34 +21,28 @@ const FundamentalNews = ({ symbol, onAddSymbol }) => {
       const resSpecific = await fetch(`/api/news?symbol=${encodeURIComponent(symbolClean)}&_=${Date.now()}`);
       if (resSpecific.ok) {
         const data = await resSpecific.json();
-        if (data.news && data.news.length > 0) {
-          setNews(data.news);
-        } else {
-          // Fallback jika emiten belum ada berita spesifik, tampilkan berita sektoral/IHSG
-          setNews(getDefaultEmitenNews(symbolClean));
-        }
+        setNews(Array.isArray(data.news) ? data.news : []);
       } else {
-        setNews(getDefaultEmitenNews(symbolClean));
+        errSpecific = `HTTP ${resSpecific.status}`;
+        setNews([]);
       }
 
       // 2. Fetch global market / IHSG news
       const resGlobal = await fetch(`/api/news?q=${encodeURIComponent('saham IHSG bursa efek indonesia')}&_=${Date.now()}`);
       if (resGlobal.ok) {
         const dataGlobal = await resGlobal.json();
-        if (dataGlobal.news && dataGlobal.news.length > 0) {
-          setGlobalNews(dataGlobal.news);
-        } else {
-          setGlobalNews(getDefaultGlobalNews());
-        }
+        setGlobalNews(Array.isArray(dataGlobal.news) ? dataGlobal.news : []);
       } else {
-        setGlobalNews(getDefaultGlobalNews());
+        errGlobal = `HTTP ${resGlobal.status}`;
+        setGlobalNews([]);
       }
+      setError(errSpecific || errGlobal);
       setLastRefreshed(new Date());
     } catch (err) {
       console.error('Failed to fetch news', err);
-      const symbolClean = symbol.replace('.JK', '').replace('^', '').toUpperCase();
-      setNews(getDefaultEmitenNews(symbolClean));
-      setGlobalNews(getDefaultGlobalNews());
+      setNews([]);
+      setGlobalNews([]);
+      setError(err?.message || 'Koneksi ke penyedia berita gagal');
     } finally {
       setLoading(false);
     }
@@ -56,55 +53,6 @@ const FundamentalNews = ({ symbol, onAddSymbol }) => {
     const interval = setInterval(fetchNews, 120000); // auto-refresh berita tiap 2 menit
     return () => clearInterval(interval);
   }, [symbol]);
-
-  // Fallback data berita riil November 2026 untuk stabilitas tampilan
-  const getDefaultEmitenNews = (sym) => [
-    {
-      title: `${sym} Jadi Sorotan Investor Asing, Akumulasi Transaksi Meningkat di Pasar Reguler`,
-      publisher: 'Bloomberg Technoz',
-      link: `https://www.google.com/search?q=saham+${sym}+bursa+efek+indonesia`,
-      pubTime: Date.now() - 3600000,
-      pubDate: '17 Nov 2026'
-    },
-    {
-      title: `Analisis Fundamental ${sym}: Valuasi PBV & Prospek Kinerja Keuangan Kuartal IV`,
-      publisher: 'Bisnis Indonesia',
-      link: `https://www.google.com/search?q=saham+${sym}+fundamental`,
-      pubTime: Date.now() - 7200000,
-      pubDate: '17 Nov 2026'
-    },
-    {
-      title: `Rekomendasi Saham Sektor ${sym}: Potensi Pantulan Teknikal dari Area Support Kunci`,
-      publisher: 'Kontan',
-      link: `https://www.google.com/search?q=saham+${sym}+rekomendasi`,
-      pubTime: Date.now() - 14400000,
-      pubDate: '16 Nov 2026'
-    }
-  ];
-
-  const getDefaultGlobalNews = () => [
-    {
-      title: 'IHSG Bergerak Variatif Cenderung Menguat, Didorong Arus Modal Masuk Asing',
-      publisher: 'CNBC Indonesia',
-      link: 'https://www.cnbcindonesia.com/market',
-      pubTime: Date.now() - 1800000,
-      pubDate: '17 Nov 2026'
-    },
-    {
-      title: 'Rilis Data Penjualan Ritel AS & Sentimen Suku Bunga Global Pengaruhi Arus Dana BEI',
-      publisher: 'Investor Daily',
-      link: 'https://investor.id/market',
-      pubTime: Date.now() - 5400000,
-      pubDate: '17 Nov 2026'
-    },
-    {
-      title: 'Top Gainers & Net Buy Asing di Bursa Efek Indonesia Pekan Ini',
-      publisher: 'Ajaib Market',
-      link: 'https://ajaib.co.id',
-      pubTime: Date.now() - 10800000,
-      pubDate: '16 Nov 2026'
-    }
-  ];
 
   const formatPubTime = (item) => {
     if (!item.pubTime) return item.pubDate || 'Baru saja';
@@ -118,8 +66,20 @@ const FundamentalNews = ({ symbol, onAddSymbol }) => {
   const renderNewsList = (newsList) => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
       {newsList.length === 0 ? (
-        <div className="col-span-full text-center py-8 text-xs text-gray-500 bg-gray-950/40 rounded-xl border border-gray-850">
-          Tidak ada berita terbaru saat ini. Klik tombol refresh untuk memuat ulang.
+        <div className="col-span-full text-center py-8 px-4 text-xs text-gray-500 bg-gray-950/40 rounded-xl border border-gray-850">
+          <p>Tidak ada berita yang berhasil dimuat.</p>
+          {error ? (
+            <p className="mt-1.5 text-[10px] font-mono text-amber-500/80">
+              Penyebab: {error}
+            </p>
+          ) : (
+            <p className="mt-1.5 text-[10px] text-gray-600">
+              Penyedia berita tidak mengembalikan artikel untuk kueri ini.
+            </p>
+          )}
+          <p className="mt-1.5 text-[10px] text-gray-600">
+            Tidak ada data contoh yang ditampilkan — semua berita di sini berasal dari sumber nyata.
+          </p>
         </div>
       ) : (
         newsList.slice(0, 6).map((article, idx) => (

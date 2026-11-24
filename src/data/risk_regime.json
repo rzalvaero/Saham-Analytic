@@ -1,0 +1,52 @@
+{
+  "updatedAt": "2026-11-24",
+  "sumber": "Rilis publik MSCI, BEI, dan pemberitaan pasar 24 Nov 2026",
+  "catatan": "Data dikurasi manual. Bukan feed otomatis. Verifikasi ulang sebelum dipakai untuk keputusan.",
+  "ihsg": {
+    "level": 5241.59,
+    "ytdPct": -39.9,
+    "sebulanPct": -3.6,
+    "volumeRataRata": 236000000,
+    "regime": "BEARISH",
+    "keterangan": "Turun dari 5.439 ke 5.242 dalam 8 hari bursa. Volume menyusut ke 190 juta di titik terendah."
+  },
+  "msci": {
+    "status": "KONSULTASI BERJALAN",
+    "ringkas": "MSCI membantah pembatalan penurunan status, namun konsultasi reklasifikasi pasar Indonesia tetap berjalan.",
+    "risiko": "Reklasifikasi ke Standalone Market",
+    "dampak": "Potensi outflow pasif dan penurunan bobot indeks global",
+    "tanggal": "2026-11-24"
+  },
+  "rebalancing": {
+    "periode": "November 2026",
+    "dikeluarkan": 9,
+    "contoh": ["BRPT", "RAJA"],
+    "keterangan": "Saham yang keluar dari indeks berpotensi tekanan jual dari dana pengikut indeks."
+  },
+  "level": [
+    {
+      "nama": "Risiko",
+      "nilai": "TINGGI",
+      "warna": "rose",
+      "alasan": "Konsultasi MSCI berjalan + IHSG di bawah tekanan sepanjang tahun"
+    },
+    {
+      "nama": "Volatilitas",
+      "nilai": "MENGINGKAT",
+      "warna": "amber",
+      "alasan": "Rentang harian melebar, volume tidak stabil"
+    },
+    {
+      "nama": "Tren",
+      "nilai": "BEARISH",
+      "warna": "rose",
+      "alasan": "Harga di bawah rata-rata jangka menengah"
+    },
+    {
+      "nama": "Likuiditas",
+      "nilai": "CUKUP",
+      "warna": "emerald",
+      "alasan": "Nilai transaksi blue chip masih tebal (Rp 400-1300 miliar/hari)"
+    }
+  ]
+}
