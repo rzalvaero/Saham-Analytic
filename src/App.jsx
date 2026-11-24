@@ -34,6 +34,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('live-trading'); // Default Live Trading
+  const [idxTab, setIdxTab] = useState('ringkasan'); // Sub-tab di dalam Pasar IDX
   const [lastUpdated, setLastUpdated] = useState(null);
   const [ihsgData, setIhsgData] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -49,7 +50,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (activeTab !== 'dashboard' || watchlistSymbols.length === 0) return;
+    if (activeTab !== 'idx' || watchlistSymbols.length === 0) return;
 
     const fetchAllData = async () => {
       setLoading(true);
@@ -95,13 +96,20 @@ function App() {
 
   const selectedStockData = stocksData.find((s) => s.symbol === selectedSymbol);
 
+  // Tiga domain utama saja. Seluruh instrumen saham Indonesia
+  // dikelompokkan di dalam satu tab: "Pasar IDX".
   const navItems = [
-    { id: 'live-trading', label: 'Live XAUUSD', icon: Zap, liveBadge: true },
-    { id: 'dashboard', label: 'Saham & IHSG', icon: LayoutDashboard },
-    { id: 'backtest', label: 'Backtest', icon: FlaskConical },
-    { id: 'discover', label: 'Discover', icon: Compass },
+    { id: 'live-trading', label: 'XAUUSD Live', icon: Zap, liveBadge: true },
+    { id: 'idx', label: 'Pasar IDX', icon: LayoutDashboard },
     { id: 'forex', label: 'Forex & Gold', icon: RefreshCw },
-  { id: 'orderflow', label: 'Arus Beli/Jual', icon: Scale },
+  ];
+
+  // Sub-tab di dalam Pasar IDX (urutan mengikuti alur berpikir investor)
+  const idxTabs = [
+    { id: 'ringkasan', label: 'Ringkasan Pasar', icon: LayoutDashboard },
+    { id: 'arus', label: 'Arus Beli/Jual', icon: Scale },
+    { id: 'screener', label: 'Screener', icon: Compass },
+    { id: 'riset', label: 'Riset & Backtest', icon: FlaskConical },
   ];
 
   return (
@@ -237,9 +245,35 @@ function App() {
         {/* 1. Live Trading Dashboard (Default) */}
         {activeTab === 'live-trading' && <LiveTradingDashboard />}
 
-        {/* 2. Saham & IHSG Dashboard */}
-        {activeTab === 'dashboard' && (
+        {/* 2. Pasar IDX: seluruh instrumen saham Indonesia dalam satu tab */}
+        {activeTab === 'idx' && (
           <div className="space-y-6">
+            {/* Sub-tab Pasar IDX */}
+            <div className="rt-card p-1.5">
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                {idxTabs.map((t) => {
+                  const Icon = t.icon;
+                  const active = idxTab === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => setIdxTab(t.id)}
+                      className={`flex items-center gap-2 whitespace-nowrap rounded-lg px-3.5 py-2 text-xs font-semibold transition-all ${
+                        active
+                          ? 'bg-cyan-500 text-gray-950 font-bold shadow-md shadow-cyan-500/20'
+                          : 'text-gray-400 hover:text-white hover:bg-gray-800/60'
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{t.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {idxTab === 'ringkasan' && (
+            <div className="space-y-6">
             {/* Top Institutional Header */}
             <div className="rt-card bg-gradient-to-r from-[#0c1322] via-[#0f172a] to-[#0c1322] border-gray-850 p-5 sm:p-6 shadow-2xl">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -350,25 +384,24 @@ function App() {
                 )}
               </>
             )}
+            </div>
+            )}
+
+            {idxTab === 'arus' && <OrderFlow />}
+
+            {idxTab === 'screener' && <Discover />}
+
+            {idxTab === 'riset' && (
+              <div className="space-y-5">
+                <BacktestHistoris />
+                <FullUniverse />
+              </div>
+            )}
           </div>
         )}
 
-        {/* 3. Backtest Historis (hasil precomputed, JSON statis) */}
-        {activeTab === 'backtest' && (
-          <div className="space-y-5">
-            <BacktestHistoris />
-            <FullUniverse />
-          </div>
-        )}
-
-        {/* 4. Discover (Market Screener, Volume Surge, IPO, Dividen) */}
-        {activeTab === 'discover' && <Discover />}
-
-        {/* 5. Forex & Gold (Spot Rates & XAU/USD) */}
+        {/* 3. Forex & Gold (Spot Rates & XAU/USD) */}
         {activeTab === 'forex' && <Forex />}
-
-        {/* 6. Arus Beli vs Jual per level harga (profil order flow) */}
-        {activeTab === 'orderflow' && <OrderFlow />}
       </main>
     </div>
   );

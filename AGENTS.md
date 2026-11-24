@@ -37,12 +37,15 @@ Tampilan ringkasan metrik finansial pada `src/components/LiveTradingDashboard.js
 
 ## 3. Struktur Tab & Desain UI
 
-1. **Tab Navigasi Aktif (4 Tab - Urutan Wajib):**
-   - `live-trading`: Live XAUUSD (Dashboard utama streaming langsung dari terminal MT5 secara real-time).
-   - `dashboard`: Saham & IHSG (Chart teknikal candlestick, rekomendasi kuantitatif, summary bursa per menit, berita fundamental).
-   - `discover`: Discover (Screener pasar riil, dividen 2026, upcoming IPO BEI 2026).
+1. **Tab Navigasi Aktif (3 Tab Utama - Urutan Wajib):**
+   - `live-trading`: XAUUSD Live (Dashboard utama streaming langsung dari terminal MT5 secara real-time).
+   - `idx`: **Pasar IDX** — seluruh instrumen saham Indonesia dikelompokkan di sini, dengan 4 sub-tab:
+     1. `ringkasan`: Ringkasan Pasar (IHSG, breadth naik/tetap/turun, top mover Naik/Turun/Volume/Nilai, watchlist chart, indikator risiko, rekomendasi, multi-timeframe, berita fundamental).
+     2. `arus`: Arus Beli/Jual (profil order flow per level harga).
+     3. `screener`: Screener pasar, dividen 2026, upcoming IPO BEI 2026.
+     4. `riset`: Riset & Backtest (backtest historis IDX + validasi universe penuh).
    - `forex`: Forex & Gold (Spot rates global dan chart XAU/USD).
-   *(Tab Running Trade & Simulasi Eksekusi Saham (Paper) telah **dihapus permanen**).*
+   *(Prinsip: satu domain = satu tab. Instrumen saham Indonesia tidak boleh dipecah menjadi beberapa tab top-level.)*
 2. **Sistem Desain & Tema Gelap Institusional:**
    - Gunakan palet warna gelap terpadu (`bg-gray-950`, `bg-gray-900`, `border-gray-850`, `border-gray-750`).
    - Gunakan utility class kartu `rt-card`, badge `rt-badge`, dan font `JetBrains Mono` untuk angka finansial.
